@@ -1,39 +1,46 @@
-import React, { useState } from "react";
-import { Typography, Container, makeStyles, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Select, MenuItem } from "@material-ui/core";
+import React, { useEffect, useState } from "react";
+import {
+  Typography,
+  Container,
+  makeStyles,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Select,
+  MenuItem,
+  InputLabel,
+} from "@material-ui/core";
 import { Alarm } from "@material-ui/icons";
 
-const gradientColors = [
-  "#33539E",
-  "#7FACD6",
-  "#BFB8DA",
-  "#E8B7D4",
-  "#A5678E"
-];
+const gradientColors = ["#33539E", "#7FACD6", "#BFB8DA", "#E8B7D4", "#A5678E"];
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    minHeight: "93vh", // Ensure full viewport height
-    background: `linear-gradient(to bottom, ${gradientColors.join(", ")})`, // Gradient background
+    minHeight: "93vh",
+    background: `linear-gradient(to bottom, ${gradientColors.join(", ")})`,
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
     padding: theme.spacing(3),
-    position: "relative", // Make the root element relative for positioning the add button
+    position: "relative",
   },
   container: {
-    maxWidth: "800px", // Increase max width for larger logs
+    maxWidth: "800px",
     width: "100%",
   },
   alarmLogItem: {
     position: "relative",
-    marginBottom: theme.spacing(3), // Increase space between log items
-    padding: theme.spacing(3), // Increase padding for larger log items
-    backgroundColor: "#092b4d", // Background color for log items
-    borderRadius: theme.spacing(2), // Increase border radius for rounded corners
+    marginBottom: theme.spacing(3),
+    padding: theme.spacing(3),
+    backgroundColor: "#092b4d",
+    borderRadius: theme.spacing(2),
     color: "#fff",
     "&:hover": {
-      backgroundColor: "#0f3a6e", // Darken background color on hover
+      backgroundColor: "#0f3a6e",
     },
   },
   closeButton: {
@@ -44,10 +51,10 @@ const useStyles = makeStyles((theme) => ({
   },
   addButton: {
     position: "absolute",
-    bottom: theme.spacing(2), // Adjust top position to push it down from top
-    right: theme.spacing(7), // Adjust right position to place it at the right corner
-    borderRadius: "30%", // Apply border radius to make it round
-    backgroundColor: "#092b4d", // Set background color of the button
+    bottom: theme.spacing(2),
+    right: theme.spacing(7),
+    borderRadius: "30%",
+    backgroundColor: "#092b4d",
   },
   closeButtonText: {
     color: "#fff",
@@ -57,24 +64,32 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "2rem",
     color: "#fff",
   },
+  errorMessage: {
+    color: "red",
+    fontSize: "0.8rem",
+    marginTop: theme.spacing(1),
+  },
 }));
 
 const AlarmLogPage = () => {
   const classes = useStyles();
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openCloseDialog, setOpenCloseDialog] = useState(false);
+  const [items, setItems] = useState(null);
   const [addData, setAddData] = useState({
     id: "",
     status: "",
     location: "",
     occurrence: "",
-    incharge: ""
+    incharge: "",
   });
   const [closeData, setCloseData] = useState({
     Problem: "",
     Reason: "",
-    Solution: ""
+    Statement: "",
   });
+  const [addErrors, setAddErrors] = useState({});
+  const [closeErrors, setCloseErrors] = useState({});
 
   const handleAddButtonClick = () => {
     setOpenAddDialog(true);
@@ -82,6 +97,7 @@ const AlarmLogPage = () => {
 
   const handleAddDialogClose = () => {
     setOpenAddDialog(false);
+    setAddErrors({});
   };
 
   const handleInputChangeAdd = (event) => {
@@ -89,28 +105,50 @@ const AlarmLogPage = () => {
   };
 
   const handleSubmitAdd = () => {
-    // Send data to the backend and store it in the database
-    console.log("Data to be stored:", addData);
+    const errors = {};
+    let hasErrors = false;
 
-    // Clear the form fields
+    // Check for empty fields
+    for (const key in addData) {
+      if (!addData[key]) {
+        errors[key] = "Required";
+        hasErrors = true;
+      }
+    }
+
+    if (hasErrors) {
+      setAddErrors(errors);
+      return;
+    }
+
+    // Proceed with submission if no errors
+    console.log("Data to be stored:", addData);
     setAddData({
       id: "",
       status: "",
       location: "",
       occurrence: "",
-      incharge: ""
+      incharge: "",
     });
-
-    // Close the dialog
     setOpenAddDialog(false);
+    setAddErrors({});
   };
 
-  const handleCloseButtonClick = () => {
+  const handleCloseButtonClick = (item) => () => {
     setOpenCloseDialog(true);
+    fetch(`http://127.0.0.1:8000/alarm/log/${item.id}`, { method: "PUT" })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
   };
 
   const handleCloseDialogClose = () => {
     setOpenCloseDialog(false);
+    setCloseErrors({});
   };
 
   const handleInputChangeClose = (event) => {
@@ -118,19 +156,43 @@ const AlarmLogPage = () => {
   };
 
   const handleSubmitClose = () => {
-    // Send data to the backend and store it in the database
-    console.log("Data to be stored:", closeData);
+    const errors = {};
+    let hasErrors = false;
 
-    // Clear the form fields
+    // Check for empty fields
+    for (const key in closeData) {
+      if (!closeData[key]) {
+        errors[key] = "Required";
+        hasErrors = true;
+      }
+    }
+
+    if (hasErrors) {
+      setCloseErrors(errors);
+      return;
+    }
+
+    // Proceed with submission if no errors
+    console.log("Data to be stored:", closeData);
     setCloseData({
       Problem: "",
       Reason: "",
-      Solution: ""
+      Statement: "",
     });
-
-    // Close the dialog
-    setOpenCloseDialog(true);
+    setOpenCloseDialog(false);
+    setCloseErrors({});
   };
+
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/alarm/getdata", { method: "GET" })
+      .then((response) => response.json())
+      .then((data) => {
+        setItems(data);
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
+  }, []);
 
   return (
     <div className={classes.root}>
@@ -139,41 +201,41 @@ const AlarmLogPage = () => {
           <Alarm className={classes.alarmIcon} />
           Alarm Log
         </Typography>
-        
-          <div className={classes.alarmLogItem}>
-            <Typography variant="h6">Log 1</Typography>
-            <Typography variant="body1">
-              ID: 823af2fb-feba-4943-b714-65b7699f2114 <br />
-              Status: Error <br />
-              Location: Madhu Vihar DT-1 <br />
-              Occurrence: Low voltages <br />
-              Incharge: CHead
-            </Typography>
-            <Button className={classes.closeButton} onClick={handleCloseButtonClick}>
-              <Typography className={classes.closeButtonText}>Close</Typography>
-            </Button>
-          </div>
-          <div className={classes.alarmLogItem}>
-            <Typography variant="h6">Log 2</Typography>
-            <Typography variant="body1">
-              ID: 6c858470-c14d-4721-a33b-d0d707210ac2 <br />
-              Status: Error <br />
-              Location: Building B <br />
-              Occurrence: Low voltages <br />
-              Incharge: DHead
-            </Typography>
-            <Button className={classes.closeButton} onClick={handleCloseButtonClick}>
-              <Typography className={classes.closeButtonText}>Close</Typography>
-            </Button>
-          </div>
-          {/* Add more logs here */}
-        
+        {items &&
+          items.map((item, index) => {
+            return (
+              <div className={classes.alarmLogItem} key={index}>
+                <Typography variant="h6">Log 1</Typography>
+                <Typography variant="body1">
+                  ID: {item["id"]} <br />
+                  Status: {item["status"]} <br />
+                  Location: {item["location"]} <br />
+                  Occurrence: {item["occurrence"]} <br />
+                  Time : {item["timeerror"]}
+                  <br />
+                </Typography>
+                <Button
+                  className={classes.closeButton}
+                  onClick={handleCloseButtonClick(item)}
+                >
+                  <Typography className={classes.closeButtonText}>
+                    Close
+                  </Typography>
+                </Button>
+              </div>
+            );
+          })}
       </Container>
 
-      {/* ADD Button */}
-      <Button className={classes.addButton} variant="contained" color="primary" onClick={handleAddButtonClick}>+</Button>
+      <Button
+        className={classes.addButton}
+        variant="contained"
+        color="primary"
+        onClick={handleAddButtonClick}
+      >
+        ADD
+      </Button>
 
-      {/* Dialog for ADD button */}
       <Dialog open={openAddDialog} onClose={handleAddDialogClose}>
         <DialogTitle>Add Entry</DialogTitle>
         <DialogContent>
@@ -186,6 +248,8 @@ const AlarmLogPage = () => {
             name="id"
             value={addData.id}
             onChange={handleInputChangeAdd}
+            error={addErrors.id}
+            helperText={addErrors.id}
           />
           <TextField
             margin="dense"
@@ -195,6 +259,8 @@ const AlarmLogPage = () => {
             name="status"
             value={addData.status}
             onChange={handleInputChangeAdd}
+            error={addErrors.status}
+            helperText={addErrors.status}
           />
           <TextField
             margin="dense"
@@ -204,6 +270,8 @@ const AlarmLogPage = () => {
             name="location"
             value={addData.location}
             onChange={handleInputChangeAdd}
+            error={addErrors.location}
+            helperText={addErrors.location}
           />
           <TextField
             margin="dense"
@@ -213,6 +281,8 @@ const AlarmLogPage = () => {
             name="occurrence"
             value={addData.occurrence}
             onChange={handleInputChangeAdd}
+            error={addErrors.occurrence}
+            helperText={addErrors.occurrence}
           />
           <TextField
             margin="dense"
@@ -222,6 +292,8 @@ const AlarmLogPage = () => {
             name="incharge"
             value={addData.incharge}
             onChange={handleInputChangeAdd}
+            error={addErrors.incharge}
+            helperText={addErrors.incharge}
           />
         </DialogContent>
         <DialogActions>
@@ -234,46 +306,55 @@ const AlarmLogPage = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Dialog for CLOSE button */}
       <Dialog open={openCloseDialog} onClose={handleCloseDialogClose}>
         <DialogTitle>Close Entry</DialogTitle>
         <DialogContent>
-          <TextField
+          <InputLabel shrink>Problem</InputLabel>
+          <Select
             autoFocus
             margin="dense"
-            label="Problem"
-            type="text"
             fullWidth
             name="Problem"
-            // value={closeData.field1}
             onChange={handleInputChangeClose}
-          />
+            error={closeErrors.Problem}
+            helperText={closeErrors.Problem}
+          >
+            <MenuItem value="">Select Problem</MenuItem>
+            <MenuItem value="Reason 1">Overloaded LT Feeders</MenuItem>
+            <MenuItem value="Reason 2">Loose connection on LT side</MenuItem>
+            <MenuItem value="Reason 3">Fault on LT side</MenuItem>
+            <MenuItem value="Reason 4">Low oil level</MenuItem>
+            <MenuItem value="Reason 5">Oil leakage</MenuItem>
+            <MenuItem value="Reason 6">Reason 6</MenuItem>
+          </Select>
+
+          <InputLabel shrink>Status</InputLabel>
           <Select
-  autoFocus        
-  margin="dense"
-  fullWidth
-  name="Reason"
-  // value={closeData.field2}
-  onChange={handleInputChangeClose}
-  label="Reason" // Add label here
->
-  <MenuItem value="">Select Reason</MenuItem>
-  <MenuItem value="Reason 1">Over loaded LT Feeders</MenuItem>
-  <MenuItem value="Reason 2">Loose connection on LT side</MenuItem>
-  <MenuItem value="Reason 3">Fault on LT side</MenuItem>
-  <MenuItem value="Reason 4">Low oil level</MenuItem>
-  <MenuItem value="Reason 5">Oil leakge</MenuItem>
-  {/* <MenuItem value="Reason 6">Reason 6</MenuItem> */}
-</Select>
+            autoFocus
+            margin="dense"
+            type="text"
+            fullWidth
+            name="Status"
+            onChange={handleInputChangeClose}
+            error={closeErrors.Status}
+            helperText={closeErrors.Status}
+          >
+            <MenuItem value="">Select Status</MenuItem>
+            <MenuItem value="Reason 1">Error</MenuItem>
+            <MenuItem value="Reason 2">Under Progress</MenuItem>
+            <MenuItem value="Reason 3">Repair</MenuItem>
+            <MenuItem value="Reason 4">Successfully Working</MenuItem>
+          </Select>
 
           <TextField
             margin="dense"
-            label="Solution"
+            label="Statement"
             type="text"
             fullWidth
-            name="Solution"
-            // value={closeData.field3}
+            name="Statement"
             onChange={handleInputChangeClose}
+            error={closeErrors.Statement}
+            helperText={closeErrors.Statement}
           />
         </DialogContent>
         <DialogActions>

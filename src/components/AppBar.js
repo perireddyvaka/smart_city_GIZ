@@ -58,7 +58,8 @@ const useStyles = makeStyles((theme) => ({
 
 const CustomAppBar = () => {
   const classes = useStyles();
-  const [count, setCount] = useState(0);
+  const [ncount, setNcount] = useState(0);
+  const [acount, setAcount] = useState(0);
   const [issue, setIssue] = useState([]);
   const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
   const [dropdownAnchorEl, setDropdownAnchorEl] = useState(null);
@@ -91,11 +92,21 @@ const CustomAppBar = () => {
   };
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/alarm/scount", { method: "GET" })
+    fetch("http://127.0.0.1:8000/alarm/ncount", { method: "GET" })
       .then((response) => response.json())
       .then((data) => {
         // console.log(data[0]["Age"])
-        setCount(data[0]);
+        setNcount(data[0]);
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
+
+      fetch("http://127.0.0.1:8000/alarm/acount", { method: "GET" })
+      .then((response) => response.json())
+      .then((data) => {
+        // console.log(data[0]["Age"])
+        setAcount(data[0]);
       })
       .catch((err) => {
         console.log(err.message);
@@ -146,7 +157,7 @@ const CustomAppBar = () => {
           className={classes.dropdownButton}
           onClick={handleNotificationOpen}
         >
-          <Badge badgeContent={count.count} color="secondary">
+          <Badge badgeContent={ncount.count} color="secondary">
             <NotificationsIcon />
           </Badge>
         </div>
@@ -184,7 +195,9 @@ const CustomAppBar = () => {
         </Menu>
 
         <IconButton component={Link} to="/Alarmlog" color="inherit">
+        <Badge badgeContent={acount.count}>
           <AlarmIcon />
+          </Badge>
         </IconButton>
         <IconButton color="inherit" className={classes.iconButton}>
           <PersonIcon />
