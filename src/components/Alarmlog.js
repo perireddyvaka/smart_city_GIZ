@@ -237,15 +237,15 @@ const AlarmLogPage = () => {
       </Button>
 
       <Dialog open={openAddDialog} onClose={handleAddDialogClose}>
-        <DialogTitle>Add Entry</DialogTitle>
+        <DialogTitle>Add Condition</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             margin="dense"
-            label="ID"
+            label="Phase"
             type="text"
             fullWidth
-            name="id"
+            name="Phase"
             value={addData.id}
             onChange={handleInputChangeAdd}
             error={addErrors.id}
@@ -253,10 +253,10 @@ const AlarmLogPage = () => {
           />
           <TextField
             margin="dense"
-            label="Status"
+            label="Attribute"
             type="text"
             fullWidth
-            name="status"
+            name="Attribute"
             value={addData.status}
             onChange={handleInputChangeAdd}
             error={addErrors.status}
@@ -264,10 +264,10 @@ const AlarmLogPage = () => {
           />
           <TextField
             margin="dense"
-            label="Location"
+            label="Operation"
             type="text"
             fullWidth
-            name="location"
+            name="Operation"
             value={addData.location}
             onChange={handleInputChangeAdd}
             error={addErrors.location}
@@ -275,16 +275,16 @@ const AlarmLogPage = () => {
           />
           <TextField
             margin="dense"
-            label="Occurrence"
+            label="Value"
             type="text"
             fullWidth
-            name="occurrence"
+            name="Value"
             value={addData.occurrence}
             onChange={handleInputChangeAdd}
             error={addErrors.occurrence}
             helperText={addErrors.occurrence}
           />
-          <TextField
+          {/* <TextField
             margin="dense"
             label="Incharge"
             type="text"
@@ -294,7 +294,7 @@ const AlarmLogPage = () => {
             onChange={handleInputChangeAdd}
             error={addErrors.incharge}
             helperText={addErrors.incharge}
-          />
+          /> */}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleAddDialogClose} color="primary">
