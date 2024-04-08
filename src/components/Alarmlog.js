@@ -76,6 +76,7 @@ const AlarmLogPage = () => {
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openCloseDialog, setOpenCloseDialog] = useState(false);
   const [items, setItems] = useState(null);
+  const [id, setId] = useState("");
   const [addData, setAddData] = useState({
     id: "",
     status: "",
@@ -84,9 +85,10 @@ const AlarmLogPage = () => {
     incharge: "",
   });
   const [closeData, setCloseData] = useState({
-    Problem: "",
-    Reason: "",
-    Statement: "",
+    occurrence: "",
+    status: "",
+    remark: "",
+    incharge: "Usha Sree",
   });
   const [addErrors, setAddErrors] = useState({});
   const [closeErrors, setCloseErrors] = useState({});
@@ -135,15 +137,8 @@ const AlarmLogPage = () => {
   };
 
   const handleCloseButtonClick = (item) => () => {
+    setId(item.id);
     setOpenCloseDialog(true);
-    fetch(`http://127.0.0.1:8000/alarm/log/${item.id}`, { method: "PUT" })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-      })
-      .catch((err) => {
-        console.log(err.message);
-      });
   };
 
   const handleCloseDialogClose = () => {
@@ -155,7 +150,7 @@ const AlarmLogPage = () => {
     setCloseData({ ...closeData, [event.target.name]: event.target.value });
   };
 
-  const handleSubmitClose = () => {
+  const handleSubmitClose = async () => {
     const errors = {};
     let hasErrors = false;
 
@@ -172,19 +167,45 @@ const AlarmLogPage = () => {
       return;
     }
 
+    await fetch(`http://127.0.0.1:8000/alarm/renew/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(closeData),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((err) => {
+        console.error("Error:", err.message);
+      });
+      await fetch(`http://127.0.0.1:8000/alarm/log/${id}`, { method: "PUT" })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
     // Proceed with submission if no errors
-    console.log("Data to be stored:", closeData);
     setCloseData({
-      Problem: "",
-      Reason: "",
-      Statement: "",
+      occurrence: "",
+      status: "",
+      remark: "",
     });
     setOpenCloseDialog(false);
     setCloseErrors({});
   };
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/alarm/getdata", { method: "GET" })
+    fetch("http://127.0.0.1:8000/alarm/alarmdata", { method: "GET" })
       .then((response) => response.json())
       .then((data) => {
         setItems(data);
@@ -205,7 +226,7 @@ const AlarmLogPage = () => {
           items.map((item, index) => {
             return (
               <div className={classes.alarmLogItem} key={index}>
-                <Typography variant="h6">Log 1</Typography>
+                <Typography variant="h6">Log 4</Typography>
                 <Typography variant="body1">
                   ID: {item["id"]} <br />
                   Status: {item["status"]} <br />
@@ -314,7 +335,7 @@ const AlarmLogPage = () => {
             autoFocus
             margin="dense"
             fullWidth
-            name="Problem"
+            name="occurrence"
             onChange={handleInputChangeClose}
             error={closeErrors.Problem}
             helperText={closeErrors.Problem}
@@ -334,7 +355,7 @@ const AlarmLogPage = () => {
             margin="dense"
             type="text"
             fullWidth
-            name="Status"
+            name="status"
             onChange={handleInputChangeClose}
             error={closeErrors.Status}
             helperText={closeErrors.Status}
@@ -351,7 +372,7 @@ const AlarmLogPage = () => {
             label="Statement"
             type="text"
             fullWidth
-            name="Statement"
+            name="remark"
             onChange={handleInputChangeClose}
             error={closeErrors.Statement}
             helperText={closeErrors.Statement}

@@ -3,7 +3,8 @@ import { Routes, Route } from 'react-router-dom';
 import AppBar from './components/AppBar';
 import SideDrawer from './components/SideDrawer';
 import TableauFrame from './components/TableauFrame';
-import Alarmlog from './components/Alarmlog'
+import Alarmlog from './components/Alarmlog';
+import AlarmLogPage from './components/Alarmcatlog';
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
       <Route path="/sidedrawer" element={<SideDrawer />} />
       <Route path="/tableauframe" element={<TableauFrame />} />
       <Route path="/Alarmlog" element={<Alarmlog />} />
+      <Route path="/AlarmLogPage" element={<AlarmLogPage />} />
     </Routes>
   );
 }
