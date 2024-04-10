@@ -37,6 +37,9 @@ const useStyles = makeStyles((theme) => ({
   title: {
     flexGrow: 1,
     textAlign: 'center',
+    display: 'flex',
+    alignItems: 'center',
+    flexDirection: 'column',
   },
   dropdownButton: {
     display: 'flex',
@@ -51,6 +54,9 @@ const useStyles = makeStyles((theme) => ({
     '&:hover': {
       backgroundColor: theme.palette.grey[200],
     },
+  },
+  dropdownMenu: {
+    marginTop: theme.spacing(1),
   },
   drawer: {
     width: 240,
@@ -91,7 +97,7 @@ const CustomAppBar = () => {
 
   const handleNotificationOpen = async (event) => {
     setNotificationAnchorEl(event.currentTarget);
-    await fetch('http://127.0.0.1:8000/alarm/getdata', { method: 'GET' })
+    await fetch('http://127.0.0.1:8000/alarm/notidata', { method: 'GET' })
       .then((response) => response.json())
       .then((data) => {
         setIssue(data);
@@ -112,6 +118,10 @@ const CustomAppBar = () => {
   const handleDropdownClose = (option) => {
     setSelectedOption(option);
     setDropdownAnchorEl(null);
+  };
+
+  const handlelogchange = (id) => {
+    console.log(id);
   };
 
   useEffect(() => {
@@ -156,30 +166,29 @@ const CustomAppBar = () => {
           </Hidden>
           <Typography variant="h6" className={classes.title}>
             SUBDIVISIONHEAD DASHBOARD
-            <br />
-            {selectedOption}
+            <div className={classes.dropdownButton} onClick={handleDropdownOpen}>
+              {selectedOption}
+              <ArrowDropDownIcon />
+            </div>
+            <Menu
+              className={classes.dropdownMenu}
+              anchorEl={dropdownAnchorEl}
+              keepMounted
+              open={Boolean(dropdownAnchorEl)}
+              onClose={() => handleDropdownClose(selectedOption)}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'center', // Aligning the dropdown menu to the center
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'center',
+              }}
+            >
+              <MenuItem onClick={() => handleDropdownClose('DTR')}>DTR</MenuItem>
+              <MenuItem onClick={() => handleDropdownClose('ACB')}>ACB</MenuItem>
+            </Menu>
           </Typography>
-          <div className={classes.dropdownButton} onClick={handleDropdownOpen}>
-            {selectedOption}
-            <ArrowDropDownIcon />
-          </div>
-          <Menu
-            anchorEl={dropdownAnchorEl}
-            keepMounted
-            open={Boolean(dropdownAnchorEl)}
-            onClose={() => handleDropdownClose(selectedOption)}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'left',
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'left',
-            }}
-          >
-            <MenuItem onClick={() => handleDropdownClose('DTR')}>DTR</MenuItem>
-            <MenuItem onClick={() => handleDropdownClose('ACB')}>ACB</MenuItem>
-          </Menu>
           <div className={classes.dropdownButton} onClick={handleNotificationOpen}>
             <Badge badgeContent={ncount.count} color="secondary">
               <NotificationsIcon />
@@ -200,7 +209,7 @@ const CustomAppBar = () => {
             }}
           >
             {issue.map((item, index) => (
-              <MenuItem key={index}>
+              <MenuItem key={index} onClick={() => handlelogchange(item['id'])}>
                 <Typography variant="body1">
                   <br />
                   Status:- {item['status']}

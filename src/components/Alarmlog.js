@@ -15,12 +15,10 @@ import {
 } from "@material-ui/core";
 import { Alarm } from "@material-ui/icons";
 
-const gradientColors = ["#33539E", "#7FACD6", "#BFB8DA", "#E8B7D4", "#A5678E"];
-
 const useStyles = makeStyles((theme) => ({
   root: {
     minHeight: "93vh",
-    background: `linear-gradient(to bottom, ${gradientColors.join(", ")})`,
+    backgroundColor: "#6EB1D6",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -64,11 +62,6 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "2rem",
     color: "#fff",
   },
-  errorMessage: {
-    color: "red",
-    fontSize: "0.8rem",
-    marginTop: theme.spacing(1),
-  },
 }));
 
 const AlarmLogPage = () => {
@@ -76,26 +69,20 @@ const AlarmLogPage = () => {
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openCloseDialog, setOpenCloseDialog] = useState(false);
   const [items, setItems] = useState(null);
-  const [id, setId] = useState("");
   const [addData, setAddData] = useState({
-    id: "",
-    status: "",
-    location: "",
-    occurrence: "",
-    incharge: "",
-  });
-  const [closeData, setCloseData] = useState({
-    occurrence: "",
-    status: "",
-    remark: "",
-    incharge: "Usha Sree",
+    phase: "",
+    parameter: "",
+    range_min: 0,
+    range_max: 0,
+    parameter_units: "",
   });
   const [addErrors, setAddErrors] = useState({});
+  const [closeData, setCloseData] = useState({
+    problem: "",
+    status: "",
+    remark: "",
+  });
   const [closeErrors, setCloseErrors] = useState({});
-
-  const handleAddButtonClick = () => {
-    setOpenAddDialog(true);
-  };
 
   const handleAddDialogClose = () => {
     setOpenAddDialog(false);
@@ -109,7 +96,6 @@ const AlarmLogPage = () => {
   const handleSubmitAdd = () => {
     const errors = {};
     let hasErrors = false;
-
     // Check for empty fields
     for (const key in addData) {
       if (!addData[key]) {
@@ -117,28 +103,37 @@ const AlarmLogPage = () => {
         hasErrors = true;
       }
     }
-
+    console.log("object")
+    
     if (hasErrors) {
       setAddErrors(errors);
-      return;
     }
+    fetch("http://127.0.0.1:8000/conditions/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(addData),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
 
     // Proceed with submission if no errors
-    console.log("Data to be stored:", addData);
+    // console.log("Data to be stored:", addData);
     setAddData({
-      id: "",
-      status: "",
-      location: "",
-      occurrence: "",
-      incharge: "",
+      phase: "",
+      parameter: "",
+      range_min: 0,
+      range_max: 0,
+      parameter_units: "",
     });
     setOpenAddDialog(false);
     setAddErrors({});
-  };
-
-  const handleCloseButtonClick = (item) => () => {
-    setId(item.id);
-    setOpenCloseDialog(true);
   };
 
   const handleCloseDialogClose = () => {
@@ -150,7 +145,7 @@ const AlarmLogPage = () => {
     setCloseData({ ...closeData, [event.target.name]: event.target.value });
   };
 
-  const handleSubmitClose = async () => {
+  const handleSubmitClose = () => {
     const errors = {};
     let hasErrors = false;
 
@@ -167,36 +162,10 @@ const AlarmLogPage = () => {
       return;
     }
 
-    await fetch(`http://127.0.0.1:8000/alarm/renew/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(closeData),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log(data);
-      })
-      .catch((err) => {
-        console.error("Error:", err.message);
-      });
-      await fetch(`http://127.0.0.1:8000/alarm/log/${id}`, { method: "PUT" })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-      })
-      .catch((err) => {
-        console.log(err.message);
-      });
     // Proceed with submission if no errors
+    console.log("Close Data to be stored:", closeData);
     setCloseData({
-      occurrence: "",
+      problem: "",
       status: "",
       remark: "",
     });
@@ -237,7 +206,7 @@ const AlarmLogPage = () => {
                 </Typography>
                 <Button
                   className={classes.closeButton}
-                  onClick={handleCloseButtonClick(item)}
+                  onClick={() => setOpenCloseDialog(true)}
                 >
                   <Typography className={classes.closeButtonText}>
                     Close
@@ -252,7 +221,7 @@ const AlarmLogPage = () => {
         className={classes.addButton}
         variant="contained"
         color="primary"
-        onClick={handleAddButtonClick}
+        onClick={() => setOpenAddDialog(true)}
       >
         ADD
       </Button>
@@ -261,61 +230,60 @@ const AlarmLogPage = () => {
         <DialogTitle>Add Condition</DialogTitle>
         <DialogContent>
           <TextField
-            autoFocus
+            margin="dense"
+            label="Parameter"
+            type="text"
+            fullWidth
+            name="parameter"
+            value={addData.operation}
+            onChange={handleInputChangeAdd}
+            error={!!addErrors.operation}
+            helperText={addErrors.operation}
+          />
+          <TextField
             margin="dense"
             label="Phase"
             type="text"
             fullWidth
-            name="Phase"
-            value={addData.id}
+            name="phase"
+            value={addData.operation}
             onChange={handleInputChangeAdd}
-            error={addErrors.id}
-            helperText={addErrors.id}
+            error={!!addErrors.operation}
+            helperText={addErrors.operation}
           />
           <TextField
             margin="dense"
-            label="Attribute"
-            type="text"
+            label="Range Min"
+            type="number"
             fullWidth
-            name="Attribute"
-            value={addData.status}
+            name="range_min"
+            value={addData.range_min}
             onChange={handleInputChangeAdd}
-            error={addErrors.status}
-            helperText={addErrors.status}
+            error={!!addErrors.range_min}
+            helperText={addErrors.range_min}
           />
           <TextField
             margin="dense"
-            label="Operation"
-            type="text"
+            label="Range Max"
+            type="number"
             fullWidth
-            name="Operation"
-            value={addData.location}
+            name="range_max"
+            value={addData.range_max}
             onChange={handleInputChangeAdd}
-            error={addErrors.location}
-            helperText={addErrors.location}
+            error={!!addErrors.range_max}
+            helperText={addErrors.range_max}
           />
           <TextField
             margin="dense"
-            label="Value"
+            label="Range Unit"
             type="text"
             fullWidth
-            name="Value"
-            value={addData.occurrence}
+            name="parameter_units"
+            value={addData.rangeUnit}
             onChange={handleInputChangeAdd}
-            error={addErrors.occurrence}
-            helperText={addErrors.occurrence}
+            error={!!addErrors.rangeUnit}
+            helperText={addErrors.rangeUnit}
           />
-          {/* <TextField
-            margin="dense"
-            label="Incharge"
-            type="text"
-            fullWidth
-            name="incharge"
-            value={addData.incharge}
-            onChange={handleInputChangeAdd}
-            error={addErrors.incharge}
-            helperText={addErrors.incharge}
-          /> */}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleAddDialogClose} color="primary">
@@ -335,17 +303,21 @@ const AlarmLogPage = () => {
             autoFocus
             margin="dense"
             fullWidth
-            name="occurrence"
+            name="problem"
             onChange={handleInputChangeClose}
-            error={closeErrors.Problem}
-            helperText={closeErrors.Problem}
+            error={!!closeErrors.problem}
+            helperText={closeErrors.problem}
           >
             <MenuItem value="">Select Problem</MenuItem>
-            <MenuItem value="Reason 1">Overloaded LT Feeders</MenuItem>
-            <MenuItem value="Reason 2">Loose connection on LT side</MenuItem>
-            <MenuItem value="Reason 3">Fault on LT side</MenuItem>
-            <MenuItem value="Reason 4">Low oil level</MenuItem>
-            <MenuItem value="Reason 5">Oil leakage</MenuItem>
+            <MenuItem value="Overloaded LT Feeders">
+              Overloaded LT Feeders
+            </MenuItem>
+            <MenuItem value="Loose connection on LT side">
+              Loose connection on LT side
+            </MenuItem>
+            <MenuItem value="Fault on LT side">Fault on LT side</MenuItem>
+            <MenuItem value="Low oil level">Low oil level</MenuItem>
+            <MenuItem value="Oil leakage">Oil leakage</MenuItem>
             <MenuItem value="Reason 6">Reason 6</MenuItem>
           </Select>
 
@@ -357,25 +329,27 @@ const AlarmLogPage = () => {
             fullWidth
             name="status"
             onChange={handleInputChangeClose}
-            error={closeErrors.Status}
-            helperText={closeErrors.Status}
+            error={!!closeErrors.status}
+            helperText={closeErrors.status}
           >
             <MenuItem value="">Select Status</MenuItem>
-            <MenuItem value="Reason 1">Error</MenuItem>
-            <MenuItem value="Reason 2">Under Progress</MenuItem>
-            <MenuItem value="Reason 3">Repair</MenuItem>
-            <MenuItem value="Reason 4">Successfully Working</MenuItem>
+            <MenuItem value="Error">Error</MenuItem>
+            <MenuItem value="Under Progress">Under Progress</MenuItem>
+            <MenuItem value="Repair">Repair</MenuItem>
+            <MenuItem value="Successfully Working">
+              Successfully Working
+            </MenuItem>
           </Select>
 
           <TextField
             margin="dense"
-            label="Statement"
+            label="Remark"
             type="text"
             fullWidth
             name="remark"
             onChange={handleInputChangeClose}
-            error={closeErrors.Statement}
-            helperText={closeErrors.Statement}
+            error={!!closeErrors.remark}
+            helperText={closeErrors.remark}
           />
         </DialogContent>
         <DialogActions>
