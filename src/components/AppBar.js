@@ -97,14 +97,13 @@ const CustomAppBar = () => {
 
   const handleNotificationOpen = async (event) => {
     setNotificationAnchorEl(event.currentTarget);
-    await fetch('http://127.0.0.1:8000/alarm/notidata', { method: 'GET' })
-      .then((response) => response.json())
-      .then((data) => {
-        setIssue(data);
-      })
-      .catch((err) => {
-        console.log(err.message);
-      });
+    try {
+      const response = await fetch('http://127.0.0.1:8000/alarm/notidata');
+      const data = await response.json();
+      setIssue(data);
+    } catch (error) {
+      console.error(error.message);
+    }
   };
 
   const handleNotificationClose = () => {
@@ -125,24 +124,21 @@ const CustomAppBar = () => {
   };
 
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/alarm/ncount', { method: 'GET' })
-      .then((response) => response.json())
-      .then((data) => {
-        setNcount(data[0]);
-      })
-      .catch((err) => {
-        console.log(err.message);
-      });
+    const fetchData = async () => {
+      try {
+        const ncountResponse = await fetch('http://127.0.0.1:8000/alarm/ncount');
+        const ncountData = await ncountResponse.json();
+        setNcount(ncountData[0]);
 
-    fetch('http://127.0.0.1:8000/alarm/acount', { method: 'GET' })
-      .then((response) => response.json())
-      .then((data) => {
-        setAcount(data[0]);
-      })
-      .catch((err) => {
-        console.log(err.message);
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        const acountResponse = await fetch('http://127.0.0.1:8000/alarm/acount');
+        const acountData = await acountResponse.json();
+        setAcount(acountData[0]);
+      } catch (error) {
+        console.error(error.message);
+      }
+    };
+
+    fetchData();
   }, []);
 
   return (
@@ -178,7 +174,7 @@ const CustomAppBar = () => {
               onClose={() => handleDropdownClose(selectedOption)}
               anchorOrigin={{
                 vertical: 'bottom',
-                horizontal: 'center', // Aligning the dropdown menu to the center
+                horizontal: 'center',
               }}
               transformOrigin={{
                 vertical: 'top',
@@ -190,7 +186,7 @@ const CustomAppBar = () => {
             </Menu>
           </Typography>
           <div className={classes.dropdownButton} onClick={handleNotificationOpen}>
-            <Badge badgeContent={ncount.count} color="secondary">
+            <Badge badgeContent={ncount?.count || 0} color="secondary">
               <NotificationsIcon />
             </Badge>
           </div>
@@ -222,7 +218,7 @@ const CustomAppBar = () => {
             ))}
           </Menu>
           <IconButton component={Link} to="/Alarmlog" color="inherit">
-            <Badge badgeContent={acount.count} color="error">
+            <Badge badgeContent={acount?.count || 0} color="error">
               <AlarmIcon />
             </Badge>
           </IconButton>
