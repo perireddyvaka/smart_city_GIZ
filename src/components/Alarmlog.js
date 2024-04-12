@@ -69,6 +69,7 @@ const AlarmLogPage = () => {
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openCloseDialog, setOpenCloseDialog] = useState(false);
   const [items, setItems] = useState(null);
+  const [id, setId] = useState(null);
   const [addData, setAddData] = useState({
     phase: "",
     parameter: "",
@@ -159,11 +160,23 @@ const AlarmLogPage = () => {
 
     if (hasErrors) {
       setCloseErrors(errors);
-      return;
     }
-
+    fetch(`http://127.0.0.1:8000/alarm/renew/${id}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(closeData),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
     // Proceed with submission if no errors
-    console.log("Close Data to be stored:", closeData);
+    // console.log("Close Data to be stored:", closeData);
     setCloseData({
       problem: "",
       status: "",
@@ -195,7 +208,7 @@ const AlarmLogPage = () => {
           items.map((item, index) => {
             return (
               <div className={classes.alarmLogItem} key={index}>
-                <Typography variant="h6">Log 4</Typography>
+                <Typography variant="h6">Log {index+1}</Typography>
                 <Typography variant="body1">
                   ID: {item["id"]} <br />
                   Status: {item["status"]} <br />
@@ -208,7 +221,7 @@ const AlarmLogPage = () => {
                   className={classes.closeButton}
                   onClick={() => setOpenCloseDialog(true)}
                 >
-                  <Typography className={classes.closeButtonText}>
+                  <Typography className={classes.closeButtonText} onClick={()=>{setId(item["id"])}}>
                     Close
                   </Typography>
                 </Button>
@@ -318,7 +331,7 @@ const AlarmLogPage = () => {
             <MenuItem value="Fault on LT side">Fault on LT side</MenuItem>
             <MenuItem value="Low oil level">Low oil level</MenuItem>
             <MenuItem value="Oil leakage">Oil leakage</MenuItem>
-            <MenuItem value="Reason 6">Reason 6</MenuItem>
+            <MenuItem value="Reason 6">acb_3_current</MenuItem>
           </Select>
 
           <InputLabel shrink>Status</InputLabel>

@@ -3,6 +3,7 @@ import { useTheme, useMediaQuery, makeStyles, Hidden, Drawer, IconButton, Divide
 import { AppBar, Toolbar, Typography, List, ListItem, ListItemIcon, ListItemText, Badge, Menu, MenuItem } from '@material-ui/core';
 import { Dashboard as DashboardIcon, Add as AddIcon, Menu as MenuIcon, NotificationsActive as NotificationsIcon, Alarm as AlarmIcon, Person as PersonIcon, ArrowDropDown as ArrowDropDownIcon, ChevronLeft as ChevronLeftIcon } from '@material-ui/icons';
 import { Link } from 'react-router-dom';
+import { MdLocalGroceryStore } from "react-icons/md";
 import yourImage from './logos.png';
 
 const useStyles = makeStyles((theme) => ({
@@ -161,7 +162,7 @@ const CustomAppBar = () => {
             <img src={yourImage} alt="Your company logo" className={classes.logo} />
           </Hidden>
           <Typography variant="h6" className={classes.title}>
-            SUBDIVISIONHEAD DASHBOARD
+            Subdivisionhead Dashboard
             <div className={classes.dropdownButton} onClick={handleDropdownOpen}>
               {selectedOption}
               <ArrowDropDownIcon />
@@ -205,7 +206,18 @@ const CustomAppBar = () => {
             }}
           >
             {issue.map((item, index) => (
-              <MenuItem key={index} onClick={() => handlelogchange(item['id'])}>
+              <MenuItem
+                key={index}
+                style={{
+                  backgroundColor:
+                    item.status === 'Critical'
+                      ? '#FFCDD2' // light red
+                      : item.status === 'Warning'
+                      ? '#FFF9C4' // light yellow
+                      : '#C8E6C9', // light green
+                }}
+                onClick={() => handlelogchange(item['id'])}
+              >
                 <Typography variant="body1">
                   <br />
                   Status:- {item['status']}
@@ -267,6 +279,14 @@ const CustomAppBar = () => {
                 <AddIcon />
               </ListItemIcon>
               <ListItemText primary="Add Alarm" />
+            </ListItem>
+          </Link>
+          <Link to="/LogStore" onClick={toggleDrawer} className={classes.listItem}>
+            <ListItem button>
+              <ListItemIcon>
+              <MdLocalGroceryStore />
+              </ListItemIcon>
+              <ListItemText primary="Log Store" />
             </ListItem>
           </Link>
         </List>

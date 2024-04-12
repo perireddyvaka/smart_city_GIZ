@@ -1,32 +1,43 @@
 import React, { useState } from 'react';
-import { Typography, makeStyles, Button, Dialog, DialogTitle, DialogContent, TextField } from '@material-ui/core';
+import {
+  Typography,
+  makeStyles,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  TextField,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  IconButton,
+  TableSortLabel
+} from '@material-ui/core';
+import { Close as CloseIcon, GetApp as DownloadIcon } from '@material-ui/icons';
 import moment from 'moment';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   container: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     minHeight: '100vh',
     backgroundColor: '#f0f0f0',
-    padding: theme.spacing(4),
+    padding: theme.spacing(4)
   },
   categoryContainer: {
     width: '100%',
-    maxWidth: 600,
+    maxWidth: 800,
     marginBottom: theme.spacing(4),
     backgroundColor: '#ffffff',
     padding: theme.spacing(2),
     borderRadius: theme.shape.borderRadius,
-    boxShadow: theme.shadows[2],
+    boxShadow: theme.shadows[2]
   },
-  logItem: {
-    backgroundColor: '#e0e0e0',
-    padding: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-    borderRadius: theme.shape.borderRadius,
-    boxShadow: theme.shadows[2],
-    cursor: 'pointer',
+  table: {
+    width: '100%'
   },
   addButton: {
     position: 'fixed',
@@ -34,6 +45,12 @@ const useStyles = makeStyles(theme => ({
     right: theme.spacing(4),
     borderRadius: 50
   },
+  downloadButton: {
+    position: 'fixed',
+    bottom: theme.spacing(4),
+    left: theme.spacing(4),
+    borderRadius: 50
+  }
 }));
 
 const AlarmLogPage = () => {
@@ -44,70 +61,67 @@ const AlarmLogPage = () => {
     id: '',
     status: '',
     location: '',
-    occurrence: '',
+    occurrence: ''
   });
   const [addErrors, setAddErrors] = useState({
     id: '',
     status: '',
     location: '',
-    occurrence: '',
+    occurrence: ''
   });
+  const [sortColumn, setSortColumn] = useState('time');
+  const [sortDirection, setSortDirection] = useState('asc');
+  const [searchStatus, setSearchStatus] = useState('');
 
   // Static sample data for demonstration
-  const yearlyLogs = [
+  const allLogs = [
     {
-      id: '1',
+      id: 'ABCD1',
       status: 'Error',
       location: 'Building A',
       occurrence: 'Yearly',
-      time: '2024-04-01T15:37:42.887Z',
+      time: '2024-04-01T15:37:42.887Z'
     },
     {
-      id: '2',
+      id: 'EFGH2',
       status: 'Warning',
       location: 'Building B',
       occurrence: 'Yearly',
-      time: '2025-04-02T15:37:42.887Z',
+      time: '2025-04-02T15:37:42.887Z'
     },
-  ];
-
-  const monthlyLogs = [
     {
-      id: '3',
+      id: 'IJKL3',
       status: 'Error',
       location: 'Building C',
       occurrence: 'Monthly',
-      time: '2024-04-03T15:37:42.887Z',
+      time: '2024-04-03T15:37:42.887Z'
     },
     {
-      id: '4',
+      id: 'MNOP4',
       status: 'Warning',
       location: 'Building D',
       occurrence: 'Monthly',
-      time: '2024-05-04T15:37:42.887Z',
+      time: '2024-05-04T15:37:42.887Z'
     },
-  ];
-
-  const dailyLogs = [
     {
-      id: '5',
+      id: 'QRST5',
       status: 'Error',
       location: 'Building E',
       occurrence: 'Daily',
-      time: '2024-04-05T15:37:42.887Z',
+      time: '2024-04-05T15:37:42.887Z'
     },
     {
-      id: '6',
+      id: 'UVWX6',
       status: 'Warning',
       location: 'Building F',
       occurrence: 'Daily',
-      time: '2024-04-06T15:37:42.887Z',
-    },
+      time: '2024-04-06T15:37:42.887Z'
+    }
   ];
 
-  const handleLogClick = (log) => {
-    // Handle click on log
-    console.log('Clicked log:', log);
+  const handleLogClose = (log) => {
+    // Handle close of log
+    console.log('Closed log:', log);
   };
 
   const handleAddButtonClick = () => {
@@ -120,13 +134,13 @@ const AlarmLogPage = () => {
       id: '',
       status: '',
       location: '',
-      occurrence: '',
+      occurrence: ''
     });
     setAddErrors({
       id: '',
       status: '',
       location: '',
-      occurrence: '',
+      occurrence: ''
     });
   };
 
@@ -134,49 +148,129 @@ const AlarmLogPage = () => {
     const { name, value } = event.target;
     setAddData((prevData) => ({
       ...prevData,
-      [name]: value,
+      [name]: value
     }));
   };
+
+  const handleSort = (column) => {
+    const isAsc = sortColumn === column && sortDirection === 'asc';
+    setSortColumn(column);
+    setSortDirection(isAsc ? 'desc' : 'asc');
+  };
+
+  const handleSearch = (event) => {
+    setSearchStatus(event.target.value);
+  };
+
+  const handleDownload = () => {
+    const filteredLogs = allLogs.filter((log) =>
+      log.status.toLowerCase().includes(searchStatus.toLowerCase())
+    );
+    const csvData = [
+      ['ID', 'Status', 'Location', 'Occurrence', 'Time'],
+      ...filteredLogs.map((log) => [log.id, log.status, log.location, log.occurrence, moment(log.time).format('YYYY-MM-DD HH:mm:ss')])
+    ];
+    const csvContent = csvData.map((row) => row.join(',')).join('\n');
+    const downloadLink = document.createElement('a');
+    downloadLink.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent));
+    downloadLink.setAttribute('download', 'alarm_logs.csv');
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  };
+
+  const filteredLogs = allLogs.filter((log) =>
+    log.status.toLowerCase().includes(searchStatus.toLowerCase())
+  );
+
+  const sortedLogs = filteredLogs.sort((a, b) => {
+    const aValue = a[sortColumn];
+    const bValue = b[sortColumn];
+
+    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+    return 0;
+  });
 
   return (
     <div className={classes.container}>
       <div className={classes.categoryContainer}>
-        <Typography variant="h4">Yearly Alarms</Typography>
-        {yearlyLogs.map(log => (
-          <div key={log.id} className={classes.logItem} onClick={() => handleLogClick(log)}>
-            <Typography>ID: {log.id}</Typography>
-            <Typography>Status: {log.status}</Typography>
-            <Typography>Location: {log.location}</Typography>
-            <Typography>Occurrence: {log.occurrence}</Typography>
-            <Typography>Time: {moment(log.time).format('YYYY')}</Typography>
-          </div>
-        ))}
-      </div>
-
-      <div className={classes.categoryContainer}>
-        <Typography variant="h4">Monthly Alarms</Typography>
-        {monthlyLogs.map(log => (
-          <div key={log.id} className={classes.logItem} onClick={() => handleLogClick(log)}>
-            <Typography>ID: {log.id}</Typography>
-            <Typography>Status: {log.status}</Typography>
-            <Typography>Location: {log.location}</Typography>
-            <Typography>Occurrence: {log.occurrence}</Typography>
-            <Typography>Time: {moment(log.time).format('YYYY-MM')}</Typography>
-          </div>
-        ))}
-      </div>
-
-      <div className={classes.categoryContainer}>
-        <Typography variant="h4">Daily Alarms</Typography>
-        {dailyLogs.map(log => (
-          <div key={log.id} className={classes.logItem} onClick={() => handleLogClick(log)}>
-            <Typography>ID: {log.id}</Typography>
-            <Typography>Status: {log.status}</Typography>
-            <Typography>Location: {log.location}</Typography>
-            <Typography>Occurrence: {log.occurrence}</Typography>
-            <Typography>Time: {moment(log.time).format('YYYY-MM-DD')}</Typography>
-          </div>
-        ))}
+        <TextField
+          margin="normal"
+          label="Search by Status"
+          type="text"
+          fullWidth
+          value={searchStatus}
+          onChange={handleSearch}
+        />
+        <Table className={classes.table}>
+          <TableHead>
+            <TableRow>
+              <TableCell>
+                <TableSortLabel
+                  active={sortColumn === 'id'}
+                  direction={sortColumn === 'id' ? sortDirection : 'asc'}
+                  onClick={() => handleSort('id')}
+                >
+                  ID
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={sortColumn === 'status'}
+                  direction={sortColumn === 'status' ? sortDirection : 'asc'}
+                  onClick={() => handleSort('status')}
+                >
+                  Status
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={sortColumn === 'location'}
+                  direction={sortColumn === 'location' ? sortDirection : 'asc'}
+                  onClick={() => handleSort('location')}
+                >
+                  Location
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={sortColumn === 'occurrence'}
+                  direction={sortColumn === 'occurrence' ? sortDirection : 'asc'}
+                  onClick={() => handleSort('occurrence')}
+                >
+                  Occurrence
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={sortColumn === 'time'}
+                  direction={sortColumn === 'time' ? sortDirection : 'asc'}
+                  onClick={() => handleSort('time')}
+                >
+                  Time
+                </TableSortLabel>
+              </TableCell>
+              <TableCell align="right">Close</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {sortedLogs.map((log) => (
+              <TableRow key={log.id}>
+                <TableCell>{log.id}</TableCell>
+                <TableCell>{log.status}</TableCell>
+                <TableCell>{log.location}</TableCell>
+                <TableCell>{log.occurrence}</TableCell>
+                <TableCell>{moment(log.time).format('YYYY-MM-DD HH:mm:ss')}</TableCell>
+                <TableCell align="right">
+                  <IconButton onClick={() => handleLogClose(log)}>
+                    <CloseIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
 
       <Button
@@ -188,17 +282,26 @@ const AlarmLogPage = () => {
         ADD
       </Button>
 
+      <Button
+        className={classes.downloadButton}
+        variant="contained"
+        color="primary"
+        onClick={handleDownload}
+      >
+        <DownloadIcon />
+      </Button>
+
       <Dialog open={openAddDialog} onClose={handleAddDialogClose}>
         <DialogTitle>Add Condition</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             margin="dense"
-            label="Phase"
+            label="ID"
             type="text"
             fullWidth
             name="id"
-            value={addData.id}
+            value={addData.id || ''}
             onChange={handleInputChangeAdd}
             error={addErrors.id}
             helperText={addErrors.id}
