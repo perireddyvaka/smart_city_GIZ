@@ -12,6 +12,13 @@ import {
   Select,
   MenuItem,
   InputLabel,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
 } from "@material-ui/core";
 import { Alarm } from "@material-ui/icons";
 
@@ -30,23 +37,6 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: "800px",
     width: "100%",
   },
-  alarmLogItem: {
-    position: "relative",
-    marginBottom: theme.spacing(3),
-    padding: theme.spacing(3),
-    backgroundColor: "#092b4d",
-    borderRadius: theme.spacing(2),
-    color: "#fff",
-    "&:hover": {
-      backgroundColor: "#0f3a6e",
-    },
-  },
-  closeButton: {
-    position: "absolute",
-    bottom: theme.spacing(2),
-    right: theme.spacing(2),
-    color: "#fff",
-  },
   addButton: {
     position: "absolute",
     bottom: theme.spacing(2),
@@ -62,13 +52,17 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "2rem",
     color: "#fff",
   },
+  logTable: {
+    marginBottom: theme.spacing(3),
+    maxWidth: "800px",
+  },
 }));
 
 const AlarmLogPage = () => {
   const classes = useStyles();
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openCloseDialog, setOpenCloseDialog] = useState(false);
-  const [items, setItems] = useState(null);
+  const [items, setItems] = useState([]);
   const [id, setId] = useState(null);
   const [addData, setAddData] = useState({
     phase: "",
@@ -84,106 +78,84 @@ const AlarmLogPage = () => {
     remark: "",
   });
   const [closeErrors, setCloseErrors] = useState({});
+  const [downloadFormat, setDownloadFormat] = useState("json");
 
-  const handleAddDialogClose = () => {
-    setOpenAddDialog(false);
-    setAddErrors({});
-  };
-
-  const handleInputChangeAdd = (event) => {
-    setAddData({ ...addData, [event.target.name]: event.target.value });
-  };
-
-  const handleSubmitAdd = () => {
-    const errors = {};
-    let hasErrors = false;
-    // Check for empty fields
-    for (const key in addData) {
-      if (!addData[key]) {
-        errors[key] = "Required";
-        hasErrors = true;
-      }
+  const handleCloseDialog = (dialogType) => {
+    if (dialogType === "add") {
+      setOpenAddDialog(false);
+      setAddErrors({});
+    } else if (dialogType === "close") {
+      setOpenCloseDialog(false);
+      setCloseErrors({});
     }
-    console.log("object")
-    
-    if (hasErrors) {
-      setAddErrors(errors);
-    }
-    fetch("http://127.0.0.1:8000/conditions/add", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(addData),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-      })
-      .catch((err) => {
-        console.log(err.message);
-      });
-
-    // Proceed with submission if no errors
-    // console.log("Data to be stored:", addData);
-    setAddData({
-      phase: "",
-      parameter: "",
-      range_min: 0,
-      range_max: 0,
-      parameter_units: "",
-    });
-    setOpenAddDialog(false);
-    setAddErrors({});
   };
 
-  const handleCloseDialogClose = () => {
-    setOpenCloseDialog(false);
-    setCloseErrors({});
+  const handleInputChange = (event, dataType) => {
+    const data = dataType === "add" ? addData : closeData;
+    const setData = dataType === "add" ? setAddData : setCloseData;
+    setData({ ...data, [event.target.name]: event.target.value });
   };
 
-  const handleInputChangeClose = (event) => {
-    setCloseData({ ...closeData, [event.target.name]: event.target.value });
-  };
-
-  const handleSubmitClose = () => {
+  const handleSubmit = (dataType) => {
+    const data = dataType === "add" ? addData : closeData;
+    const setData = dataType === "add" ? setAddData : setCloseData;
     const errors = {};
     let hasErrors = false;
 
     // Check for empty fields
-    for (const key in closeData) {
-      if (!closeData[key]) {
+    for (const key in data) {
+      if (!data[key]) {
         errors[key] = "Required";
         hasErrors = true;
       }
     }
 
     if (hasErrors) {
-      setCloseErrors(errors);
+      if (dataType === "add") {
+        setAddErrors(errors);
+      } else if (dataType === "close") {
+        setCloseErrors(errors);
+      }
+      return;
     }
-    fetch(`http://127.0.0.1:8000/alarm/renew/${id}`, {
+
+    const endpoint =
+      dataType === "add"
+        ? "http://127.0.0.1:8000/conditions/add"
+        : `http://127.0.0.1:8000/alarm/renew/${id}`;
+
+    fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(closeData),
+      body: JSON.stringify(data),
     })
       .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
+      .then((responseData) => {
+        console.log(responseData);
       })
-      .catch((err) => {
-        console.log(err.message);
+      .catch((error) => {
+        console.log(error.message);
       });
-    // Proceed with submission if no errors
-    // console.log("Close Data to be stored:", closeData);
-    setCloseData({
-      problem: "",
-      status: "",
-      remark: "",
-    });
-    setOpenCloseDialog(false);
-    setCloseErrors({});
+
+    // Clear form data and close dialog
+    setData(
+      dataType === "add"
+        ? {
+            phase: "",
+            parameter: "",
+            range_min: 0,
+            range_max: 0,
+            parameter_units: "",
+          }
+        : {
+            problem: "",
+            status: "",
+            remark: "",
+          }
+    );
+    handleCloseDialog(dataType);
   };
 
   useEffect(() => {
@@ -192,10 +164,36 @@ const AlarmLogPage = () => {
       .then((data) => {
         setItems(data);
       })
-      .catch((err) => {
-        console.log(err.message);
+      .catch((error) => {
+        console.log(error.message);
       });
   }, []);
+
+  const downloadLogs = () => {
+    let logsContent = "";
+
+    if (downloadFormat === "json") {
+      logsContent = JSON.stringify(items);
+    } else if (downloadFormat === "csv") {
+      const header = Object.keys(items[0]).join(",") + "\n";
+      const rows = items.map((item) => Object.values(item).join(",")).join("\n");
+      logsContent = header + rows;
+    }
+
+    const blob = new Blob([logsContent], {
+      type: downloadFormat === "json" ? "application/json" : "text/csv",
+    });
+
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `alarm_logs.${downloadFormat}`);
+    document.body.appendChild(link);
+    link.click();
+
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(link);
+  };
 
   return (
     <div className={classes.root}>
@@ -204,30 +202,53 @@ const AlarmLogPage = () => {
           <Alarm className={classes.alarmIcon} />
           Alarm Log
         </Typography>
-        {items &&
-          items.map((item, index) => {
-            return (
-              <div className={classes.alarmLogItem} key={index}>
-                <Typography variant="h6">Log {index+1}</Typography>
-                <Typography variant="body1">
-                  ID: {item["id"]} <br />
-                  Status: {item["status"]} <br />
-                  Location: {item["location"]} <br />
-                  Occurrence: {item["occurrence"]} <br />
-                  Time : {item["timeerror"]}
-                  <br />
-                </Typography>
-                <Button
-                  className={classes.closeButton}
-                  onClick={() => setOpenCloseDialog(true)}
-                >
-                  <Typography className={classes.closeButtonText} onClick={()=>{setId(item["id"])}}>
-                    Close
-                  </Typography>
-                </Button>
-              </div>
-            );
-          })}
+        <TableContainer component={Paper} className={classes.logTable}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>ID</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Location</TableCell>
+                <TableCell>Occurrence</TableCell>
+                <TableCell>Time</TableCell>
+                <TableCell>Action</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {items.map((item, index) => (
+                <TableRow key={index}>
+                  <TableCell>{item.id}</TableCell>
+                  <TableCell>{item.status}</TableCell>
+                  <TableCell>{item.location}</TableCell>
+                  <TableCell>{item.occurrence}</TableCell>
+                  <TableCell>{item.timeerror}</TableCell>
+                  <TableCell>
+                    <Button
+                      onClick={() => {
+                        setOpenCloseDialog(true);
+                        setId(item.id);
+                      }}
+                      color="primary"
+                    >
+                      Update
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <InputLabel>Select Download Format:</InputLabel>
+        <Select
+          value={downloadFormat}
+          onChange={(e) => setDownloadFormat(e.target.value)}
+        >
+          <MenuItem value="json">JSON</MenuItem>
+          <MenuItem value="csv">CSV</MenuItem>
+        </Select>
+        <Button variant="contained" color="primary" onClick={downloadLogs}>
+          Download Logs
+        </Button>
       </Container>
 
       <Button
@@ -239,7 +260,7 @@ const AlarmLogPage = () => {
         ADD
       </Button>
 
-      <Dialog open={openAddDialog} onClose={handleAddDialogClose}>
+      <Dialog open={openAddDialog} onClose={() => handleCloseDialog("add")}>
         <DialogTitle>Add Condition</DialogTitle>
         <DialogContent>
           <TextField
@@ -248,10 +269,10 @@ const AlarmLogPage = () => {
             type="text"
             fullWidth
             name="parameter"
-            value={addData.operation}
-            onChange={handleInputChangeAdd}
-            error={!!addErrors.operation}
-            helperText={addErrors.operation}
+            value={addData.parameter}
+            onChange={(event) => handleInputChange(event, "add")}
+            error={!!addErrors.parameter}
+            helperText={addErrors.parameter}
           />
           <TextField
             margin="dense"
@@ -259,10 +280,10 @@ const AlarmLogPage = () => {
             type="text"
             fullWidth
             name="phase"
-            value={addData.operation}
-            onChange={handleInputChangeAdd}
-            error={!!addErrors.operation}
-            helperText={addErrors.operation}
+            value={addData.phase}
+            onChange={(event) => handleInputChange(event, "add")}
+            error={!!addErrors.phase}
+            helperText={addErrors.phase}
           />
           <TextField
             margin="dense"
@@ -271,7 +292,7 @@ const AlarmLogPage = () => {
             fullWidth
             name="range_min"
             value={addData.range_min}
-            onChange={handleInputChangeAdd}
+            onChange={(event) => handleInputChange(event, "add")}
             error={!!addErrors.range_min}
             helperText={addErrors.range_min}
           />
@@ -282,7 +303,7 @@ const AlarmLogPage = () => {
             fullWidth
             name="range_max"
             value={addData.range_max}
-            onChange={handleInputChangeAdd}
+            onChange={(event) => handleInputChange(event, "add")}
             error={!!addErrors.range_max}
             helperText={addErrors.range_max}
           />
@@ -292,23 +313,26 @@ const AlarmLogPage = () => {
             type="text"
             fullWidth
             name="parameter_units"
-            value={addData.rangeUnit}
-            onChange={handleInputChangeAdd}
-            error={!!addErrors.rangeUnit}
-            helperText={addErrors.rangeUnit}
+            value={addData.parameter_units}
+            onChange={(event) => handleInputChange(event, "add")}
+            error={!!addErrors.parameter_units}
+            helperText={addErrors.parameter_units}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleAddDialogClose} color="primary">
+          <Button onClick={() => handleCloseDialog("add")} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleSubmitAdd} color="primary">
+          <Button onClick={() => handleSubmit("add")} color="primary">
             Submit
           </Button>
         </DialogActions>
       </Dialog>
 
-      <Dialog open={openCloseDialog} onClose={handleCloseDialogClose}>
+      <Dialog
+        open={openCloseDialog}
+        onClose={() => handleCloseDialog("update")}
+      >
         <DialogTitle>Close Entry</DialogTitle>
         <DialogContent>
           <InputLabel shrink>Problem</InputLabel>
@@ -317,7 +341,7 @@ const AlarmLogPage = () => {
             margin="dense"
             fullWidth
             name="problem"
-            onChange={handleInputChangeClose}
+            onChange={(event) => handleInputChange(event, "update")}
             error={!!closeErrors.problem}
             helperText={closeErrors.problem}
           >
@@ -341,7 +365,7 @@ const AlarmLogPage = () => {
             type="text"
             fullWidth
             name="status"
-            onChange={handleInputChangeClose}
+            onChange={(event) => handleInputChange(event, "close")}
             error={!!closeErrors.status}
             helperText={closeErrors.status}
           >
@@ -360,16 +384,16 @@ const AlarmLogPage = () => {
             type="text"
             fullWidth
             name="remark"
-            onChange={handleInputChangeClose}
+            onChange={(event) => handleInputChange(event, "close")}
             error={!!closeErrors.remark}
             helperText={closeErrors.remark}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialogClose} color="primary">
+          <Button onClick={() => handleCloseDialog("close")} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleSubmitClose} color="primary">
+          <Button onClick={() => handleSubmit("close")} color="primary">
             Submit
           </Button>
         </DialogActions>

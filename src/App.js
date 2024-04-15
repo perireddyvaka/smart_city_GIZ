@@ -5,6 +5,7 @@ import SideDrawer from './components/SideDrawer';
 import TableauFrame from './components/TableauFrame';
 import Alarmlog from './components/Alarmlog';
 import AlarmLogPage from './components/Alarmcatlog';
+import LogStore from './components/LogStore'
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
       <Route path="/tableauframe" element={<TableauFrame />} />
       <Route path="/Alarmlog" element={<Alarmlog />} />
       <Route path="/AlarmLogPage" element={<AlarmLogPage />} />
+      <Route path="/LogStore" element={<LogStore />} />
     </Routes>
   );
 }
