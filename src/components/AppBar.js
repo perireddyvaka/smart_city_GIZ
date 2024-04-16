@@ -5,6 +5,7 @@ import { Dashboard as DashboardIcon, Add as AddIcon, Menu as MenuIcon, Notificat
 import { Link } from 'react-router-dom';
 import { MdLocalGroceryStore } from "react-icons/md";
 import yourImage from './logos.png';
+import TableauFrame from './TableauFrame';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -240,6 +241,10 @@ const CustomAppBar = () => {
         </Toolbar>
       </AppBar>
 
+      <Toolbar /> {/* Add a Toolbar component to provide space for the TableauFrame */}
+      
+      <TableauFrame /> {/* Display the TableauFrame component */}
+
       <Drawer
         className={classes.drawer}
         variant={isSmallScreen ? 'temporary' : 'persistent'}
@@ -284,7 +289,7 @@ const CustomAppBar = () => {
           <Link to="/LogStore" onClick={toggleDrawer} className={classes.listItem}>
             <ListItem button>
               <ListItemIcon>
-              <MdLocalGroceryStore />
+                <MdLocalGroceryStore />
               </ListItemIcon>
               <ListItemText primary="Log Store" />
             </ListItem>

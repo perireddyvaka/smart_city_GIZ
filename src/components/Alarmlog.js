@@ -19,6 +19,7 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Menu,
 } from "@material-ui/core";
 import { Alarm } from "@material-ui/icons";
 
@@ -36,6 +37,7 @@ const useStyles = makeStyles((theme) => ({
   container: {
     maxWidth: "800px",
     width: "100%",
+    position: "relative",
   },
   addButton: {
     position: "absolute",
@@ -55,6 +57,27 @@ const useStyles = makeStyles((theme) => ({
   logTable: {
     marginBottom: theme.spacing(3),
     maxWidth: "800px",
+  },
+  tableHeader: {
+    fontWeight: "bold",
+  },
+  optionsContainer: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: theme.spacing(2),
+  },
+  select: {
+    marginLeft: theme.spacing(2),
+  },
+  searchByTextButton: {
+    backgroundColor: "#fff",
+    color: "#000",
+    marginBottom: theme.spacing(1),
+  },
+  sortButton: {
+    backgroundColor: "#fff",
+    color: "#000",
   },
 }));
 
@@ -79,6 +102,9 @@ const AlarmLogPage = () => {
   });
   const [closeErrors, setCloseErrors] = useState({});
   const [downloadFormat, setDownloadFormat] = useState("json");
+  const [searchStatus, setSearchStatus] = useState("");
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [searchAnchorEl, setSearchAnchorEl] = useState(null);
 
   const handleCloseDialog = (dialogType) => {
     if (dialogType === "add") {
@@ -159,15 +185,51 @@ const AlarmLogPage = () => {
   };
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/alarm/alarmdata", { method: "GET" })
-      .then((response) => response.json())
-      .then((data) => {
-        setItems(data);
-      })
-      .catch((error) => {
+    // Fetch data
+    const fetchData = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:8000/alarm/alarmdata");
+        const data = await response.json();
+
+        // Randomly assign statuses
+        const statuses = ["Error", "Pending", "Resolved"];
+        const newData = [];
+
+        // Generate additional logs with 2025 timestamps
+        for (let i = 0; i < 5; i++) {
+          const randomStatus =
+            statuses[Math.floor(Math.random() * statuses.length)];
+          newData.push({
+            id: i + 100, // Assuming 100 as the starting ID for new logs
+            status: randomStatus,
+            location: `Location ${i + 1}`,
+            occurrence: `Occurrence ${i + 1}`,
+            timeerror: `2025-04-16 12:00:0${i}`,
+          });
+        }
+
+        // Concatenate the existing data with the new logs
+        const updatedData = [...data, ...newData];
+
+        setItems(updatedData);
+      } catch (error) {
         console.log(error.message);
-      });
+      }
+    };
+
+    fetchData();
   }, []);
+
+  const handleSearchStatus = (status) => {
+    setSearchStatus(status);
+    setSearchAnchorEl(null);
+  };
+
+  const handleSortTime = () => {
+    const newSortOrder = sortOrder === "asc" ? "desc" : "asc";
+    setSortOrder(newSortOrder);
+    // Implement sorting logic here
+  };
 
   const downloadLogs = () => {
     let logsContent = "";
@@ -175,8 +237,11 @@ const AlarmLogPage = () => {
     if (downloadFormat === "json") {
       logsContent = JSON.stringify(items);
     } else if (downloadFormat === "csv") {
-      const header = Object.keys(items[0]).join(",") + "\n";
-      const rows = items.map((item) => Object.values(item).join(",")).join("\n");
+      const header =
+        Object.keys(items[0]).join(",") + "\n";
+      const rows = items
+        .map((item) => Object.values(item).join(","))
+        .join("\n");
       logsContent = header + rows;
     }
 
@@ -187,7 +252,10 @@ const AlarmLogPage = () => {
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", `alarm_logs.${downloadFormat}`);
+    link.setAttribute(
+      "download",
+      `alarm_logs.${downloadFormat}`
+    );
     document.body.appendChild(link);
     link.click();
 
@@ -202,39 +270,108 @@ const AlarmLogPage = () => {
           <Alarm className={classes.alarmIcon} />
           Alarm Log
         </Typography>
+
+        <div className={classes.optionsContainer}>
+          <Button
+            className={classes.searchByTextButton}
+            variant="contained"
+            color="primary"
+            onClick={(event) => setSearchAnchorEl(event.currentTarget)}
+          >
+            Search by Status
+          </Button>
+          <Menu
+            anchorEl={searchAnchorEl}
+            keepMounted
+            open={Boolean(searchAnchorEl)}
+            onClose={() => setSearchAnchorEl(null)}
+          >
+            <MenuItem onClick={() => handleSearchStatus("")}>
+              All
+            </MenuItem>
+            <MenuItem onClick={() => handleSearchStatus("Error")}>
+              Error
+            </MenuItem>
+            <MenuItem onClick={() => handleSearchStatus("Pending")}>
+              Pending
+            </MenuItem>
+            <MenuItem onClick={() => handleSearchStatus("Resolved")}>
+              Resolved
+            </MenuItem>
+          </Menu>
+
+          <Button
+            className={classes.sortButton}
+            variant="contained"
+            color="primary"
+            onClick={handleSortTime}
+          >
+            Sort by Time {sortOrder === "asc" ? "▲" : "▼"}
+          </Button>
+        </div>
+
         <TableContainer component={Paper} className={classes.logTable}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Location</TableCell>
-                <TableCell>Occurrence</TableCell>
-                <TableCell>Time</TableCell>
-                <TableCell>Action</TableCell>
+                <TableCell className={classes.tableHeader}>
+                  ID
+                </TableCell>
+                <TableCell className={classes.tableHeader}>
+                  Status
+                </TableCell>
+                <TableCell className={classes.tableHeader}>
+                  Location
+                </TableCell>
+                <TableCell className={classes.tableHeader}>
+                  Occurrence
+                </TableCell>
+                <TableCell className={classes.tableHeader}>
+                  Time
+                  <Button
+                    className={classes.sortButton}
+                    onClick={handleSortTime}
+                  >
+                    {sortOrder === "asc" ? "▲" : "▼"}
+                  </Button>
+                </TableCell>
+                <TableCell className={classes.tableHeader}>
+                  Action
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {items.map((item, index) => (
-                <TableRow key={index}>
-                  <TableCell>{item.id}</TableCell>
-                  <TableCell>{item.status}</TableCell>
-                  <TableCell>{item.location}</TableCell>
-                  <TableCell>{item.occurrence}</TableCell>
-                  <TableCell>{item.timeerror}</TableCell>
-                  <TableCell>
-                    <Button
-                      onClick={() => {
-                        setOpenCloseDialog(true);
-                        setId(item.id);
-                      }}
-                      color="primary"
-                    >
-                      Update
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {items
+                .filter((item) =>
+                  searchStatus ? item.status === searchStatus : true
+                )
+                .sort((a, b) => {
+                  if (sortOrder === "asc") {
+                    return a.timeerror.localeCompare(b.timeerror);
+                  } else {
+                    return b.timeerror.localeCompare(a.timeerror);
+                  }
+                })
+                .map((item, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{item.id}</TableCell>
+                    <TableCell>{item.status}</TableCell>
+                    <TableCell>{item.location}</TableCell>
+                    <TableCell>{item.occurrence}</TableCell>
+                    <TableCell>{item.timeerror}</TableCell>
+                    <TableCell>
+                      <Button
+                        onClick={() => {
+                          setOpenCloseDialog(true);
+                          setId(item.id);
+                        }}
+                        color="primary"
+                      >
+                        Update
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </TableContainer>
@@ -246,7 +383,11 @@ const AlarmLogPage = () => {
           <MenuItem value="json">JSON</MenuItem>
           <MenuItem value="csv">CSV</MenuItem>
         </Select>
-        <Button variant="contained" color="primary" onClick={downloadLogs}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={downloadLogs}
+        >
           Download Logs
         </Button>
       </Container>
@@ -260,7 +401,10 @@ const AlarmLogPage = () => {
         ADD
       </Button>
 
-      <Dialog open={openAddDialog} onClose={() => handleCloseDialog("add")}>
+      <Dialog
+        open={openAddDialog}
+        onClose={() => handleCloseDialog("add")}
+      >
         <DialogTitle>Add Condition</DialogTitle>
         <DialogContent>
           <TextField
@@ -320,7 +464,10 @@ const AlarmLogPage = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => handleCloseDialog("add")} color="primary">
+          <Button
+            onClick={() => handleCloseDialog("add")}
+            color="primary"
+          >
             Cancel
           </Button>
           <Button onClick={() => handleSubmit("add")} color="primary">
