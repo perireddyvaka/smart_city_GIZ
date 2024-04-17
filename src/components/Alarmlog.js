@@ -20,12 +20,15 @@ import {
   TableRow,
   Paper,
   Menu,
+  AppBar,
+  Toolbar,
 } from "@material-ui/core";
 import { Alarm } from "@material-ui/icons";
+import { Link } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    minHeight: "93vh",
+    minHeight: "100vh",
     backgroundColor: "#6EB1D6",
     display: "flex",
     flexDirection: "column",
@@ -40,11 +43,9 @@ const useStyles = makeStyles((theme) => ({
     position: "relative",
   },
   addButton: {
-    position: "absolute",
-    bottom: theme.spacing(2),
-    right: theme.spacing(7),
     borderRadius: "30%",
     backgroundColor: "#092b4d",
+    marginRight: theme.spacing(2),
   },
   closeButtonText: {
     color: "#fff",
@@ -52,14 +53,18 @@ const useStyles = makeStyles((theme) => ({
   alarmIcon: {
     marginRight: theme.spacing(1),
     fontSize: "2rem",
-    color: "#fff",
   },
   logTable: {
     marginBottom: theme.spacing(3),
     maxWidth: "800px",
+    width: "100%", // Adjusted to fill the entire width
   },
   tableHeader: {
     fontWeight: "bold",
+    border: "1px solid #000",
+  },
+  tableCell: {
+    border: "1px solid #000",
   },
   optionsContainer: {
     display: "flex",
@@ -73,11 +78,30 @@ const useStyles = makeStyles((theme) => ({
   searchByTextButton: {
     backgroundColor: "#fff",
     color: "#000",
-    marginBottom: theme.spacing(1),
   },
   sortButton: {
     backgroundColor: "#fff",
     color: "#000",
+  },
+  appBar: {
+    width: "100%",
+    backgroundColor: "#002e41",
+    top: 0,
+    zIndex: theme.zIndex.drawer + 1,
+  },
+  title: {
+    flexGrow: 20,
+    display: "flex",
+    alignItems: "center", // Align items vertically
+    justifyContent: "center", // Center horizontally
+  },
+  tableContainer: {
+    width: "100%", // Make the table container fill the entire width
+    height: "100%", // Make the table container fill the entire height
+  },
+  table: {
+    width: "100%", // Make the table fill the entire width
+    height: "100%", // Make the table fill the entire height
   },
 }));
 
@@ -265,12 +289,42 @@ const AlarmLogPage = () => {
 
   return (
     <div className={classes.root}>
-      <Container className={classes.container} maxWidth="md">
-        <Typography variant="h4" align="center" gutterBottom>
-          <Alarm className={classes.alarmIcon} />
-          Alarm Log
-        </Typography>
+      <AppBar position="fixed" className={classes.appBar}>
+  <Toolbar>
+    <Typography variant="h6" className={classes.title}>
+      <Alarm className={classes.alarmIcon} />
+      Alarm Log
+    </Typography>
+    <Button
+      component={Link}
+      to="/logstore"
+      color="primary"
+      style={{ color: "#fff" }}
+    >
+      History
+    </Button>
+    <Button
+      color="primary"
+      onClick={() => setOpenAddDialog(true)}
+      style={{ color: "#fff" }}
+    >
+      ADD
+    </Button>
+    <div style={{ marginLeft: "auto" }}>
+      <Button
+        // variant="contained"
+        color="primary"
+        onClick={downloadLogs}
+        style={{ backgroundColor: "transparent", color: "#fff" }}
+      >
+        Download Logs
+      </Button>
+    </div>
+  </Toolbar>
+</AppBar>
 
+      <Toolbar /> {/* To push the content below the AppBar */}
+      <Container className={classes.container} maxWidth="md">
         <div className={classes.optionsContainer}>
           <Button
             className={classes.searchByTextButton}
@@ -311,7 +365,7 @@ const AlarmLogPage = () => {
         </div>
 
         <TableContainer component={Paper} className={classes.logTable}>
-          <Table>
+          <Table className={classes.table}> {/* Applied custom styles */}
             <TableHead>
               <TableRow>
                 <TableCell className={classes.tableHeader}>
@@ -354,12 +408,12 @@ const AlarmLogPage = () => {
                 })
                 .map((item, index) => (
                   <TableRow key={index}>
-                    <TableCell>{item.id}</TableCell>
-                    <TableCell>{item.status}</TableCell>
-                    <TableCell>{item.location}</TableCell>
-                    <TableCell>{item.occurrence}</TableCell>
-                    <TableCell>{item.timeerror}</TableCell>
-                    <TableCell>
+                    <TableCell className={classes.tableCell}>{item.id}</TableCell>
+                    <TableCell className={classes.tableCell}>{item.status}</TableCell>
+                    <TableCell className={classes.tableCell}>{item.location}</TableCell>
+                    <TableCell className={classes.tableCell}>{item.occurrence}</TableCell>
+                    <TableCell className={classes.tableCell}>{item.timeerror}</TableCell>
+                    <TableCell className={classes.tableCell}>
                       <Button
                         onClick={() => {
                           setOpenCloseDialog(true);
@@ -375,7 +429,7 @@ const AlarmLogPage = () => {
             </TableBody>
           </Table>
         </TableContainer>
-        <InputLabel>Select Download Format:</InputLabel>
+        {/* <InputLabel>Select Download Format:</InputLabel>
         <Select
           value={downloadFormat}
           onChange={(e) => setDownloadFormat(e.target.value)}
@@ -387,19 +441,11 @@ const AlarmLogPage = () => {
           variant="contained"
           color="primary"
           onClick={downloadLogs}
+          style={{ backgroundColor: "#002e41" }}
         >
           Download Logs
-        </Button>
+        </Button> */}
       </Container>
-
-      <Button
-        className={classes.addButton}
-        variant="contained"
-        color="primary"
-        onClick={() => setOpenAddDialog(true)}
-      >
-        ADD
-      </Button>
 
       <Dialog
         open={openAddDialog}
