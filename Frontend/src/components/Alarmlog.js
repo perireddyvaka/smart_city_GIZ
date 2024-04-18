@@ -36,6 +36,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
     padding: theme.spacing(3),
     position: "relative",
+    overflow: "hidden", // Prevent scrolling
   },
   container: {
     maxWidth: "800px",
@@ -90,10 +91,10 @@ const useStyles = makeStyles((theme) => ({
     zIndex: theme.zIndex.drawer + 1,
   },
   title: {
-    flexGrow: 20,
+    flexGrow: 1,
     display: "flex",
-    alignItems: "center", // Align items vertically
-    justifyContent: "center", // Center horizontally
+    alignItems: "center",
+    justifyContent: "center",
   },
   tableContainer: {
     width: "100%", // Make the table container fill the entire width
@@ -110,7 +111,7 @@ const AlarmLogPage = () => {
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openCloseDialog, setOpenCloseDialog] = useState(false);
   const [items, setItems] = useState([]);
-  const [id, setId] = useState(null);
+  const [id, setId] = useState(null); // Add id state
   const [addData, setAddData] = useState({
     phase: "",
     parameter: "",
@@ -290,38 +291,36 @@ const AlarmLogPage = () => {
   return (
     <div className={classes.root}>
       <AppBar position="fixed" className={classes.appBar}>
-  <Toolbar>
-    <Typography variant="h6" className={classes.title}>
-      <Alarm className={classes.alarmIcon} />
-      Alarm Log
-    </Typography>
-    <Button
-      component={Link}
-      to="/logstore"
-      color="primary"
-      style={{ color: "#fff" }}
-    >
-      History
-    </Button>
-    <Button
-      color="primary"
-      onClick={() => setOpenAddDialog(true)}
-      style={{ color: "#fff" }}
-    >
-      ADD
-    </Button>
-    <div style={{ marginLeft: "auto" }}>
-      <Button
-        // variant="contained"
-        color="primary"
-        onClick={downloadLogs}
-        style={{ backgroundColor: "transparent", color: "#fff" }}
-      >
-        Download Logs
-      </Button>
-    </div>
-  </Toolbar>
-</AppBar>
+        <Toolbar>
+          <Typography variant="h6" className={classes.title}>
+            <Alarm className={classes.alarmIcon} />
+            Alarm Log
+          </Typography>
+          <Button
+            // variant="contained"
+            color="primary"
+            onClick={downloadLogs}
+            style={{ backgroundColor: "transparent", color: "#fff" }}
+          >
+            Download Logs
+          </Button>
+          <Button
+            component={Link}
+            to="/logstore"
+            color="primary"
+            style={{ color: "#fff" }}
+          >
+            History
+          </Button>
+          <Button
+            color="primary"
+            onClick={() => setOpenAddDialog(true)}
+            style={{ color: "#fff" }}
+          >
+            ADD
+          </Button>
+        </Toolbar>
+      </AppBar>
 
       <Toolbar /> {/* To push the content below the AppBar */}
       <Container className={classes.container} maxWidth="md">
@@ -429,24 +428,9 @@ const AlarmLogPage = () => {
             </TableBody>
           </Table>
         </TableContainer>
-        {/* <InputLabel>Select Download Format:</InputLabel>
-        <Select
-          value={downloadFormat}
-          onChange={(e) => setDownloadFormat(e.target.value)}
-        >
-          <MenuItem value="json">JSON</MenuItem>
-          <MenuItem value="csv">CSV</MenuItem>
-        </Select>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={downloadLogs}
-          style={{ backgroundColor: "#002e41" }}
-        >
-          Download Logs
-        </Button> */}
       </Container>
 
+      {/* ADD condition dialog */}
       <Dialog
         open={openAddDialog}
         onClose={() => handleCloseDialog("add")}
@@ -522,6 +506,7 @@ const AlarmLogPage = () => {
         </DialogActions>
       </Dialog>
 
+      {/* Close dialog content */}
       <Dialog
         open={openCloseDialog}
         onClose={() => handleCloseDialog("update")}
