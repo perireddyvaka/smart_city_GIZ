@@ -102,9 +102,11 @@ const useStyles = makeStyles((theme) => ({
   },
   table: {
     width: "100%", // Make the table fill the entire width
-    height: "100%", // Make the table fill the entire height
+    height: "95%", // Make the table fill the entire height
   },
 }));
+
+const perPage = 5;
 
 const AlarmLogPage = () => {
   const classes = useStyles();
@@ -130,6 +132,7 @@ const AlarmLogPage = () => {
   const [searchStatus, setSearchStatus] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [searchAnchorEl, setSearchAnchorEl] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const handleCloseDialog = (dialogType) => {
     if (dialogType === "add") {
@@ -254,6 +257,14 @@ const AlarmLogPage = () => {
     const newSortOrder = sortOrder === "asc" ? "desc" : "asc";
     setSortOrder(newSortOrder);
     // Implement sorting logic here
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prevPage) => prevPage + 1);
+  };
+
+  const handlePrevPage = () => {
+    setCurrentPage((prevPage) => prevPage - 1);
   };
 
   const downloadLogs = () => {
@@ -405,6 +416,7 @@ const AlarmLogPage = () => {
                     return b.timeerror.localeCompare(a.timeerror);
                   }
                 })
+                .slice((currentPage - 1) * perPage, currentPage * perPage)
                 .map((item, index) => (
                   <TableRow key={index}>
                     <TableCell className={classes.tableCell}>{item.id}</TableCell>
@@ -428,6 +440,28 @@ const AlarmLogPage = () => {
             </TableBody>
           </Table>
         </TableContainer>
+        <div className={classes.optionsContainer}>
+          {currentPage > 1 && (
+            <Button
+              className={classes.sortButton}
+              variant="contained"
+              color="primary"
+              onClick={handlePrevPage}
+            >
+              Previous
+            </Button>
+          )}
+          {items.length > currentPage * perPage && (
+            <Button
+              className={classes.sortButton}
+              variant="contained"
+              color="primary"
+              onClick={handleNextPage}
+            >
+              Next
+            </Button>
+          )}
+        </div>
       </Container>
 
       {/* ADD condition dialog */}
