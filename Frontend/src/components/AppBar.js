@@ -163,7 +163,7 @@ const CustomAppBar = () => {
             <img src={yourImage} alt="Your company logo" className={classes.logo} />
           </Hidden>
           <Typography variant="h6" className={classes.title}>
-            Subdivisionhead Dashboard
+            SubdivisionHead Dashboard
             <div className={classes.dropdownButton} onClick={handleDropdownOpen}>
               {selectedOption}
               <ArrowDropDownIcon />

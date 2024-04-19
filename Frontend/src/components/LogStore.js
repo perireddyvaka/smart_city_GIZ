@@ -8,6 +8,7 @@ const AlarmLogs = () => {
         { id: 3, status: "Resolved", location: "Location 3", problem: "Description 3", occurrenceCount: 2, resolvedTime: "2024-04-03T12:45:00.555Z", errorTime: "2024-04-03T12:15:00.000Z" },
         // Add more alarm logs here
     ];
+    
 
     const tableStyle = {
         borderCollapse: 'collapse',

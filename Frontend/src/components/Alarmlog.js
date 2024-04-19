@@ -29,14 +29,14 @@ import { Link } from "react-router-dom";
 const useStyles = makeStyles((theme) => ({
   root: {
     minHeight: "100vh",
-    backgroundColor: "#6EB1D6",
+    backgroundColor: "#fff",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
     padding: theme.spacing(3),
     position: "relative",
-    overflow: "hidden", // Prevent scrolling
+    // overflow: "hidden", // Prevent scrolling
   },
   container: {
     maxWidth: "800px",
@@ -45,7 +45,7 @@ const useStyles = makeStyles((theme) => ({
   },
   addButton: {
     borderRadius: "30%",
-    backgroundColor: "#092b4d",
+    backgroundColor: "#CCCCCC", // Changed button color
     marginRight: theme.spacing(2),
   },
   closeButtonText: {
@@ -59,13 +59,16 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(3),
     maxWidth: "800px",
     width: "100%", // Adjusted to fill the entire width
+    backgroundColor: "#fff", // Changed table content color
   },
   tableHeader: {
     fontWeight: "bold",
     border: "1px solid #000",
+    backgroundColor: "#f2f2f2", // Changed table header color
   },
   tableCell: {
     border: "1px solid #000",
+    backgroundColor: "#fff", // Changed table content color
   },
   optionsContainer: {
     display: "flex",
@@ -77,11 +80,11 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(2),
   },
   searchByTextButton: {
-    backgroundColor: "#fff",
+    backgroundColor: "#CCCCCC",
     color: "#000",
   },
   sortButton: {
-    backgroundColor: "#fff",
+    backgroundColor: "#CCCCCC",
     color: "#000",
   },
   appBar: {
@@ -95,6 +98,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    marginBottom: theme.spacing(1), // Move title slightly upwards
   },
   tableContainer: {
     width: "100%", // Make the table container fill the entire width
@@ -104,7 +108,33 @@ const useStyles = makeStyles((theme) => ({
     width: "100%", // Make the table fill the entire width
     height: "95%", // Make the table fill the entire height
   },
+  iconContainer: {
+    marginTop: theme.spacing(-2), // Move icon container upwards
+  },
 }));
+
+// Rest of the code remains the same...
+
+
+
+// const thStyle = {
+//   border: '1px solid #dddddd',
+//   textAlign: 'left',
+//   padding: '8px',
+//   backgroundColor: '#f2f2f2',
+// };
+
+// <thead>
+// <tr>
+//     <th style={thStyle}>ID</th>
+//     <th style={thStyle}>Status</th>
+//     <th style={thStyle}>Location</th>
+//     <th style={thStyle}>Problem</th>
+//     <th style={thStyle}>Occurrence Count</th>
+//     <th style={thStyle}>Error Time</th>
+//     <th style={thStyle}>Resolved Time</th>
+// </tr>
+// </thead>
 
 const perPage = 5;
 
@@ -128,11 +158,12 @@ const AlarmLogPage = () => {
     remark: "",
   });
   const [closeErrors, setCloseErrors] = useState({});
-  const [downloadFormat, setDownloadFormat] = useState("json");
+  const [downloadFormat] = useState("json");
   const [searchStatus, setSearchStatus] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [searchAnchorEl, setSearchAnchorEl] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1); // Add total pages state
 
   const handleCloseDialog = (dialogType) => {
     if (dialogType === "add") {
@@ -239,6 +270,9 @@ const AlarmLogPage = () => {
         // Concatenate the existing data with the new logs
         const updatedData = [...data, ...newData];
 
+        // Calculate total pages
+        setTotalPages(Math.ceil(updatedData.length / perPage));
+
         setItems(updatedData);
       } catch (error) {
         console.log(error.message);
@@ -302,36 +336,38 @@ const AlarmLogPage = () => {
   return (
     <div className={classes.root}>
       <AppBar position="fixed" className={classes.appBar}>
-        <Toolbar>
-          <Typography variant="h6" className={classes.title}>
-            <Alarm className={classes.alarmIcon} />
-            Alarm Log
-          </Typography>
-          <Button
-            // variant="contained"
-            color="primary"
-            onClick={downloadLogs}
-            style={{ backgroundColor: "transparent", color: "#fff" }}
-          >
-            Download Logs
-          </Button>
-          <Button
-            component={Link}
-            to="/logstore"
-            color="primary"
-            style={{ color: "#fff" }}
-          >
-            History
-          </Button>
-          <Button
-            color="primary"
-            onClick={() => setOpenAddDialog(true)}
-            style={{ color: "#fff" }}
-          >
-            ADD
-          </Button>
-        </Toolbar>
-      </AppBar>
+  <Toolbar>
+    <Button
+      component={Link}
+      to="/logstore"
+      color="inherit"
+      style={{ color: "#fff" }}
+    >
+      History
+    </Button>
+    <Button
+      color="inherit"
+      onClick={() => setOpenAddDialog(true)}
+      style={{ color: "#fff" }}
+    >
+      ADD
+    </Button>
+    <div className={classes.title} style={{ marginLeft: "auto", marginRight: "auto" }}>
+    <Alarm className={classes.alarmIcon} />
+      <Typography variant="h6" style={{ lineHeight: "2.4rem" }}>
+        Alarm Log
+      </Typography>
+    </div>
+    <Button
+      color="inherit"
+      onClick={downloadLogs}
+      style={{ color: "#fff" }}
+    >
+      Download Logs
+    </Button>
+  </Toolbar>
+</AppBar>
+
 
       <Toolbar /> {/* To push the content below the AppBar */}
       <Container className={classes.container} maxWidth="md">
@@ -392,12 +428,6 @@ const AlarmLogPage = () => {
                 </TableCell>
                 <TableCell className={classes.tableHeader}>
                   Time
-                  <Button
-                    className={classes.sortButton}
-                    onClick={handleSortTime}
-                  >
-                    {sortOrder === "asc" ? "▲" : "▼"}
-                  </Button>
                 </TableCell>
                 <TableCell className={classes.tableHeader}>
                   Action
@@ -441,28 +471,31 @@ const AlarmLogPage = () => {
           </Table>
         </TableContainer>
         <div className={classes.optionsContainer}>
-          {currentPage > 1 && (
-            <Button
-              className={classes.sortButton}
-              variant="contained"
-              color="primary"
-              onClick={handlePrevPage}
-            >
-              Previous
-            </Button>
-          )}
-          {items.length > currentPage * perPage && (
-            <Button
-              className={classes.sortButton}
-              variant="contained"
-              color="primary"
-              onClick={handleNextPage}
-            >
-              Next
-            </Button>
-          )}
-        </div>
-      </Container>
+      {currentPage > 1 && (
+        <Button
+          className={classes.sortButton}
+          variant="contained"
+          color="primary"
+          onClick={handlePrevPage}
+        >
+          Previous
+        </Button>
+      )}
+      {items.length > currentPage * perPage && (
+        <Button
+          className={classes.sortButton}
+          variant="contained"
+          color="primary"
+          onClick={handleNextPage}
+        >
+          Next
+        </Button>
+      )}
+      <Typography style={{ color: "#002e41", marginLeft: "auto" }}>
+        Page {currentPage} of {totalPages}
+      </Typography>
+    </div>
+  </Container>
 
       {/* ADD condition dialog */}
       <Dialog
@@ -495,7 +528,7 @@ const AlarmLogPage = () => {
           />
           <TextField
             margin="dense"
-            label="Range Min"
+            label="Min Range"
             type="number"
             fullWidth
             name="range_min"
@@ -506,7 +539,7 @@ const AlarmLogPage = () => {
           />
           <TextField
             margin="dense"
-            label="Range Max"
+            label="Max Range"
             type="number"
             fullWidth
             name="range_max"
@@ -517,7 +550,7 @@ const AlarmLogPage = () => {
           />
           <TextField
             margin="dense"
-            label="Range Unit"
+            label="Parameter Units"
             type="text"
             fullWidth
             name="parameter_units"
@@ -529,18 +562,21 @@ const AlarmLogPage = () => {
         </DialogContent>
         <DialogActions>
           <Button
+            onClick={() => handleSubmit("add")}
+            color="primary"
+          >
+            Save
+          </Button>
+          <Button
             onClick={() => handleCloseDialog("add")}
             color="primary"
           >
             Cancel
           </Button>
-          <Button onClick={() => handleSubmit("add")} color="primary">
-            Submit
-          </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Close dialog content */}
+      {/* Close condition dialog */}
       <Dialog
         open={openCloseDialog}
         onClose={() => handleCloseDialog("update")}
