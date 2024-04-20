@@ -7,9 +7,12 @@ import Alarmlog from './components/Alarmlog';
 import AlarmLogPage from './components/Alarmcatlog';
 import LogStore from './components/LogStore'
 
+
+
 function App() {
   return (
     <Routes>
+      
       <Route path="/" element={<AppBar />} />
       <Route path="/sidedrawer" element={<SideDrawer />} />
       <Route path="/tableauframe" element={<TableauFrame />} />
