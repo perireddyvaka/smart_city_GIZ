@@ -54,9 +54,9 @@ const LoginPage = () => {
                 Login
               </Button>
             </Box>
-            <Typography variant="body2" align="center">
+            {/* <Typography variant="body2" align="center">
               Don't have an account? <Link href="/signup" color="primary">Sign Up</Link>
-            </Typography>
+            </Typography> */}
           </Box>
         </Box>
       </Container>
