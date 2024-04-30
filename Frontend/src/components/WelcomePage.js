@@ -62,7 +62,7 @@ const WelcomePage = () => {
               to="/Signup"
               style={styles.button}
             >
-              Signup
+              Assign
             </Button>
           </Box>
         </Toolbar>
