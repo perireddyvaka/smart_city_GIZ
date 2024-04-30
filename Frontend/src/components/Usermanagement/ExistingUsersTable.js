@@ -1,50 +1,92 @@
+// ExistingUsersTable.js
 import React, { useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TablePagination } from '@mui/material';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  TablePagination,
+  Box,
+  Typography,
+  TextField,
+} from '@mui/material';
 
-const ExistingUsersTable = () => {
+const ExistingUsersTable = ({ users }) => {
   const [page, setPage] = useState(0);
-  const rowsPerPage = 3; // Set the rows per page to a fixed value of 3
-
-  // Function to generate random user ID based on role
-  const generateUserId = (role) => {
-    const prefix = role.charAt(0).toUpperCase();
-    const randomNumber = Math.floor(Math.random() * 90000) + 10000;
-    return `${prefix}${randomNumber}`;
-  };
-
-  const users = [
-    {
-      userId: generateUserId('Admin'),
-      username: 'john_doe',
-      email: 'john@example.com',
-      role: 'Admin',
-      password: '******', // Replace with actual password if needed
-    },
-    {
-      userId: generateUserId('Manager'),
-      username: 'jane_smith',
-      email: 'jane@example.com',
-      role: 'Manager',
-      password: '******', // Replace with actual password if needed
-    },
-    {
-      userId: generateUserId('User'),
-      username: 'bob_johnson',
-      email: 'bob@example.com',
-      role: 'User',
-      password: '******', // Replace with actual password if needed
-    },
-    // Add more users as needed
-  ];
+  const [rowsPerPage, setRowsPerPage] = useState(3);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('');
+  const [sortOrder, setSortOrder] = useState('asc');
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
-  const emptyRows = rowsPerPage - Math.min(rowsPerPage, users.length - page * rowsPerPage);
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const handleSearch = (event) => {
+    setSearchQuery(event.target.value);
+    setPage(0);
+  };
+
+  const handleSort = (field) => {
+    if (field === sortBy) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('asc');
+    }
+    setPage(0);
+  };
+
+  const filteredUsers = users.filter((user) =>
+    user.username.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const sortedUsers = sortBy
+    ? filteredUsers.sort((a, b) => {
+        const aValue = a[sortBy];
+        const bValue = b[sortBy];
+        if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
+        return 0;
+      })
+    : filteredUsers;
+
+  const emptyRows = rowsPerPage - Math.min(rowsPerPage, sortedUsers.length - page * rowsPerPage);
 
   return (
-    <>
+    <Box sx={{ border: '1px solid grey', padding: 2, borderRadius: 2 }}>
+      <Typography variant="h5" component="div" gutterBottom>
+        Existing Users
+      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
+        <TextField
+          label="Search"
+          variant="outlined"
+          value={searchQuery}
+          onChange={handleSearch}
+        />
+        <Typography variant="body1">Sort By:</Typography>
+        <TextField
+          select
+          variant="outlined"
+          value={sortBy}
+          onChange={(e) => handleSort(e.target.value)}
+        >
+          <option value="">None</option>
+          <option value="userId">User ID</option>
+          <option value="username">Username</option>
+          <option value="email">Email</option>
+          <option value="role">Role</option>
+        </TextField>
+      </Box>
       <TableContainer component={Paper}>
         <Table aria-label="existing users table">
           <TableHead>
@@ -57,7 +99,7 @@ const ExistingUsersTable = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {users.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((user, index) => (
+            {sortedUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((user, index) => (
               <TableRow key={index}>
                 <TableCell>{user.userId}</TableCell>
                 <TableCell>{user.username}</TableCell>
@@ -76,12 +118,13 @@ const ExistingUsersTable = () => {
       </TableContainer>
       <TablePagination
         component="div"
-        count={users.length}
+        count={sortedUsers.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
       />
-    </>
+    </Box>
   );
 };
 
