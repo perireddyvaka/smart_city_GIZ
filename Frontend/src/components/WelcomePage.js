@@ -42,8 +42,8 @@ const WelcomePage = () => {
           <Box display="flex" alignItems="center">
             <img src={logo} alt="Logo" style={styles.logo} />
           </Box>
-          <Typography variant="h6" component="div" style={styles.title}>
-            My Web App
+          <Typography variant="h5" component="div" style={styles.title}>
+            BYPL Dashboard
           </Typography>
           <Box>
             <Button
@@ -69,7 +69,7 @@ const WelcomePage = () => {
       </AppBar>
       <Container maxWidth="md" style={styles.container}>
         <Typography variant="h4" component="div" align="center" gutterBottom>
-          Welcome to My Web App
+          Welcome to BYPL Dashboard
         </Typography>
       </Container>
     </Box>

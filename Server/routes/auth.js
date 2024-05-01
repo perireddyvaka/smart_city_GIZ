@@ -3,22 +3,31 @@ const jwt = require("jsonwebtoken");
 const client = require("../db"); // Import the PostgreSQL client
 const router = express.Router();
 
-const JWT_SECRET = "SMART"
+const JWT_SECRET = "SMART";
+
+function padNumber(num, role) {
+  const size = 3;
+  let numStr = num.toString();
+  while (numStr.length < size) {
+    numStr = "0" + numStr;
+  }
+  return numStr; // Combine role and padded number string
+}
 
 router.get("/", async (req, res) => {
   try {
-    const query = "SELECT * FROM user_management"
+    const query = "SELECT * FROM user_management";
     const ress = await client.query(query);
-    res.send(ress)
+    res.send(ress);
   } catch (err) {
     console.log(err.stack);
-  } 
+  }
 });
 
 // Route for user signup
 router.post("/signup", async (req, res) => {
   try {
-    const { username, email, role, phone, password } = req.body;
+    const { username, email, role, password } = req.body;
     // console.log(req.body)
     // Check if the email already exists
     const emailCheckQuery = "SELECT * FROM user_management WHERE email = $1";
@@ -30,11 +39,14 @@ router.post("/signup", async (req, res) => {
         error: "A user with this email already exists",
       });
     }
-    const id = require("uuid").v4();
+    const cq = "SELECT count(*) FROM user_management WHERE role = $1";
+    const c = await client.query(cq, [role]);
+    const count = c.rows[0].count;
+    const id = role + padNumber(count + 1);
     // Insert the new user into the database
     const insertQuery =
-      "INSERT INTO user_management(userid, username, email, role, phone, password) VALUES($1, $2, $3, $4, $5, $6) RETURNING *";
-    const values = [id, username, email, role, phone, password];
+      "INSERT INTO user_management(userid, username, email, role, password) VALUES($1, $2, $3, $4, $5) RETURNING *";
+    const values = [id, username, email, role, password];
     const insertedUser = await client.query(insertQuery, values);
 
     // Generate JWT token
@@ -55,25 +67,31 @@ router.post("/signup", async (req, res) => {
 // login router
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
-  
+
   try {
     // Query the database to find the user
     const userQuery = {
-      text: 'SELECT * FROM user_management WHERE email = $1',
-      values: [email]
+      text: "SELECT * FROM user_management WHERE email = $1",
+      values: [email],
     };
     const userResult = await client.query(userQuery);
-    console.log(userResult)
+    console.log(userResult);
     const user = userResult.rows[0];
 
     // Check if user exists
     if (!user) {
-      return res.status(400).json({ success: false, error: "Please try to login with correct credentials" });
+      return res.status(400).json({
+        success: false,
+        error: "Please try to login with correct credentials",
+      });
     }
 
     // Compare passwords (assuming passwords are stored as plaintext for this example, which is not recommended)
     if (password !== user.password) {
-      return res.status(400).json({ success: false, error: "Please try to login with correct credentials" });
+      return res.status(400).json({
+        success: false,
+        error: "Please try to login with correct credentials",
+      });
     }
 
     // Prepare JWT token

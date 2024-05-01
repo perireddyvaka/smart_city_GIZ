@@ -5,7 +5,7 @@ import { Dashboard as DashboardIcon, Add as AddIcon, Menu as MenuIcon, Notificat
 import { Link } from 'react-router-dom';
 import { MdLocalGroceryStore } from "react-icons/md";
 import yourImage from './logos.png';
-import TableauFrame from './TableauFrame';
+import TableauFrame from '../TableauFrame';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -235,7 +235,7 @@ const CustomAppBar = () => {
               <AlarmIcon />
             </Badge>
           </IconButton>
-          <IconButton color="inherit">
+          <IconButton component={Link} to="/login" color="inherit">
             <PersonIcon />
           </IconButton>
         </Toolbar>
@@ -270,7 +270,7 @@ const CustomAppBar = () => {
               <ListItemText primary="Analytical View" />
             </ListItem>
           </Link>
-          <Link to="/user-management" onClick={toggleDrawer} className={classes.listItem}>
+          <Link to="/" onClick={toggleDrawer} className={classes.listItem}>
             <ListItem button>
               <ListItemIcon>
                 <PersonIcon />

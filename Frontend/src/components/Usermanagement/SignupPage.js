@@ -20,17 +20,33 @@ const SignupPage = () => {
       password: '******',
     },
     {
-      userId: 'M67890',
+      userId: 'OH67890',
       username: 'jane_smith',
       email: 'jane@example.com',
-      role: 'Manager',
+      role: 'OrganizationHead',
       password: '******',
     },
     {
-      userId: 'U54321',
+      userId: 'CH54321',
       username: 'bob_johnson',
       email: 'bob@example.com',
-      role: 'User',
+      role: 'CircleHead',
+      password: '******',
+    },
+
+    {
+      userId: 'DH54321',
+      username: 'bob_johnson',
+      email: 'bob@example.com',
+      role: 'DivisionHead',
+      password: '******',
+    },
+
+    {
+      userId: 'SDH54321',
+      username: 'bob_johnson',
+      email: 'bob@example.com',
+      role: 'SubdivisionHead',
       password: '******',
     },
     // Additional users...

@@ -504,28 +504,51 @@ const AlarmLogPage = () => {
       >
         <DialogTitle>Add Condition</DialogTitle>
         <DialogContent>
-          <TextField
+        <InputLabel shrink>Parameter</InputLabel>
+          <Select
+            autoFocus
             margin="dense"
-            label="Parameter"
-            type="text"
             fullWidth
             name="parameter"
-            value={addData.parameter}
             onChange={(event) => handleInputChange(event, "add")}
             error={!!addErrors.parameter}
             helperText={addErrors.parameter}
-          />
-          <TextField
+          >
+            <MenuItem value="">Select Parameter</MenuItem>
+            <MenuItem value="Overloaded LT Feeders">
+              Overloaded LT Feeders
+            </MenuItem>
+            <MenuItem value="Loose connection on LT side">
+              Loose connection on LT side
+            </MenuItem>
+            <MenuItem value="Fault on LT side">Fault on LT side</MenuItem>
+            <MenuItem value="Low oil level">Low oil level</MenuItem>
+            <MenuItem value="Oil leakage">Oil leakage</MenuItem>
+            <MenuItem value="Reason 6">acb_3_current</MenuItem>
+          </Select>
+
+          <InputLabel shrink>Phase</InputLabel>
+          <Select
+            autoFocus
             margin="dense"
-            label="Phase"
-            type="text"
             fullWidth
             name="phase"
-            value={addData.phase}
             onChange={(event) => handleInputChange(event, "add")}
             error={!!addErrors.phase}
             helperText={addErrors.phase}
-          />
+          >
+            <MenuItem value="">Select Phase</MenuItem>
+            <MenuItem value="phaseR">
+              phaseR
+            </MenuItem>
+            <MenuItem value="phaseY">
+              phaseY
+            </MenuItem>
+            <MenuItem value="phaseB">phaseB</MenuItem>
+            <MenuItem value="phaseB">phaseN</MenuItem>
+            {/* <MenuItem value="Oil leakage">Oil leakage</MenuItem>
+            <MenuItem value="Reason 6">acb_3_current</MenuItem> */}
+          </Select>
           <TextField
             margin="dense"
             label="Min Range"

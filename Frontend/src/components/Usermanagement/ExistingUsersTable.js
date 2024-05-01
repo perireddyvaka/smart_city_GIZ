@@ -8,86 +8,52 @@ import {
   TableHead,
   TableRow,
   Paper,
-  TablePagination,
   Box,
   Typography,
   TextField,
+  Button,
 } from '@mui/material';
+
+
+// const existingUsers = [
+//   { userId: 1, username: 'user1', email: 'user1@example.com', role: 'admin', password: 'password1' },
+//   { userId: 2, username: 'user2', email: 'user2@example.com', role: 'user', password: 'password2' },
+//   { userId: 3, username: 'user3', email: 'user3@example.com', role: 'user', password: 'password3' },
+// ];
 
 const ExistingUsersTable = ({ users }) => {
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(3);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState('');
-  const [sortOrder, setSortOrder] = useState('asc');
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+  const rowsPerPage = 3; // Fixed rows per page
 
   const handleSearch = (event) => {
     setSearchQuery(event.target.value);
     setPage(0);
   };
 
-  const handleSort = (field) => {
-    if (field === sortBy) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(field);
-      setSortOrder('asc');
-    }
-    setPage(0);
-  };
-
   const filteredUsers = users.filter((user) =>
-    user.username.toLowerCase().includes(searchQuery.toLowerCase())
+    user.role.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const sortedUsers = sortBy
-    ? filteredUsers.sort((a, b) => {
-        const aValue = a[sortBy];
-        const bValue = b[sortBy];
-        if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
-        if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
-        return 0;
-      })
-    : filteredUsers;
-
-  const emptyRows = rowsPerPage - Math.min(rowsPerPage, sortedUsers.length - page * rowsPerPage);
+  // Calculate the total number of pages
+  const totalPages = Math.ceil(filteredUsers.length / rowsPerPage);
 
   return (
-    <Box sx={{ border: '1px solid grey', padding: 2, borderRadius: 2 }}>
-      <Typography variant="h5" component="div" gutterBottom>
+    <Box sx={{ border: '1px solid grey', padding: 2, borderRadius: 2, backgroundColor: '#f5f5f5' }}>
+      <Typography variant="h5" component="div" gutterBottom style={{ color: '#333' }}>
         Existing Users
       </Typography>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
         <TextField
-          label="Search"
+          label="Search by Role"
           variant="outlined"
           value={searchQuery}
           onChange={handleSearch}
+          size="small"
+          style={{ maxWidth: '200px' }}
         />
-        <Typography variant="body1">Sort By:</Typography>
-        <TextField
-          select
-          variant="outlined"
-          value={sortBy}
-          onChange={(e) => handleSort(e.target.value)}
-        >
-          <option value="">None</option>
-          <option value="userId">User ID</option>
-          <option value="username">Username</option>
-          <option value="email">Email</option>
-          <option value="role">Role</option>
-        </TextField>
       </Box>
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} style={{ boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}>
         <Table aria-label="existing users table">
           <TableHead>
             <TableRow>
@@ -99,8 +65,8 @@ const ExistingUsersTable = ({ users }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {sortedUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((user, index) => (
-              <TableRow key={index}>
+            {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((user, index) => (
+              <TableRow key={index} hover>
                 <TableCell>{user.userId}</TableCell>
                 <TableCell>{user.username}</TableCell>
                 <TableCell>{user.email}</TableCell>
@@ -108,24 +74,35 @@ const ExistingUsersTable = ({ users }) => {
                 <TableCell>{user.password}</TableCell>
               </TableRow>
             ))}
-            {emptyRows > 0 && (
-              <TableRow style={{ height: 53 * emptyRows }}>
-                <TableCell colSpan={5} />
-              </TableRow>
-            )}
           </TableBody>
         </Table>
       </TableContainer>
-      <TablePagination
-        component="div"
-        count={sortedUsers.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
+        <Typography variant="body1" style={{ color: '#333' }}>
+          Page {page + 1} of {totalPages}
+        </Typography>
+        <Box>
+          <Button
+            variant="contained"
+            disabled={page === 0}
+            onClick={() => setPage(page - 1)}
+            style={{ backgroundColor: '#333', color: '#fff' }}
+          >
+            Prev
+          </Button>
+          <Button
+            variant="contained"
+            disabled={page === totalPages - 1}
+            onClick={() => setPage(page + 1)}
+            style={{ backgroundColor: '#333', color: '#fff', marginLeft: '8px' }}
+          >
+            Next
+          </Button>
+        </Box>
+      </Box>
     </Box>
   );
 };
+
 
 export default ExistingUsersTable;
