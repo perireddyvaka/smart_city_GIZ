@@ -40,7 +40,7 @@ const ExistingUsersTable = ({ users }) => {
 
   return (
     <Box sx={{ border: '1px solid grey', padding: 2, borderRadius: 2, backgroundColor: '#f5f5f5' }}>
-      <Typography variant="h5" component="div" gutterBottom style={{ color: '#333' }}>
+      <Typography variant="h5" align='center' component="div" gutterBottom style={{ color: '#333' }}>
         Existing Users
       </Typography>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
@@ -67,7 +67,7 @@ const ExistingUsersTable = ({ users }) => {
           <TableBody>
             {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((user, index) => (
               <TableRow key={index} hover>
-                <TableCell>{user.userId}</TableCell>
+                <TableCell>{user.userid}</TableCell>
                 <TableCell>{user.username}</TableCell>
                 <TableCell>{user.email}</TableCell>
                 <TableCell>{user.role}</TableCell>

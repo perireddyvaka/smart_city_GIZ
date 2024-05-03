@@ -4,6 +4,7 @@ import WelcomePage from './components/WelcomePage';
 import LoginPage from './components/Usermanagement/LoginPage';
 import SignupPage from './components/Usermanagement/SignupPage';
 import AppBar from './components/Usermanagement/AppBar';
+import Admin from './components/Usermanagement/Admin';
 import SideDrawer from './components/SideDrawer';
 import TableauFrame from './components/TableauFrame';
 import Alarmlog from './components/Alarm/Alarmlog';
@@ -21,6 +22,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<WelcomePage />} />
+      <Route path="/Admin" element={<Admin />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/existing-users" element={<ExistingUsersPage />} />

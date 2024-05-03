@@ -642,11 +642,11 @@ const AlarmLogPage = () => {
           >
             <MenuItem value="">Select Status</MenuItem>
             <MenuItem value="Error">Error</MenuItem>
-            <MenuItem value="Under Progress">Under Progress</MenuItem>
-            <MenuItem value="Repair">Repair</MenuItem>
-            <MenuItem value="Successfully Working">
+            <MenuItem value="Under Progress">Pending</MenuItem>
+            <MenuItem value="Repair">Resolved</MenuItem>
+            {/* <MenuItem value="Successfully Working">
               Successfully Working
-            </MenuItem>
+            </MenuItem> */}
           </Select>
 
           <TextField

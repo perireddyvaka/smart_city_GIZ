@@ -5,6 +5,8 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import AlarmIcon from '@mui/icons-material/Alarm';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useNavigate } from 'react-router-dom';
+import logo from './logos.png'
+// import { blue } from '@mui/material/colors';
 
 const DivisionHeadPage = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -24,15 +26,21 @@ const DivisionHeadPage = () => {
     navigate('/login');
   };
 
+  // const style = {
+  //   AppBar : {
+  //     backgroundcolor: '#002e41'
+  //   }
+  // }
+
   return (
     <div>
-      <AppBar position="static">
+      <AppBar  position="static"  >
         <Toolbar>
           {/* Logo Image */}
-          <img src="/logo.png" alt="Logo" style={{ height: '40px' }} />
+          <img src={logo} alt="Logo" style={{ height: '40px' }} />
 
           {/* Title */}
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, marginLeft: 2 }}>
+          <Typography variant="h6" align='center' component="div" sx={{ flexGrow: 1, marginLeft: 2 }}>
             DivisionHead Dashboard
           </Typography>
 

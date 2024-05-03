@@ -34,7 +34,7 @@ const styles = {
   },
 };
 
-const WelcomePage = () => {
+const Admin = () => {
   return (
     <Box display="flex" flexDirection="column" minHeight="100vh">
       <AppBar position="static" style={styles.appBar}>
@@ -43,7 +43,7 @@ const WelcomePage = () => {
             <img src={logo} alt="Logo" style={styles.logo} />
           </Box>
           <Typography variant="h5" component="div" style={styles.title}>
-            BYPL Dashboard
+            Admin Dashboard
           </Typography>
           <Box>
             <Button
@@ -55,7 +55,7 @@ const WelcomePage = () => {
             >
               Login
             </Button>
-            {/* <Button
+            <Button
               color="inherit"
               variant="text"
               component={Link}
@@ -63,17 +63,17 @@ const WelcomePage = () => {
               style={styles.button}
             >
               Assign
-            </Button> */}
+            </Button>
           </Box>
         </Toolbar>
       </AppBar>
       <Container maxWidth="md" style={styles.container}>
         <Typography variant="h4" component="div" align="center" gutterBottom>
-          Welcome to BYPL Dashboard
+          Welcome to Admin Dashboard
         </Typography>
       </Container>
     </Box>
   );
 };
 
-export default WelcomePage;
+export default Admin;

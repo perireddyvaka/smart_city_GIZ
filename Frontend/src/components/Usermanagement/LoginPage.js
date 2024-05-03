@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
-import { AppBar, Toolbar } from '@mui/material';
-import { Link } from 'react-router-dom';
+import React, { useState } from "react";
+import { AppBar, Toolbar } from "@mui/material";
+import { Link } from "react-router-dom";
 
-
-import logo from './logos.png';
+import logo from "./logos.png";
 import {
   Box,
   Typography,
@@ -14,25 +13,25 @@ import {
   Container,
   Modal,
   IconButton,
-} from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import CloseIcon from '@mui/icons-material/Close';
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import CloseIcon from "@mui/icons-material/Close";
 
 // Assuming existingUsers is an array of user objects with email property
 const existingUsers = [
-  { username: 'user1', email: 'user1@example.com', password: 'password1' },
-  { username: 'user2', email: 'user2@example.com', password: 'password2' },
-  { username: 'user3', email: 'user3@example.com', password: 'password3' },
+  { username: "user1", email: "user1@example.com", password: "password1" },
+  { username: "user2", email: "user2@example.com", password: "password2" },
+  { username: "user3", email: "user3@example.com", password: "password3" },
 ];
 
 const styles = {
   appBar: {
-    backgroundColor: '#002e41', // Material-UI primary color
+    backgroundColor: "#002e41", // Material-UI primary color
   },
   toolbar: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   logo: {
     height: 40,
@@ -40,73 +39,80 @@ const styles = {
   },
   title: {
     flexGrow: 1,
-    textAlign: 'center',
-    color: '#fff', // Set text color to white for better visibility
+    textAlign: "center",
+    color: "#fff", // Set text color to white for better visibility
   },
   button: {
-    color: '#fff', // Set text color to white for better visibility
+    color: "#fff", // Set text color to white for better visibility
     marginLeft: 16, // Add some spacing between the buttons
-    textDecoration: 'none', // Remove underline from the link
+    textDecoration: "none", // Remove underline from the link
   },
   container: {
-    display: 'flex',
-    flexDirection: 'column', // Stack content vertically
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 'calc(100vh - 64px)', // Account for AppBar height
+    display: "flex",
+    flexDirection: "column", // Stack content vertically
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: "calc(100vh - 64px)", // Account for AppBar height
   },
   loginForm: {
-    border: '1px solid grey',
+    border: "1px solid grey",
     padding: 6,
     borderRadius: 3,
-    width: '500px', // Adjust width as desired
-    backgroundColor: '#fff', // Ensure background color for better contrast
+    width: "500px", // Adjust width as desired
+    backgroundColor: "#fff", // Ensure background color for better contrast
   },
   loginFormItem: {
     marginBottom: 25, // Add spacing between elements
   },
   forgotPasswordLink: {
-    textAlign: 'right',
-    color: '#002e41', // Match primary color for better visibility
+    textAlign: "right",
+    color: "#002e41", // Match primary color for better visibility
     marginBottom: 10,
-    cursor: 'pointer',
+    cursor: "pointer",
   },
   modal: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
     width: 400,
-    bgcolor: 'background.paper',
+    bgcolor: "background.paper",
     boxShadow: 24,
     p: 4,
   },
   modalHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   modalCloseButton: {
-    cursor: 'pointer',
+    cursor: "pointer",
   },
 };
 
 const LoginPage = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [openForgotPasswordModal, setOpenForgotPasswordModal] = useState(false);
-  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Perform login logic here
-    if (username && password) {
-      // Login successful, redirect to appropriate page
-      navigate('/subdivisionhead');
+    const response = await fetch("http://localhost:8000/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email: username, password: password }),
+    });
+    const json = await response.json();
+    if (json.success) {
+      localStorage.setItem("token", json.authtoken);
+      console.log("Successfully Login", "success");
+      navigate("/Admin");
     } else {
-      // Handle empty fields error
-      alert('Please fill in all fields');
+      alert("Please provide valid credentials!!");
     }
   };
 
@@ -116,7 +122,7 @@ const LoginPage = () => {
 
   const handleForgotPasswordModalClose = () => {
     setOpenForgotPasswordModal(false);
-    setForgotPasswordEmail('');
+    setForgotPasswordEmail("");
   };
 
   const handleForgotPasswordSubmit = () => {
@@ -128,15 +134,17 @@ const LoginPage = () => {
     if (existingUser) {
       // Email exists, generate reset password link (for demonstration purposes, not actual implementation)
       const resetPasswordLink = `https://yourapp.com/reset-password?email=${existingUser.email}`;
-      alert(`Reset password link sent to ${existingUser.email}: ${resetPasswordLink}`);
+      alert(
+        `Reset password link sent to ${existingUser.email}: ${resetPasswordLink}`
+      );
       handleForgotPasswordModalClose();
     } else {
-      alert('Email not found');
+      alert("Email not found");
     }
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ display: "flex", flexDirection: "column" }}>
       <AppBar position="static" style={styles.appBar}>
         <Toolbar style={styles.toolbar}>
           <Box display="flex" alignItems="center">
@@ -146,7 +154,7 @@ const LoginPage = () => {
             BYPL Dashboard
           </Typography>
           <Box>
-            <Button
+            {/* <Button
               color="inherit"
               variant="text"
               component={Link}
@@ -154,7 +162,7 @@ const LoginPage = () => {
               style={styles.button}
             >
               Assign
-            </Button>
+            </Button> */}
           </Box>
         </Toolbar>
       </AppBar>
@@ -163,7 +171,11 @@ const LoginPage = () => {
           <Typography variant="h5" component="div" gutterBottom>
             Login
           </Typography>
-          <Box component="form" onSubmit={handleLogin} sx={{ display: 'flex', flexDirection: 'column' }}>
+          <Box
+            component="form"
+            onSubmit={handleLogin}
+            sx={{ display: "flex", flexDirection: "column" }}
+          >
             <TextField
               label="Username"
               variant="outlined"
@@ -181,8 +193,18 @@ const LoginPage = () => {
               required
               style={styles.loginFormItem}
             />
-            <FormControlLabel control={<Checkbox color="primary" />} label="Remember me" />
-            <Link href="#" variant="body2" color="primary" underline="none" style={styles.forgotPasswordLink} onClick={handleForgotPassword}>
+            <FormControlLabel
+              control={<Checkbox color="primary" />}
+              label="Remember me"
+            />
+            <Link
+              href="#"
+              variant="body2"
+              color="primary"
+              underline="none"
+              style={styles.forgotPasswordLink}
+              onClick={handleForgotPassword}
+            >
               Forgot password?
             </Link>
             <Button variant="contained" color="primary" type="submit">
@@ -193,13 +215,19 @@ const LoginPage = () => {
       </Container>
 
       {/* Forgot Password Modal */}
-      <Modal open={openForgotPasswordModal} onClose={handleForgotPasswordModalClose}>
+      <Modal
+        open={openForgotPasswordModal}
+        onClose={handleForgotPasswordModalClose}
+      >
         <Box sx={styles.modal}>
           <Box sx={styles.modalHeader}>
             <Typography variant="h6" gutterBottom>
               Forgot Password
             </Typography>
-            <IconButton onClick={handleForgotPasswordModalClose} sx={styles.modalCloseButton}>
+            <IconButton
+              onClick={handleForgotPasswordModalClose}
+              sx={styles.modalCloseButton}
+            >
               <CloseIcon />
             </IconButton>
           </Box>
@@ -211,7 +239,12 @@ const LoginPage = () => {
             fullWidth
             margin="normal"
           />
-          <Button variant="contained" color="primary" onClick={handleForgotPasswordSubmit} fullWidth>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleForgotPasswordSubmit}
+            fullWidth
+          >
             Submit
           </Button>
         </Box>

@@ -5,7 +5,7 @@ const router = express.Router();
 
 const JWT_SECRET = "SMART";
 
-function padNumber(num, role) {
+function padNumber(num) {
   const size = 3;
   let numStr = num.toString();
   while (numStr.length < size) {
@@ -41,7 +41,8 @@ router.post("/signup", async (req, res) => {
     }
     const cq = "SELECT count(*) FROM user_management WHERE role = $1";
     const c = await client.query(cq, [role]);
-    const count = c.rows[0].count;
+    let count = Number(c.rows[0].count);
+    // console.log(++count);
     const id = role + padNumber(count + 1);
     // Insert the new user into the database
     const insertQuery =
@@ -75,7 +76,7 @@ router.post("/login", async (req, res) => {
       values: [email],
     };
     const userResult = await client.query(userQuery);
-    console.log(userResult);
+    // console.log(userResult);
     const user = userResult.rows[0];
 
     // Check if user exists
