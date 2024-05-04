@@ -2,6 +2,7 @@ import React from 'react';
 import { AppBar, Toolbar, Typography, Button, Box, Container } from '@mui/material';
 import { Link } from 'react-router-dom';
 import logo from './logos.png';
+import backgroundImage from './BYPLimage.jpg'; // Import your background image here
 
 const styles = {
   appBar: {
@@ -32,11 +33,17 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
   },
+  background: {
+    backgroundImage: `url(${backgroundImage})`,
+    backgroundSize: 'cover',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
+  },
 };
 
 const WelcomePage = () => {
   return (
-    <Box display="flex" flexDirection="column" minHeight="100vh">
+    <Box display="flex" flexDirection="column" minHeight="100vh" style={styles.background}>
       <AppBar position="static" style={styles.appBar}>
         <Toolbar style={styles.toolbar}>
           <Box display="flex" alignItems="center">
@@ -68,9 +75,9 @@ const WelcomePage = () => {
         </Toolbar>
       </AppBar>
       <Container maxWidth="md" style={styles.container}>
-        <Typography variant="h4" component="div" align="center" gutterBottom>
+        {/* <Typography variant="h4" component="div" align="center" gutterBottom>
           Welcome to BYPL Dashboard
-        </Typography>
+        </Typography> */}
       </Container>
     </Box>
   );

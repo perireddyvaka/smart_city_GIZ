@@ -1,7 +1,15 @@
-import React from 'react';
-import { AppBar, Toolbar, Typography, Button, Box, Container } from '@mui/material';
+import React, { useState } from 'react';
+import { AppBar, Toolbar, Typography, Box, Container, IconButton, Drawer, List, ListItem, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
 import { Link } from 'react-router-dom';
+import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
+import MenuIcon from '@mui/icons-material/Menu';
+import CloseIcon from '@mui/icons-material/Close';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import AlarmIcon from '@mui/icons-material/Alarm';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { Analytics, Description } from '@mui/icons-material';
 import logo from './logos.png';
+import backgroundImg from './BYPLimage.jpg'; // import your background image here
 
 const styles = {
   appBar: {
@@ -32,47 +40,127 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
   },
+  drawer: {
+    width: 250,
+    flexShrink: 0,
+  },
+  drawerPaper: {
+    width: 250,
+    marginTop: 64, // Adjust to make space for the app bar
+  },
+  body: {
+    backgroundImage: `url(${backgroundImg})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    minHeight: '100vh',
+  },
 };
 
 const Admin = () => {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleDrawerOpen = () => {
+    setDrawerOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setDrawerOpen(false);
+  };
+
+  const handleUserClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    handleClose();
+    // Redirect to login page
+  };
+
   return (
-    <Box display="flex" flexDirection="column" minHeight="100vh">
-      <AppBar position="static" style={styles.appBar}>
+    <Box style={styles.body}>
+      <AppBar position="fixed" style={styles.appBar}>
         <Toolbar style={styles.toolbar}>
-          <Box display="flex" alignItems="center">
-            <img src={logo} alt="Logo" style={styles.logo} />
-          </Box>
+          <IconButton color="inherit" onClick={handleDrawerOpen}>
+            <MenuIcon />
+          </IconButton>
+          <img src={logo} alt="Logo" style={styles.logo} />
           <Typography variant="h5" component="div" style={styles.title}>
             Admin Dashboard
           </Typography>
-          <Box>
-            <Button
-              color="inherit"
-              variant="text"
-              component={Link}
-              to="/login"
-              style={styles.button}
-            >
-              Login
-            </Button>
-            <Button
-              color="inherit"
-              variant="text"
-              component={Link}
-              to="/Signup"
-              style={styles.button}
-            >
-              Assign
-            </Button>
-          </Box>
+          <IconButton color="inherit">
+            <NotificationsIcon />
+          </IconButton>
+          <IconButton color="inherit">
+            <AlarmIcon />
+          </IconButton>
+          <IconButton color="inherit" onClick={handleUserClick}>
+            <AccountCircleIcon />
+          </IconButton>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+          >
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+          </Menu>
         </Toolbar>
       </AppBar>
+      <Drawer
+        anchor="left"
+        open={drawerOpen}
+        onClose={handleDrawerClose}
+        sx={{ ...styles.drawer, ...styles.drawerPaper }}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', padding: 1 }}>
+          <IconButton color="inherit" onClick={handleDrawerClose}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
+        <List>
+          <ListItem button component={Link} to="/analytical">
+            <ListItemIcon>
+              <Analytics />
+            </ListItemIcon>
+            <ListItemText primary="Analytical view" />
+          </ListItem>
+          <ListItem button component={Link} to="/alarmlog">
+            <ListItemIcon>
+              <AlarmIcon />
+            </ListItemIcon>
+            <ListItemText primary="Alarmlog" />
+          </ListItem>
+          <ListItem button component={Link} to="/logstore">
+            <ListItemIcon>
+              <Description />
+            </ListItemIcon>
+            <ListItemText primary="Logstore" />
+          </ListItem>
+          <ListItem button component={Link} to="/signup">
+            <ListItemIcon>
+              <PersonAddAltIcon />
+            </ListItemIcon>
+            <ListItemText primary="Assign" />
+          </ListItem>
+        </List>
+      </Drawer>
       <Container maxWidth="md" style={styles.container}>
-        <Typography variant="h4" component="div" align="center" gutterBottom>
-          Welcome to Admin Dashboard
-        </Typography>
+        
       </Container>
     </Box>
+    
   );
 };
 
