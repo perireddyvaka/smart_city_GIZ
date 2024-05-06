@@ -108,16 +108,16 @@ const LoginPage = () => {
     });
     const json = await response.json();
     if (json.success) {
+      
       localStorage.setItem("token", json.authtoken);
       console.log("Successfully Login", "success");
       navigate("/Admin");
-      navigate("/Organizationhead");
-      navigate("/Divisionhead");
-      // navigate("/Circlehead");
+      
     } else {
       alert("Please provide valid credentials!!");
     }
   };
+
 
   const handleForgotPassword = () => {
     setOpenForgotPasswordModal(true);

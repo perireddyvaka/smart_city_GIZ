@@ -367,8 +367,6 @@ const AlarmLogPage = () => {
     </Button>
   </Toolbar>
 </AppBar>
-
-
       <Toolbar /> {/* To push the content below the AppBar */}
       <Container className={classes.container} maxWidth="md">
         <div className={classes.optionsContainer}>
@@ -399,7 +397,6 @@ const AlarmLogPage = () => {
               Resolved
             </MenuItem>
           </Menu>
-
           <Button
             className={classes.sortButton}
             variant="contained"
@@ -524,7 +521,7 @@ const AlarmLogPage = () => {
             <MenuItem value="Fault on LT side">Fault on LT side</MenuItem>
             <MenuItem value="Low oil level">Low oil level</MenuItem>
             <MenuItem value="Oil leakage">Oil leakage</MenuItem>
-            <MenuItem value="Reason 6">acb_3_current</MenuItem>
+            <MenuItem value="acb_3_current">acb_3_current</MenuItem>
           </Select>
 
           <InputLabel shrink>Phase</InputLabel>
@@ -546,8 +543,7 @@ const AlarmLogPage = () => {
             </MenuItem>
             <MenuItem value="phaseB">phaseB</MenuItem>
             <MenuItem value="phaseB">phaseN</MenuItem>
-            {/* <MenuItem value="Oil leakage">Oil leakage</MenuItem>
-            <MenuItem value="Reason 6">acb_3_current</MenuItem> */}
+           
           </Select>
           <TextField
             margin="dense"

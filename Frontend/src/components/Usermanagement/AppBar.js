@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { useTheme, useMediaQuery, makeStyles, Hidden, Drawer, IconButton, Divider } from '@material-ui/core';
-import { AppBar, Toolbar, Typography, List, ListItem, ListItemIcon, ListItemText, Badge, Menu, MenuItem } from '@material-ui/core';
-import { Dashboard as DashboardIcon, Add as AddIcon, Menu as MenuIcon, NotificationsActive as NotificationsIcon, Alarm as AlarmIcon, Person as PersonIcon, ArrowDropDown as ArrowDropDownIcon, ChevronLeft as ChevronLeftIcon } from '@material-ui/icons';
-import { Link } from 'react-router-dom';
+import { useTheme, useMediaQuery, makeStyles, Hidden, Drawer, IconButton, Divider, Badge, Menu, MenuItem, Card, CardContent, Typography, Button, Popover } from '@material-ui/core';
+import { AppBar, Toolbar, List, ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
+import { Dashboard as DashboardIcon, Add as AddIcon, Menu as MenuIcon, NotificationsActive as NotificationsIcon, Alarm as AlarmIcon, Person as PersonIcon, ArrowDropDown as ArrowDropDownIcon, ChevronLeft as ChevronLeftIcon, History as HistoryIcon } from '@material-ui/icons';
+import { Link, useNavigate } from 'react-router-dom';
+import LogoutIcon from '@mui/icons-material/Logout';
 import { MdLocalGroceryStore } from "react-icons/md";
 import yourImage from './logos.png';
-import TableauFrame from '../TableauFrame';
+
+
+const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    flexGrow: 1,
+    display: 'flex',
   },
   appBar: {
     backgroundColor: '#155F82',
@@ -19,8 +22,8 @@ const useStyles = makeStyles((theme) => ({
     }),
   },
   appBarShift: {
-    width: `calc(100% - ${240}px)`,
-    marginLeft: 240,
+    width: `calc(100% - ${drawerWidth}px)`,
+    marginLeft: drawerWidth,
     transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
@@ -61,11 +64,12 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(1),
   },
   drawer: {
-    width: 240,
+    width: drawerWidth,
     flexShrink: 0,
   },
   drawerPaper: {
-    width: 240,
+    width: drawerWidth,
+    backgroundColor: '#fff',
   },
   drawerHeader: {
     display: 'flex',
@@ -79,12 +83,35 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: theme.palette.grey[200],
     },
   },
+  notificationCard: {
+    marginBottom: theme.spacing(1),
+  },
+  notificationCardContent: {
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
+  markAsReadButton: {
+    backgroundColor: '#FF8000', // Bright orange color
+    color: '#fff',
+    '&:hover': {
+      backgroundColor: '#FFA500', // Lighter shade of orange on hover
+    },
+    fontSize: '0.7rem', // Decrease font size
+    padding: theme.spacing(0.2, 1), // Decrease padding
+    minWidth: 'unset', // Remove minimum width
+    height: 'unset', // Remove height
+    borderRadius: '10px', // Adjust border radius
+  },
+  popover: {
+    padding: theme.spacing(2),
+  },
 }));
 
 const CustomAppBar = () => {
   const classes = useStyles();
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const [anchorEl, setAnchorEl] = useState(null);
   const [ncount, setNcount] = useState(0);
   const [acount, setAcount] = useState(0);
   const [issue, setIssue] = useState([]);
@@ -92,9 +119,15 @@ const CustomAppBar = () => {
   const [dropdownAnchorEl, setDropdownAnchorEl] = useState(null);
   const [selectedOption, setSelectedOption] = useState('DTR');
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [closedNotifications, setClosedNotifications] = useState([]);
+  const navigate = useNavigate();
 
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
+  };
+
+  const handleUserClick = (event) => {
+    setAnchorEl(event.currentTarget);
   };
 
   const handleNotificationOpen = async (event) => {
@@ -112,6 +145,23 @@ const CustomAppBar = () => {
     setNotificationAnchorEl(null);
   };
 
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    handleClose();
+    navigate('/login');
+  };
+
+  const markAsRead = (id) => {
+    const closedNotification = issue.find(item => item.id === id);
+    setClosedNotifications(prevNotifications => [...prevNotifications, closedNotification]);
+    localStorage.setItem(`notification_${id}`, JSON.stringify(closedNotification));
+    setIssue(prevIssue => prevIssue.filter(item => item.id !== id));
+    console.log(`Notification ${id} marked as read`);
+  };
+
   const handleDropdownOpen = (event) => {
     setDropdownAnchorEl(event.currentTarget);
   };
@@ -119,10 +169,6 @@ const CustomAppBar = () => {
   const handleDropdownClose = (option) => {
     setSelectedOption(option);
     setDropdownAnchorEl(null);
-  };
-
-  const handlelogchange = (id) => {
-    console.log(id);
   };
 
   useEffect(() => {
@@ -187,63 +233,69 @@ const CustomAppBar = () => {
               <MenuItem onClick={() => handleDropdownClose('ACB')}>ACB</MenuItem>
             </Menu>
           </Typography>
-          <div className={classes.dropdownButton} onClick={handleNotificationOpen}>
-            <Badge badgeContent={ncount?.count || 0} color="secondary">
-              <NotificationsIcon />
-            </Badge>
+          <div>
+            <IconButton color="inherit" onClick={handleNotificationOpen}>
+              <Badge badgeContent={ncount?.count || 0} color="secondary">
+                <NotificationsIcon />
+              </Badge>
+            </IconButton>
+            <Popover
+              open={Boolean(notificationAnchorEl)}
+              anchorEl={notificationAnchorEl}
+              onClose={handleNotificationClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+            >
+              <div className={classes.popover}>
+                {issue.map((item, index) => (
+                  <Card key={index} className={classes.notificationCard}>
+                    <CardContent className={classes.notificationCardContent}>
+                      <div>
+                        <Typography variant="h6">{item.title}</Typography>
+                        <Typography variant="body1">Status: {item.status}</Typography>
+                        <Typography variant="body1">Occurrence: {item.occurrence}</Typography>
+                        <Typography variant="body1">Location: {item.location}</Typography>
+                      </div>
+                      <Button className={classes.markAsReadButton} onClick={() => markAsRead(item.id)}>Mark as Read</Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </Popover>
           </div>
-          <Menu
-            anchorEl={notificationAnchorEl}
-            keepMounted
-            open={Boolean(notificationAnchorEl)}
-            onClose={handleNotificationClose}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'left',
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'left',
-            }}
-          >
-            {issue.map((item, index) => (
-              <MenuItem
-                key={index}
-                style={{
-                  backgroundColor:
-                    item.status === 'Critical'
-                      ? '#FFCDD2' // light red
-                      : item.status === 'Warning'
-                      ? '#FFF9C4' // light yellow
-                      : '#C8E6C9', // light green
-                }}
-                onClick={() => handlelogchange(item['id'])}
-              >
-                <Typography variant="body1">
-                  <br />
-                  Status:- {item['status']}
-                  <br />
-                  Occurrence:- {item['occurrence']}
-                  <br />
-                  Location:- {item['location']}
-                </Typography>
-              </MenuItem>
-            ))}
-          </Menu>
           <IconButton component={Link} to="/Alarmlog" color="inherit">
-            <Badge badgeContent={acount?.count || 0} color="error">
+            <Badge badgeContent={acount?.count || 0} color="secondary">
               <AlarmIcon />
             </Badge>
           </IconButton>
-          <IconButton component={Link} to="/login" color="inherit">
-            <PersonIcon />
+          <IconButton color="inherit" onClick={handleUserClick}>
+            <LogoutIcon />
           </IconButton>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+          >
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+          </Menu>
         </Toolbar>
       </AppBar>
 
-      <Toolbar /> {/* Add a Toolbar component to provide space for the TableauFrame */}
-      
-      <TableauFrame /> {/* Display the TableauFrame component */}
+      <Toolbar />
 
       <Drawer
         className={classes.drawer}
@@ -268,6 +320,14 @@ const CustomAppBar = () => {
                 <DashboardIcon />
               </ListItemIcon>
               <ListItemText primary="Analytical View" />
+            </ListItem>
+          </Link>
+          <Link to="/history" onClick={toggleDrawer} className={classes.listItem}>
+            <ListItem button>
+              <ListItemIcon>
+                <HistoryIcon />
+              </ListItemIcon>
+              <ListItemText primary="Notification History" />
             </ListItem>
           </Link>
           <Link to="/" onClick={toggleDrawer} className={classes.listItem}>
