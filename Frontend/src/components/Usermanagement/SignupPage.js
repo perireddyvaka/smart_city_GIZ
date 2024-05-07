@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import logo from "./logos.png";
+import { Link } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -9,7 +10,7 @@ import {
   Select,
   Button,
   Container,
-  Link,
+  
   Grid,
   AppBar,
   Toolbar,
@@ -99,6 +100,17 @@ const SignupPage = () => {
             <Typography variant="h6" component="div" style={styles.title}>
               BYPL Dashboard
             </Typography>
+            <Box>
+            <Button
+              color="inherit"
+              variant="text"
+              component={Link}
+              to="/login"
+              style={styles.button}
+            >
+              Login
+            </Button>
+            </Box>
           </Toolbar>
         </AppBar>
       </Grid>

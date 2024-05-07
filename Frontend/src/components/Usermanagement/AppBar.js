@@ -7,7 +7,6 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { MdLocalGroceryStore } from "react-icons/md";
 import yourImage from './logos.png';
 
-
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
@@ -85,10 +84,12 @@ const useStyles = makeStyles((theme) => ({
   },
   notificationCard: {
     marginBottom: theme.spacing(1),
+    position: 'relative', // added for positioning the button
   },
   notificationCardContent: {
     display: 'flex',
     justifyContent: 'space-between',
+    flexDirection: 'column', // changed to column for button placement
   },
   markAsReadButton: {
     backgroundColor: '#FF8000', // Bright orange color
@@ -101,6 +102,8 @@ const useStyles = makeStyles((theme) => ({
     minWidth: 'unset', // Remove minimum width
     height: 'unset', // Remove height
     borderRadius: '10px', // Adjust border radius
+    alignSelf: 'flex-end', // Align to the bottom right
+    marginBottom: theme.spacing(1), // Add margin for spacing
   },
   popover: {
     padding: theme.spacing(2),
@@ -135,7 +138,12 @@ const CustomAppBar = () => {
     try {
       const response = await fetch('http://127.0.0.1:8000/alarm/notidata');
       const data = await response.json();
-      setIssue(data);
+      // Add default timestamps to each notification item
+      const notificationsWithTimestamp = data.map(item => ({
+        ...item,
+        timestamp: generateTimestamp(), // Add a timestamp to each notification item
+      }));
+      setIssue(notificationsWithTimestamp);
     } catch (error) {
       console.error(error.message);
     }
@@ -169,6 +177,12 @@ const CustomAppBar = () => {
   const handleDropdownClose = (option) => {
     setSelectedOption(option);
     setDropdownAnchorEl(null);
+  };
+
+  const generateTimestamp = () => {
+    // Generate a timestamp for testing purposes
+    const currentDate = new Date();
+    return currentDate.toLocaleString(); // Convert the date to a string format
   };
 
   useEffect(() => {
@@ -261,6 +275,7 @@ const CustomAppBar = () => {
                         <Typography variant="body1">Status: {item.status}</Typography>
                         <Typography variant="body1">Occurrence: {item.occurrence}</Typography>
                         <Typography variant="body1">Location: {item.location}</Typography>
+                        <Typography variant="body1" >Timestamp: {item.timestamp}</Typography>
                       </div>
                       <Button className={classes.markAsReadButton} onClick={() => markAsRead(item.id)}>Mark as Read</Button>
                     </CardContent>
