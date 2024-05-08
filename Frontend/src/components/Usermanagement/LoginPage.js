@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AppBar, Toolbar } from "@mui/material";
 import { Link } from "react-router-dom";
 
@@ -95,7 +95,49 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [openForgotPasswordModal, setOpenForgotPasswordModal] = useState(false);
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
+  const [sessionTimer, setSessionTimer] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Start session timer when component mounts
+    startSessionTimer();
+
+    // Clean up timer when component unmounts
+    return () => {
+      clearTimeout(sessionTimer);
+    };
+  }, []); // Empty dependency array indicates the effect should only run once
+
+  useEffect(() => {
+    // Reset session timer on user activity
+    const resetTimer = () => {
+      clearTimeout(sessionTimer);
+      startSessionTimer();
+    };
+
+    document.addEventListener("mousemove", resetTimer);
+    document.addEventListener("keypress", resetTimer);
+
+    // Clean up event listeners when component unmounts
+    return () => {
+      document.removeEventListener("mousemove", resetTimer);
+      document.removeEventListener("keypress", resetTimer);
+    };
+  }, [sessionTimer]); // Re-run effect when sessionTimer changes
+
+  const startSessionTimer = () => {
+    // Set session expiry time (in milliseconds)
+    const sessionDuration = 24 * 60 * 60 * 1000; // 5 seconds for testing, adjust as needed
+
+    // Start the timer
+    const timer = setTimeout(() => {
+      // Redirect to login page on session expiry
+      navigate("/login");
+    }, sessionDuration);
+
+    setSessionTimer(timer);
+  };
+
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -108,16 +150,23 @@ const LoginPage = () => {
     });
     const json = await response.json();
     if (json.success) {
-      
       localStorage.setItem("token", json.authtoken);
       console.log("Successfully Login", "success");
-      navigate("/Admin");
-      
+      if (json.role === "Admin") {
+        navigate("/Admin");
+      } else if (json.role === "OH") {
+        navigate("/Organizationhead");
+      } else if (json.role === "CH") {
+        navigate("/Circlehead");
+      } else if (json.role === "DH") {
+        navigate("/Divisionhead");
+      } else if (json.role === "SDH") {
+        navigate("/Subdivisionhead");
+      }
     } else {
       alert("Please provide valid credentials!!");
     }
   };
-
 
   const handleForgotPassword = () => {
     setOpenForgotPasswordModal(true);
@@ -153,7 +202,7 @@ const LoginPage = () => {
           <Box display="flex" alignItems="center">
             <img src={logo} alt="Logo" style={styles.logo} />
           </Box>
-          <Typography variant="h6" component="div" style={styles.title}>
+          <Typography variant="h6" component="div" align="center" style={styles.title}>
             BYPL Dashboard
           </Typography>
           <Box>

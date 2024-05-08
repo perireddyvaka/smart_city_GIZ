@@ -138,10 +138,9 @@ const CustomAppBar = () => {
     try {
       const response = await fetch('http://127.0.0.1:8000/alarm/notidata');
       const data = await response.json();
-      // Add default timestamps to each notification item
       const notificationsWithTimestamp = data.map(item => ({
         ...item,
-        timestamp: generateTimestamp(), // Add a timestamp to each notification item
+        timestamp: generateTimestamp(),
       }));
       setIssue(notificationsWithTimestamp);
     } catch (error) {
@@ -167,7 +166,9 @@ const CustomAppBar = () => {
     setClosedNotifications(prevNotifications => [...prevNotifications, closedNotification]);
     localStorage.setItem(`notification_${id}`, JSON.stringify(closedNotification));
     setIssue(prevIssue => prevIssue.filter(item => item.id !== id));
-    console.log(`Notification ${id} marked as read`);
+    if (issue.length === 1) {
+      handleNotificationClose();
+    }
   };
 
   const handleDropdownOpen = (event) => {
@@ -180,9 +181,8 @@ const CustomAppBar = () => {
   };
 
   const generateTimestamp = () => {
-    // Generate a timestamp for testing purposes
     const currentDate = new Date();
-    return currentDate.toLocaleString(); // Convert the date to a string format
+    return currentDate.toLocaleString();
   };
 
   useEffect(() => {
@@ -195,6 +195,11 @@ const CustomAppBar = () => {
         const acountResponse = await fetch('http://127.0.0.1:8000/alarm/acount');
         const acountData = await acountResponse.json();
         setAcount(acountData[0]);
+
+        const closedNotificationsFromStorage = Object.keys(localStorage)
+          .filter(key => key.startsWith('notification_'))
+          .map(key => JSON.parse(localStorage.getItem(key)));
+        setClosedNotifications(closedNotificationsFromStorage);
       } catch (error) {
         console.error(error.message);
       }
@@ -202,6 +207,8 @@ const CustomAppBar = () => {
 
     fetchData();
   }, []);
+
+  const filteredIssue = issue.filter(item => !closedNotifications.some(closedItem => closedItem.id === item.id));
 
   return (
     <div className={classes.root}>
@@ -267,7 +274,7 @@ const CustomAppBar = () => {
               }}
             >
               <div className={classes.popover}>
-                {issue.map((item, index) => (
+                {filteredIssue.map((item, index) => (
                   <Card key={index} className={classes.notificationCard}>
                     <CardContent className={classes.notificationCardContent}>
                       <div>

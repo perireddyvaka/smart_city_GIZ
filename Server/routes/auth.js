@@ -1,9 +1,9 @@
 const express = require("express");
-const jwt = require("jsonwebtoken");
-const client = require("../db"); // Import the PostgreSQL client
+const session = require('express-session');
+const client = require("../db");
 const router = express.Router();
 
-const JWT_SECRET = "SMART";
+const SESSION_SECRET = process.env.SESSION_SECRET || "default_session_secret";
 
 function padNumber(num) {
   const size = 3;
@@ -11,99 +11,88 @@ function padNumber(num) {
   while (numStr.length < size) {
     numStr = "0" + numStr;
   }
-  return numStr; // Combine role and padded number string
+  return numStr;
 }
+
+router.use(session({
+  secret: SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 5*1000, // 1 day
+  }
+}));
 
 router.get("/", async (req, res) => {
   try {
     const query = "SELECT * FROM user_management";
-    const ress = await client.query(query);
-    res.send(ress);
+    const result = await client.query(query);
+    res.send(result.rows);
   } catch (err) {
-    console.log(err.stack);
+    console.error(err.message);
+    res.status(500).send("Internal Server Error");
   }
 });
 
-// Route for user signup
 router.post("/signup", async (req, res) => {
   try {
     const { username, email, role, password } = req.body;
-    // console.log(req.body)
-    // Check if the email already exists
+
     const emailCheckQuery = "SELECT * FROM user_management WHERE email = $1";
     const emailCheckResult = await client.query(emailCheckQuery, [email]);
-    // console.log(emailCheckResult);
     if (emailCheckResult.rows.length > 0) {
       return res.status(400).json({
         success: false,
         error: "A user with this email already exists",
       });
     }
-    const cq = "SELECT count(*) FROM user_management WHERE role = $1";
-    const c = await client.query(cq, [role]);
-    let count = Number(c.rows[0].count);
-    // console.log(++count);
+
+    const countQuery = "SELECT count(*) FROM user_management WHERE role = $1";
+    const countResult = await client.query(countQuery, [role]);
+    let count = Number(countResult.rows[0].count);
+
     const id = role + padNumber(count + 1);
-    // Insert the new user into the database
-    const insertQuery =
-      "INSERT INTO user_management(userid, username, email, role, password) VALUES($1, $2, $3, $4, $5) RETURNING *";
+
+    const insertQuery = "INSERT INTO user_management(userid, username, email, role, password) VALUES($1, $2, $3, $4, $5) RETURNING *";
     const values = [id, username, email, role, password];
     const insertedUser = await client.query(insertQuery, values);
 
-    // Generate JWT token
-    const data = {
-      user: {
-        id: insertedUser.rows[0].userid, // Assuming userid is auto-generated
-        role: insertedUser.rows[0].role,
-      },
+    req.session.user = {
+      id: insertedUser.rows[0].userid,
+      role: insertedUser.rows[0].role,
     };
-    const authtoken = jwt.sign(data, JWT_SECRET);
-    res.json({ success: true, authtoken });
+
+    res.json({ success: true, role: insertedUser.rows[0].role });
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Internal Server Error");
   }
 });
 
-// login router
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Query the database to find the user
     const userQuery = {
       text: "SELECT * FROM user_management WHERE email = $1",
       values: [email],
     };
     const userResult = await client.query(userQuery);
-    // console.log(userResult);
     const user = userResult.rows[0];
 
-    // Check if user exists
-    if (!user) {
+    if (!user || password !== user.password) {
       return res.status(400).json({
         success: false,
         error: "Please try to login with correct credentials",
       });
     }
 
-    // Compare passwords (assuming passwords are stored as plaintext for this example, which is not recommended)
-    if (password !== user.password) {
-      return res.status(400).json({
-        success: false,
-        error: "Please try to login with correct credentials",
-      });
-    }
-
-    // Prepare JWT token
-    const data = {
-      user: {
-        id: user.id,
-        role: user.role,
-      },
+    req.session.user = {
+      id: user.id,
+      role: user.role,
     };
-    const authtoken = jwt.sign(data, JWT_SECRET);
-    res.json({ success: true, authtoken });
+
+    res.json({ success: true, role: user.role });
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Internal Server Error");

@@ -9,6 +9,7 @@ import AlarmIcon from '@mui/icons-material/Alarm';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { Analytics, Description } from '@mui/icons-material';
 import logo from './logos.png';
+import { useNavigate } from 'react-router-dom';
 import backgroundImg from './BYPLimage.jpg'; // import your background image here
 
 const styles = {
@@ -59,6 +60,7 @@ const styles = {
 const Admin = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const navigate = useNavigate();
 
   const handleDrawerOpen = () => {
     setDrawerOpen(true);
@@ -79,6 +81,7 @@ const Admin = () => {
   const handleLogout = () => {
     handleClose();
     // Redirect to login page
+    navigate('/login');
   };
 
   return (
@@ -98,7 +101,7 @@ const Admin = () => {
           <IconButton color="inherit">
             <AlarmIcon />
           </IconButton>
-          <IconButton color="inherit" onClick={handleUserClick}>
+          <IconButton color="inherit" onClick={handleUserClick} style={styles.closeIcon}>
             <AccountCircleIcon />
           </IconButton>
           <Menu
