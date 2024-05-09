@@ -3,8 +3,6 @@ const jwt = require("jsonwebtoken");
 const client = require("../db"); // Import the PostgreSQL client
 const router = express.Router();
 
-// const JWT_SECRET = "SMART"
-
 router.get("/ncount", async (req, res) => {
   try {
     const query = "SELECT count(*) FROM alarm where checklog = $1";
@@ -111,6 +109,33 @@ router.put("/renew/:id", async (req, res) => {
         RETURNING *;
       `;
     const values = [status, incharge, remark, updateOn, stage, occurrence, "S", id];
+
+    const result = await client.query(query, values);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Alarm not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// New endpoint to move resolved alarm logs to history
+router.put("/resolve/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { remark } = req.body;
+    const stage = "D"; // 'D' indicates resolved logs moved to history
+    const query = `
+        UPDATE alarm
+        SET stage = $1, remarks = $2
+        WHERE id = $3
+        RETURNING *;
+      `;
+    const values = [stage, remark, id];
 
     const result = await client.query(query, values);
 
