@@ -230,7 +230,7 @@ const CustomAppBar = () => {
             <img src={yourImage} alt="Your company logo" className={classes.logo} />
           </Hidden>
           <Typography variant="h6" className={classes.title}>
-            SubdivisionHead Dashboard
+            OrganizationHead Dashboard
             <div className={classes.dropdownButton} onClick={handleDropdownOpen}>
               {selectedOption}
               <ArrowDropDownIcon />
@@ -345,20 +345,20 @@ const CustomAppBar = () => {
             </ListItem>
           </Link>
           <Link to="/history" onClick={toggleDrawer} className={classes.listItem}>
-            <ListItem button>
+            {/* <ListItem button>
               <ListItemIcon>
                 <HistoryIcon />
               </ListItemIcon>
               <ListItemText primary="Notification History" />
             </ListItem>
           </Link>
-          <Link to="/" onClick={toggleDrawer} className={classes.listItem}>
-            <ListItem button>
+          <Link to="/" onClick={toggleDrawer} className={classes.listItem}> */}
+            {/* <ListItem button>
               <ListItemIcon>
                 <PersonIcon />
               </ListItemIcon>
               <ListItemText primary="User Management" />
-            </ListItem>
+            </ListItem> */}
           </Link>
           <Link to="/AlarmLogPage" onClick={toggleDrawer} className={classes.listItem}>
             <ListItem button>

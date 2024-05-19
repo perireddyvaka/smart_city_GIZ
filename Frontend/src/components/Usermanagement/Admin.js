@@ -139,7 +139,7 @@ const Admin = () => {
             </ListItemIcon>
             <ListItemText primary="Analytical view" />
           </ListItem>
-          <ListItem button component={Link} to="/alarmlog">
+          {/* <ListItem button component={Link} to="/alarmlog">
             <ListItemIcon>
               <AlarmIcon />
             </ListItemIcon>
@@ -150,7 +150,7 @@ const Admin = () => {
               <Description />
             </ListItemIcon>
             <ListItemText primary="Logstore" />
-          </ListItem>
+          </ListItem> */}
           <ListItem button component={Link} to="/signup">
             <ListItemIcon>
               <PersonAddAltIcon />

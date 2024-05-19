@@ -17,7 +17,7 @@ const Subdivsionhead = () => {
           }}
         > 
           <iframe
-            src="https://public.tableau.com/views/BYPLDASHBOARD/Dashboard1?:language=en-US&:sid=&:display_count=n&:origin=viz_share_link
+            src="https://your-tableau-server.com/views/YourDashboard/OrganizationHeadDashboard
                 // &:showVizHome=no
                 &embed=true
                 &:toolbar=no

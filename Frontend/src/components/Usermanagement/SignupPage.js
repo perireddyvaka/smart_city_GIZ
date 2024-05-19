@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import logo from "./logos.png";
 import { Link } from 'react-router-dom';
 import {
@@ -10,7 +10,6 @@ import {
   Select,
   Button,
   Container,
-  
   Grid,
   AppBar,
   Toolbar,
@@ -29,45 +28,48 @@ const styles = {
   },
   logo: {
     height: 40,
-    marginRight: "8px", // Adjusted margin
+    marginRight: "8px",
   },
   title: {
     flexGrow: 1,
     textAlign: "center",
     color: "#fff",
-    marginLeft: "-8px", // Adjusted margin
+    marginLeft: "-8px",
   },
-}
+};
 
 const SignupPage = () => {
   const [username, setUsername] = useState("");
   const [role, setRole] = useState("");
   const [email, setEmail] = useState("");
-  const [users, setUsers] = useState([]);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showExistingUsers, setShowExistingUsers] = useState(false);
+  const existingUsersTableRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetch("http://127.0.0.1:8000/auth/", { method: "GET" })
       .then((response) => response.json())
       .then((data) => {
-        setUsers(data.rows);
+        console.log("Fetched initial data:", data); // Debug log
+        if (existingUsersTableRef.current) {
+          existingUsersTableRef.current.fetchUsers();
+        }
       })
       .catch((err) => {
         console.log(err.message);
       });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSignup = async (e) => {
     e.preventDefault();
 
     if (password === confirmPassword && username && email && password) {
-      alert("Sign-up successful!");
+      alert("User Assined successfully!");
     } else {
       alert("Please fill in all fields and ensure passwords match");
+      return;
     }
 
     const response = await fetch("http://localhost:8000/auth/signup", {
@@ -77,10 +79,12 @@ const SignupPage = () => {
       },
       body: JSON.stringify({ username, email, password, role }),
     });
+
     const json = await response.json();
     if (json.success) {
       localStorage.setItem("token", json.authtoken);
       console.log("Account Successfully Created", "success");
+      existingUsersTableRef.current.fetchUsers();
       navigate("/signup");
     } else {
       console.log("Invalid Credentials", "danger");
@@ -88,11 +92,16 @@ const SignupPage = () => {
   };
 
   const toggleExistingUsers = () => {
-    setShowExistingUsers((prevState) => !prevState);
+    setShowExistingUsers((prevState) => {
+      if (!prevState && existingUsersTableRef.current) {
+        existingUsersTableRef.current.fetchUsers();
+      }
+      return !prevState;
+    });
   };
 
   return (
-    <Grid container spacing={2}> {/* Apply grid spacing */}
+    <Grid container spacing={2}>
       <Grid item xs={12}>
         <AppBar position="static" style={styles.appBar}>
           <Toolbar style={styles.toolbar}>
@@ -101,15 +110,15 @@ const SignupPage = () => {
               BYPL Dashboard
             </Typography>
             <Box>
-            <Button
-              color="inherit"
-              variant="text"
-              component={Link}
-              to="/login"
-              style={styles.button}
-            >
-              Login
-            </Button>
+              <Button
+                color="inherit"
+                variant="text"
+                component={Link}
+                to="/login"
+                style={styles.button}
+              >
+                Login
+              </Button>
             </Box>
           </Toolbar>
         </AppBar>
@@ -123,9 +132,6 @@ const SignupPage = () => {
               p: "16px",
             }}
           >
-            {/* <Typography variant="h5" align="center" component="div" gutterBottom>
-              Assign
-            </Typography> */}
             <Box
               component="form"
               onSubmit={handleSignup}
@@ -194,7 +200,7 @@ const SignupPage = () => {
       </Grid>
       <Grid item xs={12}>
         {showExistingUsers && (
-          <ExistingUsersTable users={users} />
+          <ExistingUsersTable ref={existingUsersTableRef} />
         )}
       </Grid>
     </Grid>

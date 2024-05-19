@@ -1,5 +1,4 @@
-// ExistingUsersTable.js
-import React, { useState } from 'react';
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import {
   Table,
   TableBody,
@@ -14,28 +13,44 @@ import {
   Button,
 } from '@mui/material';
 
-
-// const existingUsers = [
-//   { userId: 1, username: 'user1', email: 'user1@example.com', role: 'admin', password: 'password1' },
-//   { userId: 2, username: 'user2', email: 'user2@example.com', role: 'user', password: 'password2' },
-//   { userId: 3, username: 'user3', email: 'user3@example.com', role: 'user', password: 'password3' },
-// ];
-
-const ExistingUsersTable = ({ users }) => {
+const ExistingUsersTable = forwardRef((props, ref) => {
+  const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const [page, setPage] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
-  const rowsPerPage = 3; // Fixed rows per page
+  const rowsPerPage = 3;
 
-  const handleSearch = (event) => {
-    setSearchQuery(event.target.value);
-    setPage(0);
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/auth/");
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Fetched users:", data); // Debug log
+        setUsers(data);
+        setFilteredUsers(data);
+      } else {
+        console.error('Failed to fetch users');
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
   };
 
-  const filteredUsers = users.filter((user) =>
-    user.role.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  useImperativeHandle(ref, () => ({
+    fetchUsers,
+  }));
 
-  // Calculate the total number of pages
+  useEffect(() => {
+    const filtered = users.filter(user =>
+      user.role.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredUsers(filtered);
+  }, [users, searchQuery]);
+
   const totalPages = Math.ceil(filteredUsers.length / rowsPerPage);
 
   return (
@@ -48,7 +63,7 @@ const ExistingUsersTable = ({ users }) => {
           label="Search by Role"
           variant="outlined"
           value={searchQuery}
-          onChange={handleSearch}
+          onChange={e => setSearchQuery(e.target.value)}
           size="small"
           style={{ maxWidth: '200px' }}
         />
@@ -102,7 +117,6 @@ const ExistingUsersTable = ({ users }) => {
       </Box>
     </Box>
   );
-};
-
+});
 
 export default ExistingUsersTable;

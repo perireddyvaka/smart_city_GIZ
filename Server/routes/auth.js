@@ -19,7 +19,7 @@ router.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    maxAge: 5*1000, // 1 day
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
   }
 }));
 
@@ -62,7 +62,7 @@ router.post("/signup", async (req, res) => {
       role: insertedUser.rows[0].role,
     };
 
-    res.json({ success: true, role: insertedUser.rows[0].role });
+    res.json({ success: true, user: insertedUser.rows[0] });
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Internal Server Error");
@@ -88,7 +88,7 @@ router.post("/login", async (req, res) => {
     }
 
     req.session.user = {
-      id: user.id,
+      id: user.userid,
       role: user.role,
     };
 
