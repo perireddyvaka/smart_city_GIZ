@@ -7,10 +7,10 @@ import CloseIcon from '@mui/icons-material/Close';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import AlarmIcon from '@mui/icons-material/Alarm';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import { Analytics, Description } from '@mui/icons-material';
+import { Analytics} from '@mui/icons-material';
 import logo from './logos.png';
 import { useNavigate } from 'react-router-dom';
-import backgroundImg from './BYPLimage.jpg'; // import your background image here
+// import backgroundImg from './BYPLimage.jpg'; // import your background image here
 
 const styles = {
   appBar: {
@@ -50,7 +50,8 @@ const styles = {
     marginTop: 64, // Adjust to make space for the app bar
   },
   body: {
-    backgroundImage: `url(${backgroundImg})`,
+    // backgroundImage: `url(${backgroundImg})`,
+    backgroundColor: '#F5F5F5',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     minHeight: '100vh',

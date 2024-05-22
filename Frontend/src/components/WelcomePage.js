@@ -2,7 +2,7 @@ import React from 'react';
 import { AppBar, Toolbar, Typography, Button, Box, Container } from '@mui/material';
 import { Link } from 'react-router-dom';
 import logo from './logos.png';
-import backgroundImage from './BYPLimage.jpg'; // Import your background image here
+// import backgroundImage from './BYPLimage.jpg'; // Import your background image here
 
 const styles = {
   appBar: {
@@ -34,7 +34,7 @@ const styles = {
     justifyContent: 'center',
   },
   background: {
-    backgroundImage: `url(${backgroundImage})`,
+    backgroundColor: '#F5F5F5',
     backgroundSize: 'cover',
     backgroundRepeat: 'no-repeat',
     backgroundPosition: 'center',
