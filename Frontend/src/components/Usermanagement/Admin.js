@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
 import { AppBar, Toolbar, Typography, Box, Container, IconButton, Drawer, List, ListItem, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import AlarmIcon from '@mui/icons-material/Alarm';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import { Analytics} from '@mui/icons-material';
+import Analytics from '@mui/icons-material/Analytics';
 import logo from './logos.png';
-import { useNavigate } from 'react-router-dom';
 // import backgroundImg from './BYPLimage.jpg'; // import your background image here
 
 const styles = {
   appBar: {
     backgroundColor: '#002e41', // Material-UI primary color
+    zIndex: 1201, // Ensure AppBar is above other elements
   },
   toolbar: {
     display: 'flex',
@@ -38,8 +38,11 @@ const styles = {
   container: {
     flexGrow: 1,
     display: 'flex',
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
+    textAlign: 'center', // Center the text
+    padding: '20px', // Add some padding for spacing
   },
   drawer: {
     width: 250,
@@ -55,6 +58,10 @@ const styles = {
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 };
 
@@ -102,7 +109,7 @@ const Admin = () => {
           <IconButton color="inherit">
             <AlarmIcon />
           </IconButton>
-          <IconButton color="inherit" onClick={handleUserClick} style={styles.closeIcon}>
+          <IconButton color="inherit" onClick={handleUserClick}>
             <AccountCircleIcon />
           </IconButton>
           <Menu
@@ -161,10 +168,11 @@ const Admin = () => {
         </List>
       </Drawer>
       <Container maxWidth="md" style={styles.container}>
-        
+        <Typography variant="h4" component="div" gutterBottom>
+          Welcome to the Admin Dashboard
+        </Typography>
       </Container>
     </Box>
-    
   );
 };
 

@@ -32,6 +32,8 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    textAlign: 'center', // Center the text
+    marginTop: '20px', // Add some top margin for spacing
   },
   background: {
     backgroundColor: '#F5F5F5',
@@ -75,9 +77,9 @@ const WelcomePage = () => {
         </Toolbar>
       </AppBar>
       <Container maxWidth="md" style={styles.container}>
-        {/* <Typography variant="h4" component="div" align="center" gutterBottom>
+        <Typography variant="h4" component="div" gutterBottom>
           Welcome to BYPL Dashboard
-        </Typography> */}
+        </Typography>
       </Container>
     </Box>
   );
