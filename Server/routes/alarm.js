@@ -46,30 +46,8 @@ router.get("/notidata", async (req, res) => {
   }
 });
 
-router.put("/log/:id", async (req, res) => {
-  try {
-    const id = req.params.id;
 
-    const query = `
-          UPDATE alarm
-          SET checklog = $1
-          WHERE id = $2
-          RETURNING *;
-        `;
-    const values = ["S", id];
 
-    const result = await client.query(query, values);
-
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Alarm not found" });
-    }
-
-    res.json(result.rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
 
 router.post("/generated/create", async (req, res) => {
   try {
@@ -97,10 +75,12 @@ router.post("/generated/create", async (req, res) => {
 router.put("/renew/:id", async (req, res) => {
   try {
     const id = req.params.id;
-    console.log(req.body);
     const { status, incharge, remark, occurrence } = req.body;
     const updateOn = new Date().toISOString();
-    const stage = "D";
+    let stage = "D"; // Default stage for resolved logs
+    if (status !== "Resolved") {
+      stage = "A"; // If status is not "Resolved", set stage to "A" (Active)
+    }
 
     const query = `
         UPDATE alarm
@@ -116,38 +96,18 @@ router.put("/renew/:id", async (req, res) => {
       return res.status(404).json({ error: "Alarm not found" });
     }
 
-    res.json(result.rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-// New endpoint to move resolved alarm logs to history
-router.put("/resolve/:id", async (req, res) => {
-  try {
-    const id = req.params.id;
-    const { remark } = req.body;
-    const stage = "D"; // 'D' indicates resolved logs moved to history
-    const query = `
-        UPDATE alarm
-        SET stage = $1, remarks = $2
-        WHERE id = $3
-        RETURNING *;
-      `;
-    const values = [stage, remark, id];
-
-    const result = await client.query(query, values);
-
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Alarm not found" });
+    // If status is "Resolved", respond with the updated log data
+    if (status === "Resolved") {
+      res.status(200).json(result.rows[0]);
+    } else {
+      // If status is not "Resolved", respond with success message
+      res.status(200).json({ message: "Log updated successfully" });
     }
-
-    res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 module.exports = router;

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTheme, useMediaQuery, makeStyles, Hidden, Drawer, IconButton, Divider, Badge, Menu, MenuItem, Card, CardContent, Typography, Button, Popover } from '@material-ui/core';
 import { AppBar, Toolbar, List, ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
-import { Dashboard as DashboardIcon, Add as AddIcon, Menu as MenuIcon, NotificationsActive as NotificationsIcon, Alarm as AlarmIcon, Person as PersonIcon, ArrowDropDown as ArrowDropDownIcon, ChevronLeft as ChevronLeftIcon, History as HistoryIcon } from '@material-ui/icons';
+import { Dashboard as DashboardIcon, Add as AddIcon, Menu as MenuIcon, NotificationsActive as NotificationsIcon, Alarm as AlarmIcon,  ArrowDropDown as ArrowDropDownIcon, ChevronLeft as ChevronLeftIcon, } from '@material-ui/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { MdLocalGroceryStore } from "react-icons/md";
@@ -230,7 +230,7 @@ const CustomAppBar = () => {
             <img src={yourImage} alt="Your company logo" className={classes.logo} />
           </Hidden>
           <Typography variant="h6" className={classes.title}>
-            OrganizationHead Dashboard
+            SubdivisionHead Dashboard
             <div className={classes.dropdownButton} onClick={handleDropdownOpen}>
               {selectedOption}
               <ArrowDropDownIcon />

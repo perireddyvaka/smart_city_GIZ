@@ -111,30 +111,8 @@ const useStyles = makeStyles((theme) => ({
   iconContainer: {
     marginTop: theme.spacing(-2), // Move icon container upwards
   },
+
 }));
-
-// Rest of the code remains the same...
-
-
-
-// const thStyle = {
-//   border: '1px solid #dddddd',
-//   textAlign: 'left',
-//   padding: '8px',
-//   backgroundColor: '#f2f2f2',
-// };
-
-// <thead>
-// <tr>
-//     <th style={thStyle}>ID</th>
-//     <th style={thStyle}>Status</th>
-//     <th style={thStyle}>Location</th>
-//     <th style={thStyle}>Problem</th>
-//     <th style={thStyle}>Occurrence Count</th>
-//     <th style={thStyle}>Error Time</th>
-//     <th style={thStyle}>Resolved Time</th>
-// </tr>
-// </thead>
 
 const perPage = 5;
 
@@ -186,7 +164,7 @@ const AlarmLogPage = () => {
     const setData = dataType === "add" ? setAddData : setCloseData;
     const errors = {};
     let hasErrors = false;
-
+  
     // Check for empty fields
     for (const key in data) {
       if (!data[key]) {
@@ -194,7 +172,7 @@ const AlarmLogPage = () => {
         hasErrors = true;
       }
     }
-
+  
     if (hasErrors) {
       if (dataType === "add") {
         setAddErrors(errors);
@@ -203,12 +181,12 @@ const AlarmLogPage = () => {
       }
       return;
     }
-
+  
     const endpoint =
       dataType === "add"
         ? "http://127.0.0.1:8000/conditions/add"
         : `http://127.0.0.1:8000/alarm/renew/${id}`;
-
+  
     fetch(endpoint, {
       method: "POST",
       headers: {
@@ -218,12 +196,19 @@ const AlarmLogPage = () => {
     })
       .then((response) => response.json())
       .then((responseData) => {
+        // Check if the status is "Resolved"
+        if (dataType === "close" && data.status === "Resolved") {
+          // If status is "Resolved", remove the log from items state
+          setItems((prevItems) =>
+            prevItems.filter((item) => item.id !== id)
+          );
+        }
         console.log(responseData);
       })
       .catch((error) => {
         console.log(error.message);
       });
-
+  
     // Clear form data and close dialog
     setData(
       dataType === "add"
@@ -242,6 +227,7 @@ const AlarmLogPage = () => {
     );
     handleCloseDialog(dataType);
   };
+  
 
   useEffect(() => {
     // Fetch data
@@ -335,173 +321,173 @@ const AlarmLogPage = () => {
 
   return (
     <div className={classes.root}>
-      <AppBar position="fixed" className={classes.appBar}>
-  <Toolbar>
-    <Button
-      component={Link}
-      to="/logstore"
-      color="inherit"
-      style={{ color: "#fff" }}
-    >
-      History
-    </Button>
-    <Button
-      color="inherit"
-      onClick={() => setOpenAddDialog(true)}
-      style={{ color: "#fff" }}
-    >
-      ADD
-    </Button>
-    <div className={classes.title} style={{ marginLeft: "auto", marginRight: "auto" }}>
-    <Alarm className={classes.alarmIcon} />
-      <Typography variant="h6" style={{ lineHeight: "2.4rem" }}>
-        Alarm Log
-      </Typography>
-    </div>
-    <Button
-      color="inherit"
-      onClick={downloadLogs}
-      style={{ color: "#fff" }}
-    >
-      Download Logs
-    </Button>
-  </Toolbar>
-</AppBar>
-      <Toolbar /> {/* To push the content below the AppBar */}
-      <Container className={classes.container} maxWidth="md">
-        <div className={classes.optionsContainer}>
-          <Button
-            className={classes.searchByTextButton}
-            variant="contained"
-            color="primary"
-            onClick={(event) => setSearchAnchorEl(event.currentTarget)}
-          >
-            Search by Status
-          </Button>
-          <Menu
-            anchorEl={searchAnchorEl}
-            keepMounted
-            open={Boolean(searchAnchorEl)}
-            onClose={() => setSearchAnchorEl(null)}
-          >
-            <MenuItem onClick={() => handleSearchStatus("")}>
-              All
-            </MenuItem>
-            <MenuItem onClick={() => handleSearchStatus("Error")}>
-              Error
-            </MenuItem>
-            <MenuItem onClick={() => handleSearchStatus("Pending")}>
-              Pending
-            </MenuItem>
-            <MenuItem onClick={() => handleSearchStatus("Resolved")}>
-              Resolved
-            </MenuItem>
-          </Menu>
+    <AppBar position="fixed" className={classes.appBar}>
+      <Toolbar>
+        <Button
+          component={Link}
+          to="/logstore"
+          color="inherit"
+          style={{ color: "#fff" }}
+        >
+          History
+        </Button>
+        <Button
+          color="inherit"
+          onClick={() => setOpenAddDialog(true)}
+          style={{ color: "#fff" }}
+        >
+          ADD
+        </Button>
+        <div className={classes.title} style={{ marginLeft: "auto", marginRight: "auto" }}>
+          <Alarm className={classes.alarmIcon} />
+          <Typography variant="h6" style={{ lineHeight: "2.4rem" }}>
+            Alarm Log
+          </Typography>
+        </div>
+        <Button
+          color="inherit"
+          onClick={downloadLogs}
+          style={{ color: "#fff" }}
+        >
+          Download Logs
+        </Button>
+      </Toolbar>
+    </AppBar>
+    <Toolbar /> {/* To push the content below the AppBar */}
+    <Container className={classes.container} maxWidth="md">
+      <div className={classes.optionsContainer}>
+        <Button
+          className={classes.searchByTextButton}
+          variant="contained"
+          color="primary"
+          onClick={(event) => setSearchAnchorEl(event.currentTarget)}
+        >
+          Search by Status
+        </Button>
+        <Menu
+          anchorEl={searchAnchorEl}
+          keepMounted
+          open={Boolean(searchAnchorEl)}
+          onClose={() => setSearchAnchorEl(null)}
+        >
+          <MenuItem onClick={() => handleSearchStatus("")}>
+            All
+          </MenuItem>
+          <MenuItem onClick={() => handleSearchStatus("Error")}>
+            Error
+          </MenuItem>
+          <MenuItem onClick={() => handleSearchStatus("Pending")}>
+            Pending
+          </MenuItem>
+          <MenuItem onClick={() => handleSearchStatus("Resolved")}>
+            Resolved
+          </MenuItem>
+        </Menu>
+        <Button
+          className={classes.sortButton}
+          variant="contained"
+          color="primary"
+          onClick={handleSortTime}
+        >
+          Sort by Time {sortOrder === "asc" ? "▲" : "▼"}
+        </Button>
+      </div>
+
+      <TableContainer component={Paper} className={classes.logTable}>
+        <Table className={classes.table}>
+          <TableHead>
+            <TableRow>
+              <TableCell className={classes.tableHeader}>
+                ID
+              </TableCell>
+              <TableCell className={classes.tableHeader}>
+                Status
+              </TableCell>
+              <TableCell className={classes.tableHeader}>
+                Location
+              </TableCell>
+              <TableCell className={classes.tableHeader}>
+                Occurrence
+              </TableCell>
+              <TableCell className={classes.tableHeader}>
+                Time
+              </TableCell>
+              <TableCell className={classes.tableHeader}>
+                Action
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {items
+              .filter((item) =>
+                searchStatus ? item.status === searchStatus : true
+              )
+              .sort((a, b) => {
+                if (sortOrder === "asc") {
+                  return a.timeerror.localeCompare(b.timeerror);
+                } else {
+                  return b.timeerror.localeCompare(a.timeerror);
+                }
+              })
+              .slice((currentPage - 1) * perPage, currentPage * perPage)
+              .map((item, index) => (
+                <TableRow key={index}>
+                  <TableCell className={classes.tableCell}>{item.id}</TableCell>
+                  <TableCell className={classes.tableCell}>{item.status}</TableCell>
+                  <TableCell className={classes.tableCell}>{item.location}</TableCell>
+                  <TableCell className={classes.tableCell}>{item.occurrence}</TableCell>
+                  <TableCell className={classes.tableCell}>{item.timeerror}</TableCell>
+                  <TableCell className={classes.tableCell}>
+                    <Button
+                      onClick={() => {
+                        setOpenCloseDialog(true);
+                        setId(item.id);
+                      }}
+                      color="primary"
+                    >
+                      Update
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <div className={classes.optionsContainer}>
+        {currentPage > 1 && (
           <Button
             className={classes.sortButton}
             variant="contained"
             color="primary"
-            onClick={handleSortTime}
+            onClick={handlePrevPage}
           >
-            Sort by Time {sortOrder === "asc" ? "▲" : "▼"}
+            Previous
           </Button>
-        </div>
+        )}
+        {items.length > currentPage * perPage && (
+          <Button
+            className={classes.sortButton}
+            variant="contained"
+            color="primary"
+            onClick={handleNextPage}
+          >
+            Next
+          </Button>
+        )}
+        <Typography style={{ color: "#002e41", marginLeft: "auto" }}>
+          Page {currentPage} of {totalPages}
+        </Typography>
+      </div>
+    </Container>
 
-        <TableContainer component={Paper} className={classes.logTable}>
-          <Table className={classes.table}> {/* Applied custom styles */}
-            <TableHead>
-              <TableRow>
-                <TableCell className={classes.tableHeader}>
-                  ID
-                </TableCell>
-                <TableCell className={classes.tableHeader}>
-                  Status
-                </TableCell>
-                <TableCell className={classes.tableHeader}>
-                  Location
-                </TableCell>
-                <TableCell className={classes.tableHeader}>
-                  Occurrence
-                </TableCell>
-                <TableCell className={classes.tableHeader}>
-                  Time
-                </TableCell>
-                <TableCell className={classes.tableHeader}>
-                  Action
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {items
-                .filter((item) =>
-                  searchStatus ? item.status === searchStatus : true
-                )
-                .sort((a, b) => {
-                  if (sortOrder === "asc") {
-                    return a.timeerror.localeCompare(b.timeerror);
-                  } else {
-                    return b.timeerror.localeCompare(a.timeerror);
-                  }
-                })
-                .slice((currentPage - 1) * perPage, currentPage * perPage)
-                .map((item, index) => (
-                  <TableRow key={index}>
-                    <TableCell className={classes.tableCell}>{item.id}</TableCell>
-                    <TableCell className={classes.tableCell}>{item.status}</TableCell>
-                    <TableCell className={classes.tableCell}>{item.location}</TableCell>
-                    <TableCell className={classes.tableCell}>{item.occurrence}</TableCell>
-                    <TableCell className={classes.tableCell}>{item.timeerror}</TableCell>
-                    <TableCell className={classes.tableCell}>
-                      <Button
-                        onClick={() => {
-                          setOpenCloseDialog(true);
-                          setId(item.id);
-                        }}
-                        color="primary"
-                      >
-                        Update
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <div className={classes.optionsContainer}>
-      {currentPage > 1 && (
-        <Button
-          className={classes.sortButton}
-          variant="contained"
-          color="primary"
-          onClick={handlePrevPage}
-        >
-          Previous
-        </Button>
-      )}
-      {items.length > currentPage * perPage && (
-        <Button
-          className={classes.sortButton}
-          variant="contained"
-          color="primary"
-          onClick={handleNextPage}
-        >
-          Next
-        </Button>
-      )}
-      <Typography style={{ color: "#002e41", marginLeft: "auto" }}>
-        Page {currentPage} of {totalPages}
-      </Typography>
-    </div>
-  </Container>
-
-      {/* ADD condition dialog */}
-      <Dialog
-        open={openAddDialog}
-        onClose={() => handleCloseDialog("add")}
-      >
-        <DialogTitle>Add Condition</DialogTitle>
-        <DialogContent>
-        <InputLabel shrink>Parameter</InputLabel>
+    {/* ADD condition dialog */}
+    <Dialog
+      open={openAddDialog}
+      onClose={() => handleCloseDialog("add")}
+    >
+      <DialogTitle>Add Condition</DialogTitle>
+      <DialogContent>
+      <InputLabel shrink>Parameter</InputLabel>
           <Select
             autoFocus
             margin="dense"
@@ -578,31 +564,32 @@ const AlarmLogPage = () => {
             error={!!addErrors.parameter_units}
             helperText={addErrors.parameter_units}
           />
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => handleSubmit("add")}
-            color="primary"
-          >
-            Save
-          </Button>
-          <Button
-            onClick={() => handleCloseDialog("add")}
-            color="primary"
-          >
-            Cancel
-          </Button>
-        </DialogActions>
-      </Dialog>
 
-      {/* Close condition dialog */}
-      <Dialog
-        open={openCloseDialog}
-        onClose={() => handleCloseDialog("update")}
-      >
-        <DialogTitle>Close Entry</DialogTitle>
-        <DialogContent>
-          <InputLabel shrink>Problem</InputLabel>
+      </DialogContent>
+      <DialogActions>
+        <Button
+          onClick={() => handleSubmit("add")}
+          color="primary"
+        >
+          Save
+        </Button>
+        <Button
+          onClick={() => handleCloseDialog("add")}
+          color="primary"
+        >
+          Cancel
+        </Button>
+      </DialogActions>
+    </Dialog>
+
+    {/* Close condition dialog */}
+    <Dialog
+      open={openCloseDialog}
+      onClose={() => handleCloseDialog("update")}
+    >
+      <DialogTitle>Close Entry</DialogTitle>
+      <DialogContent>
+      <InputLabel shrink>Problem</InputLabel>
           <Select
             autoFocus
             margin="dense"
@@ -653,18 +640,20 @@ const AlarmLogPage = () => {
             error={!!closeErrors.remark}
             helperText={closeErrors.remark}
           />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => handleCloseDialog("close")} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={() => handleSubmit("close")} color="primary">
-            Submit
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </div>
-  );
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => handleCloseDialog("close")} color="primary">
+          Cancel
+        </Button>
+        <Button onClick={() => handleSubmit("close")} color="primary">
+          Submit
+        </Button>
+      </DialogActions>
+    </Dialog>
+  </div>
+);
 };
 
 export default AlarmLogPage;
+
+   

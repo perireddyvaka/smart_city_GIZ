@@ -1,106 +1,378 @@
-// CircleHeadPage.jsx
-import React, { useState } from 'react';
-import { AppBar, Toolbar, IconButton, Typography, Drawer, List,ListItem, ListItemIcon, ListItemText,  Menu, MenuItem } from '@mui/material';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import AlarmIcon from '@mui/icons-material/Alarm';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import { useNavigate } from 'react-router-dom';
-import MenuIcon from '@mui/icons-material/Menu';
-import CloseIcon from '@mui/icons-material/Close'; // Close icon for sidebar
-import { Analytics, Description } from '@mui/icons-material'; // Importing icons from Material-UI
-import logo from './logos.png'
+import React, { useEffect, useState } from 'react';
+import {
+  useTheme,
+  useMediaQuery,
+  makeStyles,
+  Hidden,
+  Drawer,
+  IconButton,
+  Divider,
+  Badge,
+  Menu,
+  MenuItem,
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  Popover,
+} from '@material-ui/core';
+import {
+  AppBar,
+  Toolbar,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+} from '@material-ui/core';
+import {
+  Dashboard as DashboardIcon,
+  Add as AddIcon,
+  Menu as MenuIcon,
+  NotificationsActive as NotificationsIcon,
+  Alarm as AlarmIcon,
+  ArrowDropDown as ArrowDropDownIcon,
+  ChevronLeft as ChevronLeftIcon,
+} from '@material-ui/icons';
+import { Link, useNavigate } from 'react-router-dom';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { MdLocalGroceryStore } from 'react-icons/md';
+import yourImage from './logos.png';
 
-const styles = {
-  appBar: {
-    backgroundColor: '#002e41',
+const drawerWidth = 240;
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: 'flex',
+    height: '100vh',
   },
-  drawer: {
-    width: 250,
+  appBar: {
+    backgroundColor: '#155F82',
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+  },
+  appBarShift: {
+    width: `calc(100% - ${drawerWidth}px)`,
+    marginLeft: drawerWidth,
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  },
+  toolbar: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: theme.spacing(0, 2),
   },
   logo: {
-    height: '40px',
-    marginRight: '10px',
+    height: '50px',
+    marginRight: theme.spacing(2),
   },
   title: {
     flexGrow: 1,
     textAlign: 'center',
+    display: 'flex',
+    alignItems: 'center',
+    flexDirection: 'column',
   },
-  closeIcon: {
-    marginLeft: 'auto', // Align close icon to the right
+  dropdownButton: {
+    display: 'flex',
+    alignItems: 'center',
+    cursor: 'pointer',
+    padding: theme.spacing(0.5, 2),
+    borderRadius: '20px',
+    backgroundColor: 'transparent',
+    marginRight: theme.spacing(1),
+    border: '1px solid transparent',
+    transition: 'background-color 0.3s',
+    '&:hover': {
+      backgroundColor: theme.palette.grey[200],
+    },
+  },
+  dropdownMenu: {
+    marginTop: theme.spacing(1),
+  },
+  drawer: {
+    width: drawerWidth,
+    flexShrink: 0,
+  },
+  drawerPaper: {
+    width: drawerWidth,
+    backgroundColor: '#fff',
+  },
+  drawerHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    padding: theme.spacing(0, 1),
+    ...theme.mixins.toolbar,
+    justifyContent: 'flex-end',
+  },
+  listItem: {
+    '&:hover': {
+      backgroundColor: theme.palette.grey[200],
+    },
+  },
+  notificationCard: {
+    marginBottom: theme.spacing(1),
+    position: 'relative',
+  },
+  notificationCardContent: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    flexDirection: 'column',
+  },
+  markAsReadButton: {
+    backgroundColor: '#FF8000',
+    color: '#fff',
+    '&:hover': {
+      backgroundColor: '#FFA500',
+    },
+    fontSize: '0.7rem',
+    padding: theme.spacing(0.2, 1),
+    minWidth: 'unset',
+    height: 'unset',
+    borderRadius: '10px',
+    alignSelf: 'flex-end',
+    marginBottom: theme.spacing(1),
+  },
+  popover: {
+    padding: theme.spacing(2),
+  },
+  content: {
+    flexGrow: 1,
+    padding: 0, // Remove padding
+    transition: theme.transitions.create('margin', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    marginLeft: -drawerWidth,
+    marginTop: theme.mixins.toolbar.minHeight, // Add marginTop
+    height: `calc(100vh - ${theme.mixins.toolbar.minHeight}px)`,
+    overflow: 'hidden',
+  },
+  contentShift: {
+    transition: theme.transitions.create('margin', {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    marginLeft: 0,
   },
   iframeContainer: {
     width: '100%',
-    height: 'calc(100vh - 64px)', // Adjust height based on AppBar height
+    height: '100%',
+  },
+  iframe: {
+    width: '100%',
+    height: '100%',
     border: 'none',
   },
-};
-
+}));
 
 const CircleHeadPage = () => {
+  const classes = useStyles();
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const [anchorEl, setAnchorEl] = useState(null);
+  const [ncount, setNcount] = useState(0);
+  const [acount, setAcount] = useState(0);
+  const [issue, setIssue] = useState([]);
+  const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
+  const [dropdownAnchorEl, setDropdownAnchorEl] = useState(null);
+  const [selectedOption, setSelectedOption] = useState('DTR');
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [closedNotifications, setClosedNotifications] = useState([]);
   const navigate = useNavigate();
+
+  const toggleDrawer = () => {
+    setDrawerOpen(!drawerOpen);
+  };
 
   const handleUserClick = (event) => {
     setAnchorEl(event.currentTarget);
+  };
+
+  const handleNotificationOpen = async (event) => {
+    setNotificationAnchorEl(event.currentTarget);
+    try {
+      const response = await fetch('http://127.0.0.1:8000/alarm/notidata');
+      const data = await response.json();
+      const notificationsWithTimestamp = data.map((item) => ({
+        ...item,
+        timestamp: generateTimestamp(),
+      }));
+      setIssue(notificationsWithTimestamp);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
+  const handleNotificationClose = () => {
+    setNotificationAnchorEl(null);
   };
 
   const handleClose = () => {
     setAnchorEl(null);
   };
 
-  const handleDrawerOpen = () => {
-    setDrawerOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setDrawerOpen(false);
-  };
-
-  const handleNavigate = (path) => {
-    navigate(path);
-    handleDrawerClose();
-  };
-
   const handleLogout = () => {
     handleClose();
-    // Redirect to the login page
     navigate('/login');
   };
 
+  const markAsRead = (id) => {
+    const closedNotification = issue.find((item) => item.id === id);
+    setClosedNotifications((prevNotifications) => [
+      ...prevNotifications,
+      closedNotification,
+    ]);
+    localStorage.setItem(
+      `notification_${id}`,
+      JSON.stringify(closedNotification)
+    );
+    setIssue((prevIssue) => prevIssue.filter((item) => item.id !== id));
+    if (issue.length === 1) {
+      handleNotificationClose();
+    }
+  };
+
+  const handleDropdownOpen = (event) => {
+    setDropdownAnchorEl(event.currentTarget);
+  };
+
+  const handleDropdownClose = (option) => {
+    setSelectedOption(option);
+    setDropdownAnchorEl(null);
+  };
+
+  const generateTimestamp = () => {
+    const currentDate = new Date();
+    return currentDate.toLocaleString();
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const ncountResponse = await fetch(
+          'http://127.0.0.1:8000/alarm/ncount'
+        );
+        const ncountData = await ncountResponse.json();
+        setNcount(ncountData[0]);
+
+        const acountResponse = await fetch(
+          'http://127.0.0.1:8000/alarm/acount'
+        );
+        const acountData = await acountResponse.json();
+        setAcount(acountData[0]);
+
+        const closedNotificationsFromStorage = Object.keys(localStorage)
+          .filter((key) => key.startsWith('notification_'))
+          .map((key) => JSON.parse(localStorage.getItem(key)));
+        setClosedNotifications(closedNotificationsFromStorage);
+      } catch (error) {
+        console.error(error.message);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const filteredIssue = issue.filter(
+    (item) => !closedNotifications.some((closedItem) => closedItem.id === item.id)
+  );
+
   return (
-    <div>
-      <AppBar position="static" style={styles.appBar}>
-        <Toolbar>
-        <IconButton color="inherit" onClick={handleDrawerOpen}>
+    <div className={classes.root}>
+      <AppBar
+        position="fixed"
+        className={`${classes.appBar} ${drawerOpen && classes.appBarShift}`}
+      >
+        <Toolbar className={classes.toolbar}>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={toggleDrawer}
+            edge="start"
+            className={drawerOpen ? '' : classes.menuButton}
+          >
             <MenuIcon />
           </IconButton>
-          {/* Logo Image */}
-          <img src={logo} alt="Logo" style={styles.logo} />
-
-          {/* Title */}
-          <Typography variant="h6" align='center' component="div" sx={styles.title}>
+          <Hidden xsDown>
+            <img src={yourImage} alt="Your company logo" className={classes.logo} />
+          </Hidden>
+          <Typography variant="h6" noWrap className={classes.title}>
             CircleHead Dashboard
+            <div
+              className={classes.dropdownButton}
+              onClick={handleDropdownOpen}
+            >
+              <span>{selectedOption}</span>
+              <ArrowDropDownIcon />
+            </div>
+            <Menu
+              anchorEl={dropdownAnchorEl}
+              open={Boolean(dropdownAnchorEl)}
+              onClose={handleDropdownClose}
+              className={classes.dropdownMenu}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'center',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'center',
+              }}
+            >
+              <MenuItem onClick={() => handleDropdownClose('DTR')}>DTR</MenuItem>
+              <MenuItem onClick={() => handleDropdownClose('ACB')}>ACB</MenuItem>
+            </Menu>
           </Typography>
-
-          {/* IconButtons */}
-          <IconButton color="inherit">
-            <AlarmIcon />
-            <br/>
-          </IconButton>
-          <IconButton color="inherit">
-            <NotificationsIcon />
+          <div>
+            <IconButton color="inherit" onClick={handleNotificationOpen}>
+              <Badge badgeContent={ncount?.count || 0} color="secondary">
+                <NotificationsIcon />
+              </Badge>
+            </IconButton>
+            <Popover
+              open={Boolean(notificationAnchorEl)}
+              anchorEl={notificationAnchorEl}
+              onClose={handleNotificationClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+            >
+              <div className={classes.popover}>
+                {filteredIssue.map((item, index) => (
+                  <Card key={index} className={classes.notificationCard}>
+                    <CardContent className={classes.notificationCardContent}>
+                      <div>
+                        <Typography variant="h6">{item.title}</Typography>
+                        <Typography variant="body1">Status: {item.status}</Typography>
+                        <Typography variant="body1">Occurrence: {item.occurrence}</Typography>
+                        <Typography variant="body1">Location: {item.location}</Typography>
+                        <Typography variant="body1" >Timestamp: {item.timestamp}</Typography>
+                      </div>
+                      <Button className={classes.markAsReadButton} onClick={() => markAsRead(item.id)}>Mark as Read</Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </Popover>
+          </div>
+          <IconButton component={Link} to="/Alarmlog" color="inherit">
+            <Badge badgeContent={acount?.count || 0} color="secondary">
+              <AlarmIcon />
+            </Badge>
           </IconButton>
           <IconButton color="inherit" onClick={handleUserClick}>
-            <AccountCircleIcon />
+            <LogoutIcon />
           </IconButton>
-          {drawerOpen && (
-            <IconButton color="inherit" onClick={handleDrawerClose} style={styles.closeIcon}>
-              <CloseIcon />
-            </IconButton>
-          )}
-
-          {/* User Management Popup */}
           <Menu
             anchorEl={anchorEl}
             open={Boolean(anchorEl)}
@@ -120,44 +392,78 @@ const CircleHeadPage = () => {
       </AppBar>
 
       <Drawer
+        className={classes.drawer}
+        variant={isSmallScreen ? 'temporary' : 'persistent'}
         anchor="left"
         open={drawerOpen}
-        onClose={handleDrawerClose}
-        sx={{ width: styles.drawer }}
+        onClose={toggleDrawer}
+        classes={{
+          paper: classes.drawerPaper,
+        }}
       >
+        <div className={classes.drawerHeader}>
+          <IconButton onClick={toggleDrawer}>
+            <ChevronLeftIcon />
+          </IconButton>
+        </div>
+        <Divider />
         <List>
-          <ListItem button onClick={() => handleNavigate('/analytical')}>
-            <ListItemIcon>
-              <Analytics />
-            </ListItemIcon>
-            <ListItemText primary="Analytical View" />
-          </ListItem>
-          <ListItem button onClick={() => handleNavigate('/Alarmlog')}>
-            <ListItemIcon>
-              <AlarmIcon />
-            </ListItemIcon>
-            <ListItemText primary="Alarm Logs" />
-          </ListItem>
-          <ListItem button onClick={() => handleNavigate('/LogStore')}>
-            <ListItemIcon>
-              <Description />
-            </ListItemIcon>
-            <ListItemText primary="Log Store" />
-          </ListItem>
+          <Link to="/analytical-view" onClick={toggleDrawer} className={classes.listItem}>
+            <ListItem button>
+              <ListItemIcon>
+                <DashboardIcon />
+              </ListItemIcon>
+              <ListItemText primary="Analytical View" />
+            </ListItem>
+          </Link>
+          <Link to="/history" onClick={toggleDrawer} className={classes.listItem}>
+            {/* <ListItem button>
+              <ListItemIcon>
+                <HistoryIcon />
+              </ListItemIcon>
+              <ListItemText primary="Notification History" />
+            </ListItem>
+          </Link>
+          <Link to="/" onClick={toggleDrawer} className={classes.listItem}> */}
+            {/* <ListItem button>
+              <ListItemIcon>
+                <PersonIcon />
+              </ListItemIcon>
+              <ListItemText primary="User Management" />
+            </ListItem> */}
+          </Link>
+          <Link to="/AlarmLogPage" onClick={toggleDrawer} className={classes.listItem}>
+            <ListItem button>
+              <ListItemIcon>
+                <AddIcon />
+              </ListItemIcon>
+              <ListItemText primary="Add Alarm" />
+            </ListItem>
+          </Link>
+          <Link to="/LogStore" onClick={toggleDrawer} className={classes.listItem}>
+            <ListItem button>
+              <ListItemIcon>
+                <MdLocalGroceryStore />
+              </ListItemIcon>
+              <ListItemText primary="Log Store" />
+            </ListItem>
+          </Link>
         </List>
       </Drawer>
 
-      <iframe
-        src="https://your-tableau-server.com/views/YourDashboard/CircleHeadDashboard"
-        title="Tableau Dashboard"
-        style={{
-          width: '100%',
-          height: 'calc(100vh - 64px)', // Adjust the height as needed
-          border: 'none',
-        }}
-        frameBorder="0"
-        allowFullScreen
-      />
+      <main className={`${classes.content} ${drawerOpen && classes.contentShift}`}>
+        <div className={classes.iframeContainer}>
+          <iframe
+            src="https://public.tableau.com/views/BYPLDASHBOARD/Dashboard1?:language=en-US&:sid=&:display_count=n&:origin=viz_share_link
+            // &:showVizHome=no
+                &embed=true
+                &:toolbar=no
+                &:showShareOptions=no"
+            title="Tableau Dashboard"
+            className={classes.iframe}
+          />
+        </div>
+      </main>
     </div>
   );
 };
