@@ -15,6 +15,13 @@ import {
   Typography,
   Button,
   Popover,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Select,
+  InputLabel,
 } from '@material-ui/core';
 import {
   AppBar,
@@ -142,13 +149,13 @@ const useStyles = makeStyles((theme) => ({
   },
   content: {
     flexGrow: 1,
-    padding: 0, // Remove padding
+    padding: 0,
     transition: theme.transitions.create('margin', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
     marginLeft: -drawerWidth,
-    marginTop: theme.mixins.toolbar.minHeight, // Add marginTop
+    marginTop: theme.mixins.toolbar.minHeight,
     height: `calc(100vh - ${theme.mixins.toolbar.minHeight}px)`,
     overflow: 'hidden',
   },
@@ -177,12 +184,30 @@ const OrganizationHeadPage = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [ncount, setNcount] = useState(0);
   const [acount, setAcount] = useState(0);
+  const [ setItems] = useState([]);
   const [issue, setIssue] = useState([]);
   const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
   const [dropdownAnchorEl, setDropdownAnchorEl] = useState(null);
   const [selectedOption, setSelectedOption] = useState('DTR');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [closedNotifications, setClosedNotifications] = useState([]);
+  const [openAddDialog, setOpenAddDialog] = useState(false); // Dialog state
+  const [addData, setAddData] = useState({
+    phase: "",
+    parameter: "",
+    range_min: 0,
+    range_max: 0,
+    parameter_units: "",
+  });
+  const [addErrors, setAddErrors] = useState({});
+  const [id,] = useState(null); // Add id state
+  const [ setCloseErrors] = useState({});
+  const [ setOpenCloseDialog] = useState(false);
+  const [closeData, setCloseData] = useState({
+    problem: "",
+    status: "",
+    remark: "",
+  });
   const navigate = useNavigate();
 
   const toggleDrawer = () => {
@@ -191,6 +216,91 @@ const OrganizationHeadPage = () => {
 
   const handleUserClick = (event) => {
     setAnchorEl(event.currentTarget);
+  };
+
+  const handleInputChange = (event, dataType) => {
+    const data = dataType === "add" ? addData : closeData;
+    const setData = dataType === "add" ? setAddData : setCloseData;
+    setData({ ...data, [event.target.name]: event.target.value });
+  };
+
+  const handleCloseDialog = (dialogType) => {
+    if (dialogType === "add") {
+      setOpenAddDialog(false);
+      setAddErrors({});
+    } else if (dialogType === "close") {
+      setOpenCloseDialog(false);
+      setCloseErrors({});
+    }
+  };
+
+  const handleSubmit = (dataType) => {
+    const data = dataType === "add" ? addData : closeData;
+    const setData = dataType === "add" ? setAddData : setCloseData;
+    const errors = {};
+    let hasErrors = false;
+  
+    // Check for empty fields
+    for (const key in data) {
+      if (!data[key]) {
+        errors[key] = "Required";
+        hasErrors = true;
+      }
+    }
+  
+    if (hasErrors) {
+      if (dataType === "add") {
+        setAddErrors(errors);
+      } else if (dataType === "close") {
+        setCloseErrors(errors);
+      }
+      return;
+    }
+  
+    const endpoint =
+      dataType === "add"
+        ? "http://127.0.0.1:8000/conditions/add"
+        : `http://127.0.0.1:8000/alarm/renew/${id}`;
+  
+    fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((responseData) => {
+        // Check if the status is "Resolved"
+        if (dataType === "close" && data.status === "Resolved") {
+          // If status is "Resolved", remove the log from items state
+          setItems((prevItems) =>
+            prevItems.filter((item) => item.id !== id)
+          );
+        }
+        console.log(responseData);
+      })
+      .catch((error) => {
+        console.log(error.message);
+      });
+  
+    // Clear form data and close dialog
+    setData(
+      dataType === "add"
+        ? {
+            phase: "",
+            parameter: "",
+            range_min: 0,
+            range_max: 0,
+            parameter_units: "",
+          }
+        : {
+            problem: "",
+            status: "",
+            remark: "",
+          }
+    );
+    handleCloseDialog(dataType);
   };
 
   const handleNotificationOpen = async (event) => {
@@ -249,6 +359,14 @@ const OrganizationHeadPage = () => {
   const generateTimestamp = () => {
     const currentDate = new Date();
     return currentDate.toLocaleString();
+  };
+
+  const handleOpenAddDialog = () => { // Open dialog function
+    setOpenAddDialog(true);
+  };
+
+  const handleCloseAddDialog = () => { // Close dialog function
+    setOpenAddDialog(false);
   };
 
   useEffect(() => {
@@ -432,14 +550,14 @@ const OrganizationHeadPage = () => {
               <ListItemText primary="User Management" />
             </ListItem> */}
           </Link>
-          <Link to="/AlarmLogPage" onClick={toggleDrawer} className={classes.listItem}>
-            <ListItem button>
-              <ListItemIcon>
-                <AddIcon />
-              </ListItemIcon>
-              <ListItemText primary="Add Alarm" />
-            </ListItem>
-          </Link>
+          
+          <ListItem button onClick={handleOpenAddDialog} className={classes.listItem}>
+            <ListItemIcon>
+              <AddIcon />
+            </ListItemIcon>
+            <ListItemText primary="Add Alarm" />
+          </ListItem>
+          
           <Link to="/LogStore" onClick={toggleDrawer} className={classes.listItem}>
             <ListItem button>
               <ListItemIcon>
@@ -454,7 +572,7 @@ const OrganizationHeadPage = () => {
       <main className={`${classes.content} ${drawerOpen && classes.contentShift}`}>
         <div className={classes.iframeContainer}>
           <iframe
-            src="https://public.tableau.com/views/BYPLDASHBOARD/Dashboard1?:language=en-US&:sid=&:display_count=n&:origin=viz_share_link
+            src="https://public.tableau.com
             // &:showVizHome=no
                 &embed=true
                 &:toolbar=no
@@ -464,6 +582,106 @@ const OrganizationHeadPage = () => {
           />
         </div>
       </main>
+
+      {/* ADD condition dialog */}
+      <Dialog
+        open={openAddDialog}
+        onClose={handleCloseAddDialog}
+      >
+        <DialogTitle>Add Condition</DialogTitle>
+        <DialogContent>
+          <InputLabel shrink>Parameter</InputLabel>
+          <Select
+            autoFocus
+            margin="dense"
+            fullWidth
+            name="parameter"
+            onChange={(event) => handleInputChange(event, "add")}
+            error={!!addErrors.parameter}
+            helperText={addErrors.parameter}
+          >
+            <MenuItem value="">Select Parameter</MenuItem>
+            <MenuItem value="Overloaded LT Feeders">
+              Overloaded LT Feeders
+            </MenuItem>
+            <MenuItem value="Loose connection on LT side">
+              Loose connection on LT side
+            </MenuItem>
+            <MenuItem value="Fault on LT side">Fault on LT side</MenuItem>
+            <MenuItem value="Low oil level">Low oil level</MenuItem>
+            <MenuItem value="Oil leakage">Oil leakage</MenuItem>
+            <MenuItem value="acb_3_current">acb_3_current</MenuItem>
+          </Select>
+
+          <InputLabel shrink>Phase</InputLabel>
+          <Select
+            autoFocus
+            margin="dense"
+            fullWidth
+            name="phase"
+            onChange={(event) => handleInputChange(event, "add")}
+            error={!!addErrors.phase}
+            helperText={addErrors.phase}
+          >
+            <MenuItem value="">Select Phase</MenuItem>
+            <MenuItem value="phaseR">
+              phaseR
+            </MenuItem>
+            <MenuItem value="phaseY">
+              phaseY
+            </MenuItem>
+            <MenuItem value="phaseB">phaseB</MenuItem>
+            <MenuItem value="phaseB">phaseN</MenuItem>
+          </Select>
+          <TextField
+            margin="dense"
+            label="Min Range"
+            type="number"
+            fullWidth
+            name="range_min"
+            value={addData.range_min}
+            onChange={(event) => handleInputChange(event, "add")}
+            error={!!addErrors.range_min}
+            helperText={addErrors.range_min}
+          />
+          <TextField
+            margin="dense"
+            label="Max Range"
+            type="number"
+            fullWidth
+            name="range_max"
+            value={addData.range_max}
+            onChange={(event) => handleInputChange(event, "add")}
+            error={!!addErrors.range_max}
+            helperText={addErrors.range_max}
+          />
+          <TextField
+            margin="dense"
+            label="Parameter Units"
+            type="text"
+            fullWidth
+            name="parameter_units"
+            value={addData.parameter_units}
+            onChange={(event) => handleInputChange(event, "add")}
+            error={!!addErrors.parameter_units}
+            helperText={addErrors.parameter_units}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => handleSubmit("add")}
+            color="primary"
+          >
+            Save
+          </Button>
+          <Button
+            onClick={() => handleCloseDialog("add")}
+            color="primary"
+          >
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
