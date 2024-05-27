@@ -37,7 +37,7 @@ import {
   Menu as MenuIcon,
   NotificationsActive as NotificationsIcon,
   Alarm as AlarmIcon,
-  ArrowDropDown as ArrowDropDownIcon,
+ 
   ChevronLeft as ChevronLeftIcon,
 } from '@material-ui/icons';
 import { Link, useNavigate } from 'react-router-dom';
@@ -187,8 +187,8 @@ const OrganizationHeadPage = () => {
   const [ setItems] = useState([]);
   const [issue, setIssue] = useState([]);
   const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
-  const [dropdownAnchorEl, setDropdownAnchorEl] = useState(null);
-  const [selectedOption, setSelectedOption] = useState('DTR');
+  // const [dropdownAnchorEl, setDropdownAnchorEl] = useState(null);
+  // const [selectedOption, setSelectedOption] = useState('DTR');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [closedNotifications, setClosedNotifications] = useState([]);
   const [openAddDialog, setOpenAddDialog] = useState(false); // Dialog state
@@ -347,14 +347,14 @@ const OrganizationHeadPage = () => {
     }
   };
 
-  const handleDropdownOpen = (event) => {
-    setDropdownAnchorEl(event.currentTarget);
-  };
+  // const handleDropdownOpen = (event) => {
+  //   setDropdownAnchorEl(event.currentTarget);
+  // };
 
-  const handleDropdownClose = (option) => {
-    setSelectedOption(option);
-    setDropdownAnchorEl(null);
-  };
+  // const handleDropdownClose = (option) => {
+  //   setSelectedOption(option);
+  //   setDropdownAnchorEl(null);
+  // };
 
   const generateTimestamp = () => {
     const currentDate = new Date();
@@ -423,12 +423,12 @@ const OrganizationHeadPage = () => {
             OrganizationHead Dashboard
             <div
               className={classes.dropdownButton}
-              onClick={handleDropdownOpen}
+              // onClick={handleDropdownOpen}
             >
-              <span>{selectedOption}</span>
-              <ArrowDropDownIcon />
+              {/* <span>{selectedOption}</span> */}
+              {/* <ArrowDropDownIcon /> */}
             </div>
-            <Menu
+            {/* <Menu
               anchorEl={dropdownAnchorEl}
               open={Boolean(dropdownAnchorEl)}
               onClose={handleDropdownClose}
@@ -444,7 +444,7 @@ const OrganizationHeadPage = () => {
             >
               <MenuItem onClick={() => handleDropdownClose('DTR')}>DTR</MenuItem>
               <MenuItem onClick={() => handleDropdownClose('ACB')}>ACB</MenuItem>
-            </Menu>
+            </Menu> */}
           </Typography>
           <div>
             <IconButton color="inherit" onClick={handleNotificationOpen}>

@@ -16,15 +16,15 @@ const AppBar = () => {
         fontSize: '1.5rem', // Adjust font size
     };
 
-    const backButtonStyle = {
-        cursor: 'pointer',
-        textDecoration: 'underline',
-    };
+    // const backButtonStyle = {
+    //     cursor: 'pointer',
+    //     textDecoration: 'underline',
+    // };
 
-    const handleGoBack = () => {
-        // Go back to the previous page
-        window.history.back();
-    };
+    // const handleGoBack = () => {
+    //     // Go back to the previous page
+    //     window.history.back();
+    // };
 
     return (
         <div style={appbarStyle}>
@@ -35,9 +35,9 @@ const AppBar = () => {
             <div style={{ flex: '1', textAlign: 'center' }}>
                 <span style={titleStyle}>Alarm Logs History</span>
             </div>
-            <div>
+            {/* <div>
                 <span style={backButtonStyle} onClick={handleGoBack}>Back</span>
-            </div>
+            </div> */}
         </div>
     );
 };

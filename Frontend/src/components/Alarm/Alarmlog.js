@@ -3,6 +3,7 @@ import {
   Typography,
   Container,
   makeStyles,
+  Hidden,
   Button,
   Dialog,
   DialogTitle,
@@ -25,6 +26,7 @@ import {
 } from "@material-ui/core";
 import { Alarm } from "@material-ui/icons";
 import { Link } from "react-router-dom";
+import yourImage from './logos.png';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -42,6 +44,10 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: "800px",
     width: "100%",
     position: "relative",
+  },
+  logo: {
+    height: '50px',
+    marginRight: theme.spacing(2),
   },
   addButton: {
     borderRadius: "30%",
@@ -111,6 +117,7 @@ const useStyles = makeStyles((theme) => ({
   iconContainer: {
     marginTop: theme.spacing(-2), // Move icon container upwards
   },
+  
 
 }));
 
@@ -338,6 +345,9 @@ const AlarmLogPage = () => {
         >
           ADD
         </Button>
+        <Hidden xsDown>
+            <img src={yourImage} alt="Your company logo" className={classes.logo} />
+          </Hidden>
         <div className={classes.title} style={{ marginLeft: "auto", marginRight: "auto" }}>
           <Alarm className={classes.alarmIcon} />
           <Typography variant="h6" style={{ lineHeight: "2.4rem" }}>
