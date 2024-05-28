@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   useTheme,
   useMediaQuery,
   makeStyles,
   Hidden,
   Drawer,
+  Dialog,
+  Box,
   IconButton,
   Divider,
   Badge,
@@ -30,9 +32,11 @@ import {
   Menu as MenuIcon,
   NotificationsActive as NotificationsIcon,
   Alarm as AlarmIcon,
-  ArrowDropDown as ArrowDropDownIcon,
+ 
   ChevronLeft as ChevronLeftIcon,
 } from '@material-ui/icons';
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import ReplayIcon from "@mui/icons-material/Replay";
 import { Link, useNavigate } from 'react-router-dom';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { MdLocalGroceryStore } from 'react-icons/md';
@@ -168,7 +172,37 @@ const useStyles = makeStyles((theme) => ({
     height: '100%',
     border: 'none',
   },
+  
 }));
+
+const styles = {
+  sessionTimeoutDialog: {
+    width: "600px",
+    padding: "48px",
+    backgroundColor: "#f3e5f5", // Light purple background color
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  errorIcon: {
+    fontSize: "96px", // Increased icon size
+    color: "#c51162", // Attractive red color
+    marginBottom: "24px",
+  },
+  sessionTimeoutText: {
+    marginBottom: "16px",
+    fontWeight: "bold", // Bold text for better visibility
+  },
+  loginAgainText: {
+    display: "flex",
+    alignItems: "center",
+    marginBottom: "32px", // Increased bottom margin for better spacing
+    fontSize: "18px", // Increased font size for better readability
+  },
+  loginAgainIcon: {
+    marginRight: "8px",
+  },
+};
 
 const CircleHeadPage = () => {
   const classes = useStyles();
@@ -179,11 +213,43 @@ const CircleHeadPage = () => {
   const [acount, setAcount] = useState(0);
   const [issue, setIssue] = useState([]);
   const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
-  const [dropdownAnchorEl, setDropdownAnchorEl] = useState(null);
-  const [selectedOption, setSelectedOption] = useState('DTR');
+  // const [dropdownAnchorEl, setDropdownAnchorEl] = useState(null);
+  // const [selectedOption, setSelectedOption] = useState('DTR');
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [sessionTimeoutAlert, setSessionTimeoutAlert] = useState(false);
   const [closedNotifications, setClosedNotifications] = useState([]);
   const navigate = useNavigate();
+  const sessionTimer = useRef(null);
+
+  useEffect(() => {
+    const startSessionTimer = () => {
+      const sessionDuration = 1 * 24 * 60 * 60 * 1000; // 5 seconds for testing, adjust as needed
+      return setTimeout(() => {
+        setSessionTimeoutAlert(true);
+      }, sessionDuration);
+    };
+
+    const resetTimer = () => {
+      clearTimeout(sessionTimer.current);
+      sessionTimer.current = startSessionTimer();
+    };
+
+    sessionTimer.current = startSessionTimer();
+
+    document.addEventListener("mousemove", resetTimer);
+    document.addEventListener("keypress", resetTimer);
+
+    return () => {
+      clearTimeout(sessionTimer.current);
+      document.removeEventListener("mousemove", resetTimer);
+      document.removeEventListener("keypress", resetTimer);
+    };
+  }, []);
+
+  const handleSessionTimeoutAlertClose = () => {
+    setSessionTimeoutAlert(false);
+    navigate("/login");
+  };
 
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
@@ -237,14 +303,14 @@ const CircleHeadPage = () => {
     }
   };
 
-  const handleDropdownOpen = (event) => {
-    setDropdownAnchorEl(event.currentTarget);
-  };
+  // const handleDropdownOpen = (event) => {
+  //   setDropdownAnchorEl(event.currentTarget);
+  // };
 
-  const handleDropdownClose = (option) => {
-    setSelectedOption(option);
-    setDropdownAnchorEl(null);
-  };
+  // const handleDropdownClose = (option) => {
+  //   setSelectedOption(option);
+  //   setDropdownAnchorEl(null);
+  // };
 
   const generateTimestamp = () => {
     const currentDate = new Date();
@@ -303,7 +369,7 @@ const CircleHeadPage = () => {
           </Hidden>
           <Typography variant="h6" noWrap className={classes.title}>
             CircleHead Dashboard
-            <div
+            {/* <div
               className={classes.dropdownButton}
               onClick={handleDropdownOpen}
             >
@@ -326,7 +392,7 @@ const CircleHeadPage = () => {
             >
               <MenuItem onClick={() => handleDropdownClose('DTR')}>DTR</MenuItem>
               <MenuItem onClick={() => handleDropdownClose('ACB')}>ACB</MenuItem>
-            </Menu>
+            </Menu> */}
           </Typography>
           <div>
             <IconButton color="inherit" onClick={handleNotificationOpen}>
@@ -464,6 +530,33 @@ const CircleHeadPage = () => {
           />
         </div>
       </main>
+      <Dialog
+        open={sessionTimeoutAlert}
+        onClose={handleSessionTimeoutAlertClose}
+        PaperProps={{
+          style: styles.sessionTimeoutDialog,
+        }}
+      >
+        <ErrorOutlineIcon style={styles.errorIcon} />
+        <Typography variant="h5" gutterBottom style={styles.sessionTimeoutText}>
+          Oops!
+        </Typography>
+        <Typography variant="body1" gutterBottom style={styles.sessionTimeoutText}>
+          Your session is expired.
+        </Typography>
+        <Box style={styles.loginAgainText}>
+          <ReplayIcon style={styles.loginAgainIcon} />
+          <Typography variant="body1">Please kindly login again</Typography>
+        </Box>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSessionTimeoutAlertClose}
+          autoFocus
+        >
+          OK
+        </Button>
+      </Dialog>
     </div>
   );
 };

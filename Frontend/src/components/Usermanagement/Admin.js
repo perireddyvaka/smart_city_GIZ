@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { AppBar, Toolbar, Typography, Box, Container, IconButton, Drawer, List, ListItem, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
+import React, { useState, useRef, useEffect } from 'react';
+import { AppBar, Toolbar, Typography, Box, Button, Dialog, Container, IconButton, Drawer, List, ListItem, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -8,6 +8,8 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import AlarmIcon from '@mui/icons-material/Alarm';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Analytics from '@mui/icons-material/Analytics';
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import ReplayIcon from "@mui/icons-material/Replay";
 import logo from './logos.png';
 // import backgroundImg from './BYPLimage.jpg'; // import your background image here
 
@@ -63,12 +65,70 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
   },
+  sessionTimeoutDialog: {
+    width: "600px",
+    padding: "48px",
+    backgroundColor: "#f3e5f5", // Light purple background color
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  errorIcon: {
+    fontSize: "96px", // Increased icon size
+    color: "#c51162", // Attractive red color
+    marginBottom: "24px",
+  },
+  sessionTimeoutText: {
+    marginBottom: "16px",
+    fontWeight: "bold", // Bold text for better visibility
+  },
+  loginAgainText: {
+    display: "flex",
+    alignItems: "center",
+    marginBottom: "32px", // Increased bottom margin for better spacing
+    fontSize: "18px", // Increased font size for better readability
+  },
+  loginAgainIcon: {
+    marginRight: "8px",
+  },
 };
 
 const Admin = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [sessionTimeoutAlert, setSessionTimeoutAlert] = useState(false);
   const navigate = useNavigate();
+  const sessionTimer = useRef(null);
+
+  useEffect(() => {
+    const startSessionTimer = () => {
+      const sessionDuration = 1 * 24 * 60 * 60 * 1000; // 5 seconds for testing, adjust as needed
+      return setTimeout(() => {
+        setSessionTimeoutAlert(true);
+      }, sessionDuration);
+    };
+
+    const resetTimer = () => {
+      clearTimeout(sessionTimer.current);
+      sessionTimer.current = startSessionTimer();
+    };
+
+    sessionTimer.current = startSessionTimer();
+
+    document.addEventListener("mousemove", resetTimer);
+    document.addEventListener("keypress", resetTimer);
+
+    return () => {
+      clearTimeout(sessionTimer.current);
+      document.removeEventListener("mousemove", resetTimer);
+      document.removeEventListener("keypress", resetTimer);
+    };
+  }, []);
+
+  const handleSessionTimeoutAlertClose = () => {
+    setSessionTimeoutAlert(false);
+    navigate("/login");
+  };
 
   const handleDrawerOpen = () => {
     setDrawerOpen(true);
@@ -172,6 +232,34 @@ const Admin = () => {
           Welcome to the Admin Dashboard
         </Typography>
       </Container>
+
+      <Dialog
+        open={sessionTimeoutAlert}
+        onClose={handleSessionTimeoutAlertClose}
+        PaperProps={{
+          style: styles.sessionTimeoutDialog,
+        }}
+      >
+        <ErrorOutlineIcon style={styles.errorIcon} />
+        <Typography variant="h5" gutterBottom style={styles.sessionTimeoutText}>
+          Oops!
+        </Typography>
+        <Typography variant="body1" gutterBottom style={styles.sessionTimeoutText}>
+          Your session is expired.
+        </Typography>
+        <Box style={styles.loginAgainText}>
+          <ReplayIcon style={styles.loginAgainIcon} />
+          <Typography variant="body1">Please kindly login again</Typography>
+        </Box>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSessionTimeoutAlertClose}
+          autoFocus
+        >
+          OK
+        </Button>
+      </Dialog>
     </Box>
   );
 };

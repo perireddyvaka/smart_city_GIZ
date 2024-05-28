@@ -1,32 +1,20 @@
-import React, { useState, useEffect } from "react";
-import { AppBar, Toolbar } from "@mui/material";
-import { Link } from "react-router-dom";
-
+import React, { useState, useEffect, useRef } from "react";
+import { AppBar, Toolbar, Box, Typography, TextField, Checkbox, FormControlLabel, Button, Container,   Dialog, } from "@mui/material";
+import {  useNavigate } from "react-router-dom";
+// import CloseIcon from "@mui/icons-material/Close";
 import logo from "./logos.png";
-import {
-  Box,
-  Typography,
-  TextField,
-  Checkbox,
-  FormControlLabel,
-  Button,
-  Container,
-  Modal,
-  IconButton,
-} from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import CloseIcon from "@mui/icons-material/Close";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import ReplayIcon from "@mui/icons-material/Replay";
 
-// Assuming existingUsers is an array of user objects with email property
-const existingUsers = [
-  { username: "user1", email: "user1@example.com", password: "password1" },
-  { username: "user2", email: "user2@example.com", password: "password2" },
-  { username: "user3", email: "user3@example.com", password: "password3" },
-];
+// const existingUsers = [
+//   { username: "user1", email: "user1@example.com", password: "password1" },
+//   { username: "user2", email: "user2@example.com", password: "password2" },
+//   { username: "user3", email: "user3@example.com", password: "password3" },
+// ];
 
 const styles = {
   appBar: {
-    backgroundColor: "#002e41", // Material-UI primary color
+    backgroundColor: "#002e41",
   },
   toolbar: {
     display: "flex",
@@ -35,38 +23,38 @@ const styles = {
   },
   logo: {
     height: 40,
-    marginRight: 16, // Add some spacing between the logo and title
+    marginRight: 16,
   },
   title: {
     flexGrow: 1,
     textAlign: "center",
-    color: "#fff", // Set text color to white for better visibility
+    color: "#fff",
   },
   button: {
-    color: "#fff", // Set text color to white for better visibility
-    marginLeft: 16, // Add some spacing between the buttons
-    textDecoration: "none", // Remove underline from the link
+    color: "#fff",
+    marginLeft: 16,
+    textDecoration: "none",
   },
   container: {
     display: "flex",
-    flexDirection: "column", // Stack content vertically
+    flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    minHeight: "calc(100vh - 64px)", // Account for AppBar height
+    minHeight: "calc(100vh - 64px)",
   },
   loginForm: {
     border: "1px solid grey",
     padding: 6,
     borderRadius: 3,
-    width: "500px", // Adjust width as desired
-    backgroundColor: "#fff", // Ensure background color for better contrast
+    width: "500px",
+    backgroundColor: "#fff",
   },
   loginFormItem: {
-    marginBottom: 25, // Add spacing between elements
+    marginBottom: 25,
   },
   forgotPasswordLink: {
     textAlign: "right",
-    color: "#002e41", // Match primary color for better visibility
+    color: "#002e41",
     marginBottom: 10,
     cursor: "pointer",
   },
@@ -88,59 +76,85 @@ const styles = {
   modalCloseButton: {
     cursor: "pointer",
   },
+  sessionTimeoutDialog: {
+    width: "600px",
+    padding: "48px",
+    backgroundColor: "#f3e5f5", // Light purple background color
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  errorIcon: {
+    fontSize: "96px", // Increased icon size
+    color: "#c51162", // Attractive red color
+    marginBottom: "24px",
+  },
+  sessionTimeoutText: {
+    marginBottom: "16px",
+    fontWeight: "bold", // Bold text for better visibility
+  },
+  loginAgainText: {
+    display: "flex",
+    alignItems: "center",
+    marginBottom: "32px", // Increased bottom margin for better spacing
+    fontSize: "18px", // Increased font size for better readability
+  },
+  loginAgainIcon: {
+    marginRight: "8px",
+  },
 };
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [openForgotPasswordModal, setOpenForgotPasswordModal] = useState(false);
-  const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
-  const [sessionTimer, setSessionTimer] = useState(null);
+  const [passwordError, setPasswordError] = useState("");
+  // const [openForgotPasswordModal, setOpenForgotPasswordModal] = useState(false);
+  // const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
+  const [sessionTimeoutAlert, setSessionTimeoutAlert] = useState(false);
   const navigate = useNavigate();
+  const sessionTimer = useRef(null);
 
   useEffect(() => {
-    // Start session timer when component mounts
-    startSessionTimer();
-
-    // Clean up timer when component unmounts
-    return () => {
-      clearTimeout(sessionTimer);
+    const startSessionTimer = () => {
+      const sessionDuration = 5 * 1000; // 5 seconds for testing, adjust as needed
+      return setTimeout(() => {
+        setSessionTimeoutAlert(true);
+      }, sessionDuration);
     };
-  }, []); // Empty dependency array indicates the effect should only run once
 
-  useEffect(() => {
-    // Reset session timer on user activity
     const resetTimer = () => {
-      clearTimeout(sessionTimer);
-      startSessionTimer();
+      clearTimeout(sessionTimer.current);
+      sessionTimer.current = startSessionTimer();
     };
+
+    sessionTimer.current = startSessionTimer();
 
     document.addEventListener("mousemove", resetTimer);
     document.addEventListener("keypress", resetTimer);
 
-    // Clean up event listeners when component unmounts
     return () => {
+      clearTimeout(sessionTimer.current);
       document.removeEventListener("mousemove", resetTimer);
       document.removeEventListener("keypress", resetTimer);
     };
-  }, [sessionTimer]); // Re-run effect when sessionTimer changes
+  }, []);
 
-  const startSessionTimer = () => {
-    // Set session expiry time (in milliseconds)
-    const sessionDuration = 24 * 60 * 60 * 1000; // 5 seconds for testing, adjust as needed
-
-    // Start the timer
-    const timer = setTimeout(() => {
-      // Redirect to login page on session expiry
-      navigate("/login");
-    }, sessionDuration);
-
-    setSessionTimer(timer);
+  const handleSessionTimeoutAlertClose = () => {
+    setSessionTimeoutAlert(false);
+    navigate("/login");
   };
-
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{6,}$/;
+    if (!passwordRegex.test(password)) {
+      setPasswordError('Password must be at least 6 characters with at least one uppercase letter, one lowercase letter, and one special character');
+      return;
+    }
+
+    setPasswordError('');
+
     const response = await fetch("http://localhost:8000/auth/login", {
       method: "POST",
       headers: {
@@ -151,7 +165,6 @@ const LoginPage = () => {
     const json = await response.json();
     if (json.success) {
       localStorage.setItem("token", json.authtoken);
-      console.log("Successfully Login", "success");
       if (json.role === "Admin") {
         navigate("/Admin");
       } else if (json.role === "OH") {
@@ -168,32 +181,30 @@ const LoginPage = () => {
     }
   };
 
-  const handleForgotPassword = () => {
-    setOpenForgotPasswordModal(true);
-  };
+  // const handleForgotPassword = () => {
+  //   setOpenForgotPasswordModal(true);
+  // };
 
-  const handleForgotPasswordModalClose = () => {
-    setOpenForgotPasswordModal(false);
-    setForgotPasswordEmail("");
-  };
+  // const handleForgotPasswordModalClose = () => {
+  //   setOpenForgotPasswordModal(false);
+  //   setForgotPasswordEmail("");
+  // };
 
-  const handleForgotPasswordSubmit = () => {
-    // Check if the email exists in the existing users data
-    const existingUser = existingUsers.find(
-      (user) => user.email.toLowerCase() === forgotPasswordEmail.toLowerCase
-    );
+  // const handleForgotPasswordSubmit = () => {
+  //   const existingUser = existingUsers.find(
+  //     (user) => user.email.toLowerCase() === forgotPasswordEmail.toLowerCase()
+  //   );
 
-    if (existingUser) {
-      // Email exists, generate reset password link (for demonstration purposes, not actual implementation)
-      const resetPasswordLink = `https://yourapp.com/reset-password?email=${existingUser.email}`;
-      alert(
-        `Reset password link sent to ${existingUser.email}: ${resetPasswordLink}`
-      );
-      handleForgotPasswordModalClose();
-    } else {
-      alert("Email not found");
-    }
-  };
+  //   if (existingUser) {
+  //     const resetPasswordLink = `https://yourapp.com/reset-password?email=${existingUser.email}`;
+  //     alert(
+  //       `Reset password link sent to ${existingUser.email}: ${resetPasswordLink}`
+  //     );
+  //     handleForgotPasswordModalClose();
+  //   } else {
+  //     alert("Email not found");
+  //   }
+  // };
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column" }}>
@@ -205,17 +216,6 @@ const LoginPage = () => {
           <Typography variant="h6" component="div" align="center" style={styles.title}>
             BYPL Dashboard
           </Typography>
-          <Box>
-            {/* <Button
-              color="inherit"
-              variant="text"
-              component={Link}
-              to="/Signup"
-              style={styles.button}
-            >
-              Assign
-            </Button> */}
-          </Box>
         </Toolbar>
       </AppBar>
       <Container maxWidth="sm" style={styles.container}>
@@ -244,12 +244,14 @@ const LoginPage = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               style={styles.loginFormItem}
+              error={!!passwordError}
+              helperText={passwordError}
             />
             <FormControlLabel
               control={<Checkbox color="primary" />}
               label="Remember me"
             />
-            <Link
+            {/* <Link
               href="#"
               variant="body2"
               color="primary"
@@ -258,16 +260,15 @@ const LoginPage = () => {
               onClick={handleForgotPassword}
             >
               Forgot password?
-            </Link>
+            </Link> */}
             <Button variant="contained" color="primary" type="submit">
               Login
             </Button>
           </Box>
         </Box>
       </Container>
-
-      {/* Forgot Password Modal */}
-      <Modal
+    
+      {/* <Modal
         open={openForgotPasswordModal}
         onClose={handleForgotPasswordModalClose}
       >
@@ -301,8 +302,35 @@ const LoginPage = () => {
           </Button>
         </Box>
       </Modal>
+     */}
+      <Dialog
+        open={sessionTimeoutAlert}
+        onClose={handleSessionTimeoutAlertClose}
+        PaperProps={{
+          style: styles.sessionTimeoutDialog,
+        }}
+      >
+        <ErrorOutlineIcon style={styles.errorIcon} />
+        <Typography variant="h5" gutterBottom style={styles.sessionTimeoutText}>
+          Oops!
+        </Typography>
+        <Typography variant="body1" gutterBottom style={styles.sessionTimeoutText}>
+          Your session is expired.
+        </Typography>
+        <Box style={styles.loginAgainText}>
+          <ReplayIcon style={styles.loginAgainIcon} />
+          <Typography variant="body1">Please kindly login again</Typography>
+        </Box>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSessionTimeoutAlertClose}
+          autoFocus
+        >
+          OK
+        </Button>
+      </Dialog>
     </Box>
-  );
-};
-
-export default LoginPage;
+    );
+  };
+  export default LoginPage;

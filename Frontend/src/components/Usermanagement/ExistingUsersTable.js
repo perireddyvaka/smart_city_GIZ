@@ -11,6 +11,11 @@ import {
   Typography,
   TextField,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Grid,
 } from '@mui/material';
 
 const ExistingUsersTable = forwardRef((props, ref) => {
@@ -18,6 +23,8 @@ const ExistingUsersTable = forwardRef((props, ref) => {
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [page, setPage] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedUser, setSelectedUser] = useState({});
   const rowsPerPage = 3;
 
   useEffect(() => {
@@ -29,7 +36,6 @@ const ExistingUsersTable = forwardRef((props, ref) => {
       const response = await fetch("http://127.0.0.1:8000/auth/");
       if (response.ok) {
         const data = await response.json();
-        console.log("Fetched users:", data); // Debug log
         setUsers(data);
         setFilteredUsers(data);
       } else {
@@ -53,6 +59,20 @@ const ExistingUsersTable = forwardRef((props, ref) => {
 
   const totalPages = Math.ceil(filteredUsers.length / rowsPerPage);
 
+  const handleUpdateClick = (user) => {
+    setSelectedUser(user);
+    setOpenDialog(true);
+  };
+
+  const handleDialogClose = () => {
+    setOpenDialog(false);
+  };
+
+  const handleDialogSubmit = () => {
+    // Update user details here
+    setOpenDialog(false);
+  };
+
   return (
     <Box sx={{ border: '1px solid grey', padding: 2, borderRadius: 2, backgroundColor: '#f5f5f5' }}>
       <Typography variant="h5" align='center' component="div" gutterBottom style={{ color: '#333' }}>
@@ -72,21 +92,23 @@ const ExistingUsersTable = forwardRef((props, ref) => {
         <Table aria-label="existing users table">
           <TableHead>
             <TableRow>
-              <TableCell>User ID</TableCell>
               <TableCell>Username</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>Role</TableCell>
               <TableCell>Password</TableCell>
+              <TableCell>Action</TableCell> {/* New column for update button */}
             </TableRow>
           </TableHead>
           <TableBody>
             {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((user, index) => (
               <TableRow key={index} hover>
-                <TableCell>{user.userid}</TableCell>
                 <TableCell>{user.username}</TableCell>
                 <TableCell>{user.email}</TableCell>
                 <TableCell>{user.role}</TableCell>
                 <TableCell>{user.password}</TableCell>
+                <TableCell>
+                  <Button onClick={() => handleUpdateClick(user)}>Update</Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -115,6 +137,31 @@ const ExistingUsersTable = forwardRef((props, ref) => {
           </Button>
         </Box>
       </Box>
+      <Dialog open={openDialog} onClose={handleDialogClose}>
+        <DialogTitle>Update User</DialogTitle>
+        <DialogContent>  
+                                                                                                                                                                                                       
+  <Grid container spacing={2}>
+    <Grid item xs={20} sm={26}>
+      <TextField label="Username" value={selectedUser.username} fullWidth />
+    </Grid>
+    <Grid item xs={12} sm={26}>
+      <TextField label="Email" value={selectedUser.email} fullWidth />
+    </Grid>
+    <Grid item xs={12} sm={26}>
+      <TextField label="Role" value={selectedUser.role} fullWidth />
+    </Grid>
+    <Grid item xs={12} sm={26}>
+      <TextField label="Password" value={selectedUser.password} fullWidth />
+    </Grid>
+  </Grid>
+</DialogContent>
+
+        <DialogActions>
+          <Button onClick={handleDialogClose}>Cancel</Button>
+          <Button onClick={handleDialogSubmit} variant="contained" color="primary">Update</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 });
