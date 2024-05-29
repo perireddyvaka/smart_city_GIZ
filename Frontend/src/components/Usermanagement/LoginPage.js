@@ -116,7 +116,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     const startSessionTimer = () => {
-      const sessionDuration = 5 * 1000; // 5 seconds for testing, adjust as needed
+      const sessionDuration = 1 * 24 * 60 * 60 * 1000; // 5 seconds for testing, adjust as needed
       return setTimeout(() => {
         setSessionTimeoutAlert(true);
       }, sessionDuration);

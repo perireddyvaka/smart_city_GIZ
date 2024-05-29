@@ -18,6 +18,7 @@ import OrganizationHeadPage from './components/Usermanagement/Organizationhead';
 import CircleHeadPage from './components/Usermanagement/Circlehead';
 import DivisionHeadPage from './components/Usermanagement/Divisionhead';
 import NotificationHistory from './components/Alarm/NotificationHistory';
+import Conditions from './components/Alarm/Conditions';
 
 function App() {
   return (
@@ -25,7 +26,7 @@ function App() {
       <Route path="/" element={<WelcomePage />} />
       <Route path="/Admin" element={<Admin />} />
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/signup" element={<SignupPage />} />
+      <Route path="/Assign" element={<SignupPage />} />
       <Route path="/existing-users" element={<ExistingUsersPage />} />
       <Route path="/existing-users" element={<ExistingUsersTable />} />
       <Route path="/Subdivisionhead" element={<Subdivsionhead />} />
@@ -40,6 +41,7 @@ function App() {
       <Route path="/Alarmlog" element={<Alarmlog />} />
       <Route path="/AlarmLogPage" element={<AlarmLogPage />} />
       <Route path="/LogStore" element={<LogStore />} />
+      <Route path="/Conditions" element={<Conditions />} />
      
     </Routes>
   );

@@ -3,6 +3,18 @@ const jwt = require("jsonwebtoken");
 const client = require("../db"); // Import the PostgreSQL client
 const router = express.Router();
 
+
+
+router.get("/", async (req, res) => {
+  try {
+    const query = "SELECT * FROM conditions ";
+    const { rows } = await client.query(query);
+    res.status(200).json(rows);
+  } catch (err) {
+    console.log(err.stack);
+  }
+});
+
 router.post("/add", async (req, res) => {
   try {
     const { phase, parameter, range_max, range_min, parameter_units } =
@@ -99,5 +111,7 @@ router.post("/insert", async (req, res) => {
     console.log(err.stack);
   }
 });
+
+
 
 module.exports = router;

@@ -41,10 +41,13 @@ router.get("/notidata", async (req, res) => {
     const query = "SELECT * FROM alarm WHERE stage='N' OR stage = 'A' ";
     const { rows } = await client.query(query);
     res.status(200).json(rows);
+    
   } catch (err) {
     console.log(err.stack);
   }
 });
+
+
 
 
 

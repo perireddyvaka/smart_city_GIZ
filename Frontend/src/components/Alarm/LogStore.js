@@ -40,6 +40,7 @@ const styles = {
   };
 
 const AppBar = () => {
+  const navigate = useNavigate();
     
     const appbarStyle = {
         backgroundColor: '#003366',
@@ -69,7 +70,12 @@ const AppBar = () => {
         <div style={appbarStyle}>
             <div>
                 {/* Replace 'Logo' with your actual logo image */}
-                <img src={logo} alt="" style={{ width: '100px', marginRight: '1px' }} />
+                <img 
+                src={logo} 
+                alt="" 
+                style={{ width: '100px', marginRight: '1px' }} 
+                onClick={() => navigate(-1)}
+                />
             </div>
             <div style={{ flex: '1', textAlign: 'center' }}>
                 <span style={titleStyle}>Alarm Logs History</span>
