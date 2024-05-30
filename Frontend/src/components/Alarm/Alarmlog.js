@@ -232,75 +232,8 @@ const AlarmLogPage = () => {
     setData({ ...data, [event.target.name]: event.target.value });
   };
 
-  const handleSubmit = (dataType) => {
-    const data = dataType === "add" ? addData : closeData;
-    const setData = dataType === "add" ? setAddData : setCloseData;
-    const errors = {};
-    let hasErrors = false;
-  
-    // Check for empty fields
-    for (const key in data) {
-      if (!data[key]) {
-        errors[key] = "Required";
-        hasErrors = true;
-      }
-    }
-  
-    if (hasErrors) {
-      if (dataType === "add") {
-        setAddErrors(errors);
-      } else if (dataType === "close") {
-        setCloseErrors(errors);
-      }
-      return;
-    }
-  
-    const endpoint =
-      dataType === "add"
-        ? "http://127.0.0.1:8000/conditions/add"
-        : `http://127.0.0.1:8000/alarm/renew/${id}`;
-  
-    fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
-      .then((response) => response.json())
-      .then((responseData) => {
-        // Check if the status is "Resolved"
-        if (dataType === "close" && data.status === "Resolved") {
-          // If status is "Resolved", remove the log from items state
-          setItems((prevItems) =>
-            prevItems.filter((item) => item.id !== id)
-          );
-        }
-        console.log(responseData);
-      })
-      .catch((error) => {
-        console.log(error.message);
-      });
-  
-    // Clear form data and close dialog
-    setData(
-      dataType === "add"
-        ? {
-            phase: "",
-            parameter: "",
-            range_min: 0,
-            range_max: 0,
-            parameter_units: "",
-          }
-        : {
-            problem: "",
-            status: "",
-            remark: "",
-          }
-    );
-    handleCloseDialog(dataType);
-  };
-  
+ 
+ 
 
   useEffect(() => {
     // Fetch data
@@ -340,6 +273,70 @@ const AlarmLogPage = () => {
 
     fetchData();
   }, []);
+
+  const handleSubmit = (dataType) => {
+    const data = dataType === "add" ? addData : closeData;
+    const setData = dataType === "add" ? setAddData : setCloseData;
+    const errors = {};
+    let hasErrors = false;
+
+    for (const key in data) {
+      if (!data[key]) {
+        errors[key] = "Required";
+        hasErrors = true;
+      }
+    }
+
+    if (hasErrors) {
+      if (dataType === "add") {
+        setAddErrors(errors);
+      } else if (dataType === "close") {
+        setCloseErrors(errors);
+      }
+      return;
+    }
+
+    const endpoint =
+      dataType === "add"
+        ? "http://127.0.0.1:8000/alarm/generated/create"
+        : `http://127.0.0.1:8000/alarm/renew/${id}`;
+
+    fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((responseData) => {
+        if (dataType === "close" && data.status === "Resolved") {
+          setItems((prevItems) => prevItems.filter((item) => item.id !== id));
+        }
+        console.log(responseData);
+      })
+      .catch((error) => {
+        console.log(error.message);
+      });
+
+    setData(
+      dataType === "add"
+        ? {
+            phase: "",
+            parameter: "",
+            range_min: 0,
+            range_max: 0,
+            parameter_units: "",
+          }
+        : {
+            problem: "",
+            status: "",
+            remark: "",
+            incharge: "",
+          }
+    );
+    handleCloseDialog(dataType);
+  };
 
   const handleSearchStatus = (status) => {
     setSearchStatus(status);
@@ -721,6 +718,16 @@ const AlarmLogPage = () => {
             onChange={(event) => handleInputChange(event, "close")}
             error={!!closeErrors.remark}
             helperText={closeErrors.remark}
+          />
+          <TextField
+            margin="dense"
+            label="Incharge"
+            type="text"
+            fullWidth
+            name="Incharge"
+            onChange={(event) => handleInputChange(event, "close")}
+            error={!!closeErrors.Incharge}
+            helperText={closeErrors.Incharge}
           />
       </DialogContent>
       <DialogActions>

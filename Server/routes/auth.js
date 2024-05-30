@@ -99,4 +99,29 @@ router.post("/login", async (req, res) => {
   }
 });
 
+
+router.put("/update", async (req, res) => {
+  const { userid, username, email, role, password } = req.body;
+
+  try {
+    const updateQuery = `
+      UPDATE user_management
+      SET username = $2, email = $3, role = $4, password = $5
+      WHERE userid = $1
+      RETURNING *;
+    `;
+    const values = [userid, username, email, role, password];
+    const result = await client.query(updateQuery, values);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: "User not found" });
+    }
+
+    res.json({ success: true, user: result.rows[0] });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 module.exports = router;

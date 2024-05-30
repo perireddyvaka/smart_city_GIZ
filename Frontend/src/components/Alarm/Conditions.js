@@ -29,25 +29,25 @@ const styles = {
   sessionTimeoutDialog: {
     width: '600px',
     padding: '48px',
-    backgroundColor: '#f3e5f5', // Light purple background color
+    backgroundColor: '#f3e5f5',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
   },
   errorIcon: {
-    fontSize: '96px', // Increased icon size
-    color: '#c51162', // Attractive red color
+    fontSize: '96px',
+    color: '#c51162',
     marginBottom: '24px',
   },
   sessionTimeoutText: {
     marginBottom: '16px',
-    fontWeight: 'bold', // Bold text for better visibility
+    fontWeight: 'bold',
   },
   loginAgainText: {
     display: 'flex',
     alignItems: 'center',
-    marginBottom: '32px', // Increased bottom margin for better spacing
-    fontSize: '18px', // Increased font size for better readability
+    marginBottom: '32px',
+    fontSize: '18px',
   },
   loginAgainIcon: {
     marginRight: '8px',
@@ -67,7 +67,7 @@ const App = () => {
   useEffect(() => {
     // Fetch conditions from backend
     axios
-      .get('http://127.0.0.1:8000/conditions') // Replace with your actual backend endpoint
+      .get('http://127.0.0.1:8000/conditions')
       .then((response) => {
         setConditions(response.data);
       })
@@ -114,6 +114,29 @@ const App = () => {
     setSelectedCondition(null);
   };
 
+  const handleSaveChanges = async () => {
+    const updatedCondition = {
+      id: conditions[selectedCondition].id,
+      parameter: document.getElementById('parameter').value,
+      phase: document.getElementById('phase').value,
+      range_min: document.getElementById('range_min').value,
+      range_max: document.getElementById('range_max').value,
+      parameter_units: document.getElementById('parameter_units').value,
+    };
+
+    try {
+      await axios.put('http://127.0.0.1:8000/conditions/update', updatedCondition);
+      setConditions((prevConditions) => {
+        const newConditions = [...prevConditions];
+        newConditions[selectedCondition] = updatedCondition;
+        return newConditions;
+      });
+      handleClose();
+    } catch (error) {
+      console.error('There was an error updating the condition!', error);
+    }
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <AppBar position="static" style={{ backgroundColor: '#002e41' }}>
@@ -146,14 +169,14 @@ const App = () => {
               <TableRow key={index}>
                 <TableCell>{row.parameter}</TableCell>
                 <TableCell>{row.phase}</TableCell>
-                <TableCell>{row.minRange}</TableCell>
-                <TableCell>{row.maxRange}</TableCell>
-                <TableCell>{row.units}</TableCell>
+                <TableCell>{row.range_max}</TableCell>
+                <TableCell>{row.range_min}</TableCell>
+                <TableCell>{row.parameter_units}</TableCell>
                 <TableCell>
                   <IconButton color="primary" onClick={() => handleUpdateCondition(index)}>
                     <EditIcon />
                   </IconButton>
-                  </TableCell>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -165,6 +188,7 @@ const App = () => {
           {selectedCondition !== null && (
             <>
               <TextField
+                id="parameter"
                 label="Parameter"
                 defaultValue={conditions[selectedCondition]?.parameter}
                 fullWidth
@@ -172,6 +196,7 @@ const App = () => {
                 variant="outlined"
               />
               <TextField
+                id="phase"
                 label="Phase"
                 defaultValue={conditions[selectedCondition]?.phase}
                 fullWidth
@@ -179,22 +204,25 @@ const App = () => {
                 variant="outlined"
               />
               <TextField
+                id="range_min"
                 label="Min Range"
-                defaultValue={conditions[selectedCondition]?.minRange}
+                defaultValue={conditions[selectedCondition]?.range_min}
                 fullWidth
                 margin="normal"
                 variant="outlined"
               />
               <TextField
+                id="range_max"
                 label="Max Range"
-                defaultValue={conditions[selectedCondition]?.maxRange}
+                defaultValue={conditions[selectedCondition]?.range_max}
                 fullWidth
                 margin="normal"
                 variant="outlined"
               />
               <TextField
+                id="parameter_units"
                 label="Parameter Units"
-                defaultValue={conditions[selectedCondition]?.units}
+                defaultValue={conditions[selectedCondition]?.parameter_units}
                 fullWidth
                 margin="normal"
                 variant="outlined"
@@ -206,18 +234,15 @@ const App = () => {
           <Button onClick={handleClose} color="primary">
             Close
           </Button>
-          <Button onClick={handleClose} color="primary">
+          <Button onClick={handleSaveChanges} color="primary">
             Save Changes
           </Button>
         </DialogActions>
       </Dialog>
-
       <Dialog
         open={sessionTimeoutAlert}
         onClose={handleSessionTimeoutAlertClose}
-        PaperProps={{
-          style: styles.sessionTimeoutDialog,
-        }}
+        PaperProps={{ style: styles.sessionTimeoutDialog }}
       >
         <ErrorOutlineIcon style={styles.errorIcon} />
         <Typography variant="h5" gutterBottom style={styles.sessionTimeoutText}>
@@ -244,4 +269,3 @@ const App = () => {
 };
 
 export default App;
-

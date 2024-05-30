@@ -68,9 +68,33 @@ const ExistingUsersTable = forwardRef((props, ref) => {
     setOpenDialog(false);
   };
 
-  const handleDialogSubmit = () => {
-    // Update user details here
-    setOpenDialog(false);
+  const handleDialogSubmit = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/auth/update", {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(selectedUser),
+      });
+
+      if (response.ok) {
+        fetchUsers();
+        setOpenDialog(false);
+      } else {
+        console.error('Failed to update user');
+      }
+    } catch (error) {
+      console.error('Error updating user:', error);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setSelectedUser(prevState => ({
+      ...prevState,
+      [name]: value,
+    }));
   };
 
   return (
@@ -140,23 +164,45 @@ const ExistingUsersTable = forwardRef((props, ref) => {
       <Dialog open={openDialog} onClose={handleDialogClose}>
         <DialogTitle>Update User</DialogTitle>
         <DialogContent>  
-                                                                                                                                                                                                       
-  <Grid container spacing={2}>
-    <Grid item xs={20} sm={26}>
-      <TextField label="Username" value={selectedUser.username} fullWidth />
-    </Grid>
-    <Grid item xs={12} sm={26}>
-      <TextField label="Email" value={selectedUser.email} fullWidth />
-    </Grid>
-    <Grid item xs={12} sm={26}>
-      <TextField label="Role" value={selectedUser.role} fullWidth />
-    </Grid>
-    <Grid item xs={12} sm={26}>
-      <TextField label="Password" value={selectedUser.password} fullWidth />
-    </Grid>
-  </Grid>
-</DialogContent>
-
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Username"
+                name="username"
+                value={selectedUser.username}
+                onChange={handleInputChange}
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Email"
+                name="email"
+                value={selectedUser.email}
+                onChange={handleInputChange}
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Role"
+                name="role"
+                value={selectedUser.role}
+                onChange={handleInputChange}
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Password"
+                name="password"
+                value={selectedUser.password}
+                onChange={handleInputChange}
+                fullWidth
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogClose}>Cancel</Button>
           <Button onClick={handleDialogSubmit} variant="contained" color="primary">Update</Button>
