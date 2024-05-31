@@ -153,6 +153,8 @@ const styles = {
   },
 };
 
+
+
 const perPage = 5;
 
 const AlarmLogPage = () => {
@@ -161,19 +163,19 @@ const AlarmLogPage = () => {
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openCloseDialog, setOpenCloseDialog] = useState(false);
   const [items, setItems] = useState([]);
-  const [id, setId] = useState(null); // Add id state
+  const [id, setId] = useState(null);
   const [addData, setAddData] = useState({
-    phase: "",
-    parameter: "",
-    range_min: 0,
-    range_max: 0,
-    parameter_units: "",
+    Status: "",
+    Location: "",
+    Occurrence: "",
+    Stage: "",
   });
   const [addErrors, setAddErrors] = useState({});
   const [closeData, setCloseData] = useState({
-    problem: "",
+    occurrence: "",
     status: "",
-    remark: "",
+    remarks: "",
+    incharge: "",
   });
   const [closeErrors, setCloseErrors] = useState({});
   const [downloadFormat] = useState("json");
@@ -181,7 +183,7 @@ const AlarmLogPage = () => {
   const [sortOrder, setSortOrder] = useState("asc");
   const [searchAnchorEl, setSearchAnchorEl] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1); // Add total pages state
+  const [totalPages, setTotalPages] = useState(1);
   const sessionTimer = useRef(null);
   const navigate = useNavigate();
 
@@ -232,40 +234,13 @@ const AlarmLogPage = () => {
     setData({ ...data, [event.target.name]: event.target.value });
   };
 
- 
- 
-
   useEffect(() => {
-    // Fetch data
     const fetchData = async () => {
       try {
         const response = await fetch("http://127.0.0.1:8000/alarm/alarmdata");
         const data = await response.json();
-
-        // Randomly assign statuses
-        const statuses = ["Error", "Pending", "Resolved"];
-        const newData = [];
-
-        // Generate additional logs with 2025 timestamps
-        for (let i = 0; i < 5; i++) {
-          const randomStatus =
-            statuses[Math.floor(Math.random() * statuses.length)];
-          newData.push({
-            id: i + 100, // Assuming 100 as the starting ID for new logs
-            status: randomStatus,
-            location: `Location ${i + 1}`,
-            occurrence: `Occurrence ${i + 1}`,
-            timeerror: `2025-04-16 12:00:0${i}`,
-          });
-        }
-
-        // Concatenate the existing data with the new logs
-        const updatedData = [...data, ...newData];
-
-        // Calculate total pages
-        setTotalPages(Math.ceil(updatedData.length / perPage));
-
-        setItems(updatedData);
+        setItems(data);
+        setTotalPages(Math.ceil(data.length / perPage));
       } catch (error) {
         console.log(error.message);
       }
@@ -274,7 +249,7 @@ const AlarmLogPage = () => {
     fetchData();
   }, []);
 
-  const handleSubmit = (dataType) => {
+  const handleSubmit = async (dataType) => {
     const data = dataType === "add" ? addData : closeData;
     const setData = dataType === "add" ? setAddData : setCloseData;
     const errors = {};
@@ -301,41 +276,45 @@ const AlarmLogPage = () => {
         ? "http://127.0.0.1:8000/alarm/generated/create"
         : `http://127.0.0.1:8000/alarm/renew/${id}`;
 
-    fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
-      .then((response) => response.json())
-      .then((responseData) => {
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
         if (dataType === "close" && data.status === "Resolved") {
           setItems((prevItems) => prevItems.filter((item) => item.id !== id));
+        } else if (dataType === "add") {
+          const newItem = await response.json();
+          setItems((prevItems) => [...prevItems, newItem]);
         }
-        console.log(responseData);
-      })
-      .catch((error) => {
-        console.log(error.message);
-      });
+        handleCloseDialog(dataType);
+      } else {
+        console.log("Error:", response.status);
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
 
     setData(
       dataType === "add"
         ? {
-            phase: "",
-            parameter: "",
-            range_min: 0,
-            range_max: 0,
-            parameter_units: "",
+            Status: "",
+            Location: "",
+            Occurrence: "",
+            Stage: "",
           }
         : {
-            problem: "",
+            occurrence: "",
             status: "",
-            remark: "",
+            remarks: "",
             incharge: "",
           }
     );
-    handleCloseDialog(dataType);
   };
 
   const handleSearchStatus = (status) => {
@@ -363,8 +342,7 @@ const AlarmLogPage = () => {
     if (downloadFormat === "json") {
       logsContent = JSON.stringify(items);
     } else if (downloadFormat === "csv") {
-      const header =
-        Object.keys(items[0]).join(",") + "\n";
+      const header = Object.keys(items[0]).join(",") + "\n";
       const rows = items
         .map((item) => Object.values(item).join(","))
         .join("\n");
@@ -391,7 +369,7 @@ const AlarmLogPage = () => {
 
   return (
     <div className={classes.root}>
-    <AppBar position="fixed" className={classes.appBar}>
+     <AppBar position="fixed" className={classes.appBar}>
       <Toolbar>
       <Hidden xsDown>
       <img
@@ -472,67 +450,63 @@ const AlarmLogPage = () => {
         </Button>
       </div>
 
-      <TableContainer component={Paper} className={classes.logTable}>
-        <Table className={classes.table}>
-          <TableHead>
-            <TableRow>
-              <TableCell className={classes.tableHeader}>
-                ID
-              </TableCell>
-              <TableCell className={classes.tableHeader}>
-                Status
-              </TableCell>
-              <TableCell className={classes.tableHeader}>
-                Location
-              </TableCell>
-              <TableCell className={classes.tableHeader}>
-                Occurrence
-              </TableCell>
-              <TableCell className={classes.tableHeader}>
-                Time
-              </TableCell>
-              <TableCell className={classes.tableHeader}>
-                Action
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {items
-              .filter((item) =>
-                searchStatus ? item.status === searchStatus : true
-              )
-              .sort((a, b) => {
-                if (sortOrder === "asc") {
-                  return a.timeerror.localeCompare(b.timeerror);
-                } else {
-                  return b.timeerror.localeCompare(a.timeerror);
-                }
-              })
-              .slice((currentPage - 1) * perPage, currentPage * perPage)
-              .map((item, index) => (
-                <TableRow key={index}>
-                  <TableCell className={classes.tableCell}>{item.id}</TableCell>
-                  <TableCell className={classes.tableCell}>{item.status}</TableCell>
-                  <TableCell className={classes.tableCell}>{item.location}</TableCell>
-                  <TableCell className={classes.tableCell}>{item.occurrence}</TableCell>
-                  <TableCell className={classes.tableCell}>{item.timeerror}</TableCell>
-                  <TableCell className={classes.tableCell}>
-                    <Button
-                      onClick={() => {
-                        setOpenCloseDialog(true);
-                        setId(item.id);
-                      }}
-                      color="primary"
-                    >
-                      Update
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <div className={classes.optionsContainer}>
+
+
+        <TableContainer component={Paper} className={classes.logTable}>
+          <Table className={classes.table}>
+            <TableHead>
+              <TableRow>
+                <TableCell className={classes.tableHeader}>ID</TableCell>
+                <TableCell className={classes.tableHeader}>Status</TableCell>
+                <TableCell className={classes.tableHeader}>Location</TableCell>
+                <TableCell className={classes.tableHeader}>Occurrence</TableCell>
+                <TableCell className={classes.tableHeader}>Time</TableCell>
+                <TableCell className={classes.tableHeader}>Action</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {items
+                .filter((item) =>
+                  searchStatus ? item.status === searchStatus : true
+                )
+                .sort((a, b) => {
+                  if (sortOrder === "asc") {
+                    return a.timeerror.localeCompare(b.timeerror);
+                  } else {
+                    return b.timeerror.localeCompare(a.timeerror);
+                  }
+                })
+                .slice((currentPage - 1) * perPage, currentPage * perPage)
+                .map((item, index) => (
+                  <TableRow key={index}>
+                    <TableCell className={classes.tableCell}>{item.id}</TableCell>
+                    <TableCell className={classes.tableCell}>{item.status}</TableCell>
+                    <TableCell className={classes.tableCell}>{item.location}</TableCell>
+                    <TableCell className={classes.tableCell}>{item.occurrence}</TableCell>
+                    <TableCell className={classes.tableCell}>{item.timeerror}</TableCell>
+                    <TableCell className={classes.tableCell}>
+                      <Button
+                        onClick={() => {
+                          setOpenCloseDialog(true);
+                          setId(item.id);
+                          setCloseData({
+                            occurrence: item.occurrence,
+                            status: item.status,
+                            remarks: item.remarks || "",
+                            incharge: item.incharge || "",
+                          });
+                        }}
+                        color="primary"
+                      >
+                        Update
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <div className={classes.optionsContainer}>
         {currentPage > 1 && (
           <Button
             className={classes.sortButton}
@@ -557,197 +531,159 @@ const AlarmLogPage = () => {
           Page {currentPage} of {totalPages}
         </Typography>
       </div>
-    </Container>
+      </Container>
 
-    {/* ADD condition dialog */}
-    <Dialog
-      open={openAddDialog}
-      onClose={() => handleCloseDialog("add")}
-    >
-      <DialogTitle>Add Condition</DialogTitle>
-      <DialogContent>
-      <InputLabel shrink>Parameter</InputLabel>
+      {/* ADD condition dialog */}
+      <Dialog
+        open={openAddDialog}
+        onClose={() => handleCloseDialog("add")}
+      >
+        <DialogTitle>Add Condition</DialogTitle>
+        <DialogContent>
+          <InputLabel shrink>Status</InputLabel>
           <Select
             autoFocus
             margin="dense"
             fullWidth
-            name="parameter"
+            name="Status"
+            value={addData.Status}
             onChange={(event) => handleInputChange(event, "add")}
-            error={!!addErrors.parameter}
-            helperText={addErrors.parameter}
+            error={!!addErrors.Status}
+            helperText={addErrors.Status}
           >
-            <MenuItem value="">Select Parameter</MenuItem>
-            <MenuItem value="Overloaded LT Feeders">
-              Overloaded LT Feeders
-            </MenuItem>
-            <MenuItem value="Loose connection on LT side">
-              Loose connection on LT side
-            </MenuItem>
-            <MenuItem value="Fault on LT side">Fault on LT side</MenuItem>
-            <MenuItem value="Low oil level">Low oil level</MenuItem>
-            <MenuItem value="Oil leakage">Oil leakage</MenuItem>
-            <MenuItem value="acb_3_current">acb_3_current</MenuItem>
+            <MenuItem value="">Select Status</MenuItem>
+            <MenuItem value="Error">Error</MenuItem>
+            <MenuItem value="Pending">Pending</MenuItem>
+            <MenuItem value="Resolved">Resolved</MenuItem>
           </Select>
 
-          <InputLabel shrink>Phase</InputLabel>
-          <Select
-            autoFocus
-            margin="dense"
-            fullWidth
-            name="phase"
-            onChange={(event) => handleInputChange(event, "add")}
-            error={!!addErrors.phase}
-            helperText={addErrors.phase}
-          >
-            <MenuItem value="">Select Phase</MenuItem>
-            <MenuItem value="phaseR">
-              phaseR
-            </MenuItem>
-            <MenuItem value="phaseY">
-              phaseY
-            </MenuItem>
-            <MenuItem value="phaseB">phaseB</MenuItem>
-            <MenuItem value="phaseB">phaseN</MenuItem>
-           
-          </Select>
           <TextField
             margin="dense"
-            label="Min Range"
-            type="number"
-            fullWidth
-            name="range_min"
-            value={addData.range_min}
-            onChange={(event) => handleInputChange(event, "add")}
-            error={!!addErrors.range_min}
-            helperText={addErrors.range_min}
-          />
-          <TextField
-            margin="dense"
-            label="Max Range"
-            type="number"
-            fullWidth
-            name="range_max"
-            value={addData.range_max}
-            onChange={(event) => handleInputChange(event, "add")}
-            error={!!addErrors.range_max}
-            helperText={addErrors.range_max}
-          />
-          <TextField
-            margin="dense"
-            label="Parameter Units"
+            label="Location"
             type="text"
             fullWidth
-            name="parameter_units"
-            value={addData.parameter_units}
+            name="Location"
+            value={addData.Location}
             onChange={(event) => handleInputChange(event, "add")}
-            error={!!addErrors.parameter_units}
-            helperText={addErrors.parameter_units}
+            error={!!addErrors.Location}
+            helperText={addErrors.Location}
           />
 
-      </DialogContent>
-      <DialogActions>
-        <Button
-          onClick={() => handleSubmit("add")}
-          color="primary"
-        >
-          Save
-        </Button>
-        <Button
-          onClick={() => handleCloseDialog("add")}
-          color="primary"
-        >
-          Cancel
-        </Button>
-      </DialogActions>
-    </Dialog>
+          <TextField
+            margin="dense"
+            label="Occurrence"
+            type="text"
+            fullWidth
+            name="Occurrence"
+            value={addData.Occurrence}
+            onChange={(event) => handleInputChange(event, "add")}
+            error={!!addErrors.Occurrence}
+            helperText={addErrors.Occurrence}
+          />
 
-    {/* Close condition dialog */}
-    <Dialog
-      open={openCloseDialog}
-      onClose={() => handleCloseDialog("update")}
-    >
-      <DialogTitle>Close Entry</DialogTitle>
-      <DialogContent>
-      <InputLabel shrink>Problem</InputLabel>
+          <InputLabel shrink>Stage</InputLabel>
           <Select
-            autoFocus
             margin="dense"
             fullWidth
-            name="problem"
-            onChange={(event) => handleInputChange(event, "update")}
-            error={!!closeErrors.problem}
-            helperText={closeErrors.problem}
+            name="Stage"
+            value={addData.Stage}
+            onChange={(event) => handleInputChange(event, "add")}
+            error={!!addErrors.Stage}
+            helperText={addErrors.Stage}
           >
-            <MenuItem value="">Select Problem</MenuItem>
-            <MenuItem value="Overloaded LT Feeders">
-              Overloaded LT Feeders
-            </MenuItem>
-            <MenuItem value="Loose connection on LT side">
-              Loose connection on LT side
-            </MenuItem>
-            <MenuItem value="Fault on LT side">Fault on LT side</MenuItem>
-            <MenuItem value="Low oil level">Low oil level</MenuItem>
-            <MenuItem value="Oil leakage">Oil leakage</MenuItem>
-            <MenuItem value="Reason 6">acb_3_current</MenuItem>
+            <MenuItem value="">Select Stage</MenuItem>
+            <MenuItem value="N">N</MenuItem>
+            <MenuItem value="A">A</MenuItem>
           </Select>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => handleSubmit("add")} color="primary">
+            Save
+          </Button>
+          <Button onClick={() => handleCloseDialog("add")} color="primary">
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Close condition dialog */}
+      <Dialog
+        open={openCloseDialog}
+        onClose={() => handleCloseDialog("close")}
+      >
+        <DialogTitle>Close Entry</DialogTitle>
+        <DialogContent>
+          <TextField
+            margin="dense"
+            label="Occurrence"
+            type="text"
+            fullWidth
+            name="occurrence"
+            value={closeData.occurrence}
+            onChange={(event) => handleInputChange(event, "close")}
+            error={!!closeErrors.occurrence}
+            helperText={closeErrors.occurrence}
+          />
 
           <InputLabel shrink>Status</InputLabel>
           <Select
             autoFocus
             margin="dense"
-            type="text"
             fullWidth
             name="status"
+            value={closeData.status}
             onChange={(event) => handleInputChange(event, "close")}
             error={!!closeErrors.status}
             helperText={closeErrors.status}
           >
             <MenuItem value="">Select Status</MenuItem>
             <MenuItem value="Error">Error</MenuItem>
-            <MenuItem value="Under Progress">Pending</MenuItem>
-            <MenuItem value="Repair">Resolved</MenuItem>
-           
+            <MenuItem value="Pending">Pending</MenuItem>
+            <MenuItem value="Resolved">Resolved</MenuItem>
           </Select>
 
           <TextField
             margin="dense"
-            label="Remark"
+            label="Remarks"
             type="text"
             fullWidth
-            name="remark"
+            name="remarks"
+            value={closeData.remarks}
             onChange={(event) => handleInputChange(event, "close")}
-            error={!!closeErrors.remark}
-            helperText={closeErrors.remark}
+            error={!!closeErrors.remarks}
+            helperText={closeErrors.remarks}
           />
           <TextField
             margin="dense"
             label="Incharge"
             type="text"
             fullWidth
-            name="Incharge"
+            name="incharge"
+            value={closeData.incharge}
             onChange={(event) => handleInputChange(event, "close")}
-            error={!!closeErrors.Incharge}
-            helperText={closeErrors.Incharge}
+            error={!!closeErrors.incharge}
+            helperText={closeErrors.incharge}
           />
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => handleCloseDialog("close")} color="primary">
-          Cancel
-        </Button>
-        <Button onClick={() => handleSubmit("close")} color="primary">
-          Submit
-        </Button>
-      </DialogActions>
-    </Dialog>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => handleCloseDialog("close")} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={() => handleSubmit("close")} color="primary">
+            Submit
+          </Button>
+        </DialogActions>
+      </Dialog>
 
-    <Dialog
+      {/* Session Timeout Alert Dialog */}
+      <Dialog
         open={sessionTimeoutAlert}
         onClose={handleSessionTimeoutAlertClose}
         PaperProps={{
           style: styles.sessionTimeoutDialog,
         }}
       >
-        <ErrorOutlineIcon style={styles.errorIcon} />
+       <ErrorOutlineIcon style={styles.errorIcon} />
         <Typography variant="h5" gutterBottom style={styles.sessionTimeoutText}>
           Oops!
         </Typography>
@@ -767,10 +703,9 @@ const AlarmLogPage = () => {
           OK
         </Button>
       </Dialog>
-  </div>
-);
+
+    </div>
+  );
 };
 
 export default AlarmLogPage;
-
-   
