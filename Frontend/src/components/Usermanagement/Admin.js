@@ -219,7 +219,7 @@ const Admin = () => {
             </ListItemIcon>
             <ListItemText primary="Logstore" />
           </ListItem> */}
-          <ListItem button component={Link} to="/signup">
+          <ListItem button component={Link} to="/Assign">
             <ListItemIcon>
               <PersonAddAltIcon />
             </ListItemIcon>

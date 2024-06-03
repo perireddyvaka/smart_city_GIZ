@@ -165,10 +165,11 @@ const AlarmLogPage = () => {
   const [items, setItems] = useState([]);
   const [id, setId] = useState(null);
   const [addData, setAddData] = useState({
-    Status: "",
-    Location: "",
-    Occurrence: "",
-    Stage: "",
+    parameter: "",
+    phase: "",
+    range_min: "",
+    range_max: "",
+    parameter_units: "",
   });
   const [addErrors, setAddErrors] = useState({});
   const [closeData, setCloseData] = useState({
@@ -233,7 +234,7 @@ const AlarmLogPage = () => {
     const setData = dataType === "add" ? setAddData : setCloseData;
     setData({ ...data, [event.target.name]: event.target.value });
   };
-
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -254,14 +255,14 @@ const AlarmLogPage = () => {
     const setData = dataType === "add" ? setAddData : setCloseData;
     const errors = {};
     let hasErrors = false;
-
+  
     for (const key in data) {
       if (!data[key]) {
         errors[key] = "Required";
         hasErrors = true;
       }
     }
-
+  
     if (hasErrors) {
       if (dataType === "add") {
         setAddErrors(errors);
@@ -270,21 +271,21 @@ const AlarmLogPage = () => {
       }
       return;
     }
-
+  
     const endpoint =
       dataType === "add"
-        ? "http://127.0.0.1:8000/alarm/generated/create"
+        ? "http://127.0.0.1:8000/conditions/add"
         : `http://127.0.0.1:8000/alarm/renew/${id}`;
-
+  
     try {
       const response = await fetch(endpoint, {
-        method: "POST",
+        method: dataType === "add" ? "POST" : "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
-
+  
       if (response.ok) {
         if (dataType === "close" && data.status === "Resolved") {
           setItems((prevItems) => prevItems.filter((item) => item.id !== id));
@@ -299,14 +300,15 @@ const AlarmLogPage = () => {
     } catch (error) {
       console.log(error.message);
     }
-
+  
     setData(
       dataType === "add"
         ? {
-            Status: "",
-            Location: "",
-            Occurrence: "",
-            Stage: "",
+            parameter: "",
+            phase: "",
+            range_min: "",
+            range_max: "",
+            parameter_units: "",
           }
         : {
             occurrence: "",
@@ -315,6 +317,8 @@ const AlarmLogPage = () => {
             incharge: "",
           }
     );
+  
+  
   };
 
   const handleSearchStatus = (status) => {
@@ -470,10 +474,13 @@ const AlarmLogPage = () => {
                   searchStatus ? item.status === searchStatus : true
                 )
                 .sort((a, b) => {
+                  const timeA = a.timeerror || ""; // Provide a default empty string if timeerror is undefined
+                  const timeB = b.timeerror || ""; // Provide a default empty string if timeerror is undefined
+                
                   if (sortOrder === "asc") {
-                    return a.timeerror.localeCompare(b.timeerror);
+                    return timeA.localeCompare(timeB);
                   } else {
-                    return b.timeerror.localeCompare(a.timeerror);
+                    return timeB.localeCompare(timeA);
                   }
                 })
                 .slice((currentPage - 1) * perPage, currentPage * perPage)
@@ -534,77 +541,104 @@ const AlarmLogPage = () => {
       </Container>
 
       {/* ADD condition dialog */}
-      <Dialog
-        open={openAddDialog}
-        onClose={() => handleCloseDialog("add")}
+  <Dialog
+    open={openAddDialog}
+    onClose={() => handleCloseDialog("add")}
+  >
+    <DialogTitle>Add Condition</DialogTitle>
+    <DialogContent>
+     <InputLabel shrink>Problem</InputLabel>
+      <Select
+        autoFocus
+        margin="dense"
+        fullWidth
+        name="parameter"
+        onChange={(event) => handleInputChange(event, "add")}
+        error={!!addErrors.parameter}
+        helperText={addErrors.parameter}
       >
-        <DialogTitle>Add Condition</DialogTitle>
-        <DialogContent>
-          <InputLabel shrink>Status</InputLabel>
-          <Select
-            autoFocus
-            margin="dense"
-            fullWidth
-            name="Status"
-            value={addData.Status}
-            onChange={(event) => handleInputChange(event, "add")}
-            error={!!addErrors.Status}
-            helperText={addErrors.Status}
+        <MenuItem value="">Select problem</MenuItem>
+        <MenuItem value="Overloaded LT Feeders">
+          Overloaded LT Feeders
+        </MenuItem>
+        <MenuItem value="Loose connection on LT side">
+          Loose connection on LT side
+        </MenuItem>
+        <MenuItem value="Fault on LT side">Fault on LT side</MenuItem>
+        <MenuItem value="Low oil level">Low oil level</MenuItem>
+        <MenuItem value="Oil leakage">Oil leakage</MenuItem>
+        <MenuItem value="acb_3_current">acb_3_current</MenuItem>
+      </Select>
+
+     <InputLabel shrink>Phase</InputLabel>
+      <Select
+        autoFocus
+        margin="dense"
+        fullWidth
+        name="phase"
+        value={addData.phase}
+        onChange={(event) => handleInputChange(event, "add")}
+        error={!!addErrors.phase}
+        helperText={addErrors.phase}
+      >
+        <MenuItem value="">Select Phase</MenuItem>
+        <MenuItem value="phaseR">phaseR</MenuItem>
+        <MenuItem value="phaseY">phaseY</MenuItem>
+        <MenuItem value="phaseB">phaseB</MenuItem>
+        <MenuItem value="phaseN">phaseN</MenuItem>
+
+      </Select>
+
+
+      <TextField
+        margin="dense"
+        label="Min Range"
+        type="number"
+        fullWidth
+        name="range_min"
+        value={addData.range_min}
+        onChange={(event) => handleInputChange(event, "add")}
+        error={!!addErrors.range_min}
+        helperText={addErrors.range_min}
+      />
+      <TextField
+        margin="dense"
+        label="Max Range"
+        type="number"
+        fullWidth
+        name="range_max"
+        value={addData.range_max}
+        onChange={(event) => handleInputChange(event, "add")}
+        error={!!addErrors.range_max}
+        helperText={addErrors.range_max}
+      />
+      <TextField
+        margin="dense"
+        label="Parameter Units"
+        type="text"
+        fullWidth
+        name="parameter_units"
+        value={addData.parameter_units}
+        onChange={(event) => handleInputChange(event, "add")}
+        error={!!addErrors.parameter_units}
+        helperText={addErrors.parameter_units}
+      />
+    </DialogContent>
+    <DialogActions>
+          <Button
+            onClick={() => handleSubmit("add")}
+            color="primary"
           >
-            <MenuItem value="">Select Status</MenuItem>
-            <MenuItem value="Error">Error</MenuItem>
-            <MenuItem value="Pending">Pending</MenuItem>
-            <MenuItem value="Resolved">Resolved</MenuItem>
-          </Select>
-
-          <TextField
-            margin="dense"
-            label="Location"
-            type="text"
-            fullWidth
-            name="Location"
-            value={addData.Location}
-            onChange={(event) => handleInputChange(event, "add")}
-            error={!!addErrors.Location}
-            helperText={addErrors.Location}
-          />
-
-          <TextField
-            margin="dense"
-            label="Occurrence"
-            type="text"
-            fullWidth
-            name="Occurrence"
-            value={addData.Occurrence}
-            onChange={(event) => handleInputChange(event, "add")}
-            error={!!addErrors.Occurrence}
-            helperText={addErrors.Occurrence}
-          />
-
-          <InputLabel shrink>Stage</InputLabel>
-          <Select
-            margin="dense"
-            fullWidth
-            name="Stage"
-            value={addData.Stage}
-            onChange={(event) => handleInputChange(event, "add")}
-            error={!!addErrors.Stage}
-            helperText={addErrors.Stage}
-          >
-            <MenuItem value="">Select Stage</MenuItem>
-            <MenuItem value="N">N</MenuItem>
-            <MenuItem value="A">A</MenuItem>
-          </Select>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => handleSubmit("add")} color="primary">
             Save
           </Button>
-          <Button onClick={() => handleCloseDialog("add")} color="primary">
+          <Button
+            onClick={() => handleCloseDialog("add")}
+            color="primary"
+          >
             Cancel
           </Button>
         </DialogActions>
-      </Dialog>
+  </Dialog>
 
       {/* Close condition dialog */}
       <Dialog
@@ -613,17 +647,25 @@ const AlarmLogPage = () => {
       >
         <DialogTitle>Close Entry</DialogTitle>
         <DialogContent>
-          <TextField
+        <InputLabel shrink>Problem</InputLabel>
+        <Select
+            autoFocus
             margin="dense"
-            label="Occurrence"
-            type="text"
             fullWidth
-            name="occurrence"
-            value={closeData.occurrence}
+            name="Problem"
+            value={closeData.Problem}
             onChange={(event) => handleInputChange(event, "close")}
-            error={!!closeErrors.occurrence}
-            helperText={closeErrors.occurrence}
-          />
+            error={!!closeErrors.Problem}
+            helperText={closeErrors.Problem}
+          >
+            <MenuItem value="">Select Problem</MenuItem>
+            <MenuItem value="Error">Overload LT Feeders</MenuItem>
+            <MenuItem value="Pending">Loose Connection on LT side</MenuItem>
+            <MenuItem value="Resolved">Fault on LT side</MenuItem>
+            <MenuItem value="Resolved">Low Oil Level</MenuItem>
+            <MenuItem value="Resolved">Oil Leakage</MenuItem>
+            <MenuItem value="Resolved">ACB</MenuItem>
+          </Select>
 
           <InputLabel shrink>Status</InputLabel>
           <Select

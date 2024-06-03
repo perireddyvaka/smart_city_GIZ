@@ -42,6 +42,19 @@ router.get("/alarmdata", async (req, res) => {
   }
 });
 
+// Fetch alarm data with stage 'A'
+router.get("/alarmcloseddata", async (req, res) => {
+  try {
+    const query = "SELECT * FROM alarm WHERE stage = 'D'";
+    const { rows } = await client.query(query);
+    res.status(200).json(rows);
+  } catch (err) {
+    console.log(err.stack);
+    res.status(500).send("Server Error");
+  }
+});
+
+
 // Fetch alarm data with stage 'N' or 'A'
 router.get("/notidata", async (req, res) => {
   try {
@@ -55,19 +68,20 @@ router.get("/notidata", async (req, res) => {
 });
 
 // Create a new alarm entry
-router.post("/generated/create", async (req, res) => {
+router.post("/conditions/add", async (req, res) => {
   try {
-    const { Status, Location, Occurrence, Stage } = req.body;
+    const { parameter, phase, range_min, range_max, parameter_units } = req.body;
     const id = uuidv4();
     const checkout = "N/S";
-    const query = "INSERT INTO alarm (id, status, location, occurrence, checklog, stage) VALUES ($1, $2, $3, $4, $5, $6)";
-    await client.query(query, [id, Status, Location, Occurrence, checkout, Stage]);
+    const query = "INSERT INTO alarm (id, parameter, phase, range_min, range_max, parameter_units, checkout) VALUES ($1, $2, $3, $4, $5, $6, $7)";
+    await client.query(query, [id, parameter, phase, range_min, range_max, parameter_units, checkout]);
     res.status(200).send("Data inserted successfully");
   } catch (err) {
     console.log(err.stack);
     res.status(500).send("Server Error");
   }
 });
+
 
 router.put("/renew/:id", async (req, res) => {
   try {

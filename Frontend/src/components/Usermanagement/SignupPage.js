@@ -15,7 +15,7 @@ import {
   Toolbar,
 } from "@mui/material";
 import ExistingUsersTable from "./ExistingUsersTable";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 const styles = {
   appBar: {
@@ -48,7 +48,7 @@ const SignupPage = () => {
   const [showExistingUsers, setShowExistingUsers] = useState(false);
   const [existingUsers, setExistingUsers] = useState([]);
   const existingUsersTableRef = useRef(null);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   useEffect(() => {
     fetch("http://127.0.0.1:8000/auth/", { method: "GET" })
@@ -106,7 +106,7 @@ const SignupPage = () => {
       if (existingUsersTableRef.current) {
         existingUsersTableRef.current.fetchUsers();
       }
-      navigate("/signup");
+      // navigate("/signup");
     } else {
       console.log("Invalid Credentials", "danger");
     }
@@ -200,6 +200,7 @@ const SignupPage = () => {
               required
             >
               <MenuItem value="">Select Role</MenuItem>
+              <MenuItem value="Admin">Admin</MenuItem>
               <MenuItem value="OH">OrganizationHead</MenuItem>
               <MenuItem value="CH">CircleHead</MenuItem>
               <MenuItem value="DH">DivisionHead</MenuItem>
