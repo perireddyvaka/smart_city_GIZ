@@ -147,7 +147,6 @@ const AlarmLogs = () => {
                 <table style={tableStyle}>
                     <thead>
                         <tr>
-                            {/* <th style={thStyle}>ID</th> */}
                             <th style={thStyle}>Status</th>
                             <th style={thStyle}>Location</th>
                             <th style={thStyle}>Problem</th>
@@ -159,11 +158,10 @@ const AlarmLogs = () => {
                     <tbody>
                         {items.map(log => (
                             <tr key={log.id}>
-                                {/* <td style={tdStyle}>{log.id}</td> */}
                                 <td style={tdStyle}>{log.status}</td>
                                 <td style={tdStyle}>{log.location}</td>
                                 <td style={tdStyle}>{log.occurrence}</td>
-                                <td style={tdStyle}>{log.occurrenceCount}</td>
+                                <td style={tdStyle}>{log.occurrence_count}</td>
                                 <td style={tdStyle}>{log.timeerror}</td>
                                 <td style={tdStyle}>{log.timeupdate}</td>
                             </tr>

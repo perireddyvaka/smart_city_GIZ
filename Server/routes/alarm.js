@@ -45,7 +45,13 @@ router.get("/alarmdata", async (req, res) => {
 // Fetch alarm data with stage 'A'
 router.get("/alarmcloseddata", async (req, res) => {
   try {
-    const query = "SELECT * FROM alarm WHERE stage = 'D'";
+    const query = `
+      SELECT *,
+        ROW_NUMBER() OVER (PARTITION BY occurrence ORDER BY timeupdate) AS occurrence_count
+      FROM alarm
+      WHERE stage = 'D'
+      ORDER BY timeupdate;
+    `;
     const { rows } = await client.query(query);
     res.status(200).json(rows);
   } catch (err) {
