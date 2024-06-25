@@ -32,7 +32,6 @@ import {
   Menu as MenuIcon,
   NotificationsActive as NotificationsIcon,
   Alarm as AlarmIcon,
-  
   ChevronLeft as ChevronLeftIcon,
 } from '@material-ui/icons';
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
@@ -287,22 +286,33 @@ const DivisionHeadPage = () => {
     navigate('/login');
   };
 
-  const markAsRead = (id) => {
-    const closedNotification = issue.find((item) => item.id === id);
-    setClosedNotifications((prevNotifications) => [
-      ...prevNotifications,
-      closedNotification,
-    ]);
-    localStorage.setItem(
-      `notification_${id}`,
-      JSON.stringify(closedNotification)
-    );
-    setIssue((prevIssue) => prevIssue.filter((item) => item.id !== id));
-    if (issue.length === 1) {
-      handleNotificationClose();
+  const markAsRead = async (id) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/alarm/markAsRead/${id}`, {
+        method: 'PUT',
+      });
+      if (response.ok) {
+        const closedNotification = issue.find((item) => item.id === id);
+        setClosedNotifications((prevNotifications) => [
+          ...prevNotifications,
+          closedNotification,
+        ]);
+        localStorage.setItem(
+          `notification_${id}`,
+          JSON.stringify(closedNotification)
+        );
+        setIssue((prevIssue) => prevIssue.filter((item) => item.id !== id));
+        if (issue.length === 1) {
+          handleNotificationClose();
+        }
+        console.log('Notification marked as read successfully');
+      } else {
+        console.error('Failed to mark notification as read');
+      }
+    } catch (error) {
+      console.error('Error marking notification as read:', error.message);
     }
   };
-
   // const handleDropdownOpen = (event) => {
   //   setDropdownAnchorEl(event.currentTarget);
   // };

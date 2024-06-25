@@ -274,7 +274,7 @@ const AlarmLogPage = () => {
   
     const endpoint =
       dataType === "add"
-        ? "http://127.0.0.1:8000/conditions/add"
+        ? "http://127.0.0.1:8000/alarm/add"
         : `http://127.0.0.1:8000/alarm/renew/${id}`;
   
     try {
