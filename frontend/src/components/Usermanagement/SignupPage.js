@@ -51,7 +51,7 @@ const SignupPage = () => {
   // const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/auth/", { method: "GET" })
+    fetch("http://127.0.0.1:4313/auth/", { method: "GET" })
       .then((response) => response.json())
       .then((data) => {
         console.log("Fetched initial data:", data); // Debug log
@@ -90,7 +90,7 @@ const SignupPage = () => {
 
     setPasswordError('');
 
-    const response = await fetch("http://localhost:8000/auth/signup", {
+    const response = await fetch("http://localhost:4313/auth/signup", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
