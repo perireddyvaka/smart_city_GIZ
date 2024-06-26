@@ -238,7 +238,7 @@ const AlarmLogPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:8000/alarm/alarmdata");
+        const response = await fetch("http://127.0.0.1:4313/alarm/alarmdata");
         const data = await response.json();
         setItems(data);
         setTotalPages(Math.ceil(data.length / perPage));
@@ -274,8 +274,8 @@ const AlarmLogPage = () => {
   
     const endpoint =
       dataType === "add"
-        ? "http://127.0.0.1:8000/conditions/add"
-        : `http://127.0.0.1:8000/alarm/renew/${id}`;
+        ? "http://127.0.0.1:4313/conditions/add"
+        : `http://127.0.0.1:4313/alarm/renew/${id}`;
   
     try {
       const response = await fetch(endpoint, {

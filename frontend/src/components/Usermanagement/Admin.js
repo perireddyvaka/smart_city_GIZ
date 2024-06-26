@@ -159,7 +159,10 @@ const Admin = () => {
           <IconButton color="inherit" onClick={handleDrawerOpen}>
             <MenuIcon />
           </IconButton>
-          <img src={logo} alt="Logo" style={styles.logo} />
+          <img src={logo}
+           alt="Logo" 
+           style={styles.logo}
+           onClick={() => navigate(-1)} />
           <Typography variant="h5" component="div" style={styles.title}>
             Admin Dashboard
           </Typography>

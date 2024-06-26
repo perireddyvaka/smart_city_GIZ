@@ -155,7 +155,7 @@ const LoginPage = () => {
 
     setPasswordError('');
 
-    const response = await fetch("http://localhost:8000/auth/login", {
+    const response = await fetch("http://localhost:4313/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -211,7 +211,10 @@ const LoginPage = () => {
       <AppBar position="static" style={styles.appBar}>
         <Toolbar style={styles.toolbar}>
           <Box display="flex" alignItems="center">
-            <img src={logo} alt="Logo" style={styles.logo} />
+            <img src={logo} 
+            alt="Logo" 
+            style={styles.logo}
+            onClick={() => navigate(-1)} />
           </Box>
           <Typography variant="h6" component="div" align="center" style={styles.title}>
             BYPL Dashboard

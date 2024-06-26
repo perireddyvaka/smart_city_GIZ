@@ -56,7 +56,7 @@ const useStyles = makeStyles((theme) => ({
     height: '100vh',
   },
   appBar: {
-    backgroundColor: '#155F82',
+    backgroundColor: '#002e41',
     transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
@@ -323,8 +323,8 @@ const OrganizationHeadPage = () => {
   
     const endpoint =
       dataType === "add"
-        ? "http://127.0.0.1:8000/conditions/add"
-        : `http://127.0.0.1:8000/alarm/renew/${id}`;
+        ? "http://127.0.0.1:4313/conditions/add"
+        : `http://127.0.0.1:4313/alarm/renew/${id}`;
   
     fetch(endpoint, {
       method: "POST",
@@ -370,7 +370,7 @@ const OrganizationHeadPage = () => {
   const handleNotificationOpen = async (event) => {
     setNotificationAnchorEl(event.currentTarget);
     try {
-      const response = await fetch('http://127.0.0.1:8000/alarm/notidata');
+      const response = await fetch('http://127.0.0.1:4313/alarm/notidata');
       const data = await response.json();
       const notificationsWithTimestamp = data.map((item) => ({
         ...item,
@@ -395,19 +395,31 @@ const OrganizationHeadPage = () => {
     navigate('/login');
   };
 
-  const markAsRead = (id) => {
-    const closedNotification = issue.find((item) => item.id === id);
-    setClosedNotifications((prevNotifications) => [
-      ...prevNotifications,
-      closedNotification,
-    ]);
-    localStorage.setItem(
-      `notification_${id}`,
-      JSON.stringify(closedNotification)
-    );
-    setIssue((prevIssue) => prevIssue.filter((item) => item.id !== id));
-    if (issue.length === 1) {
-      handleNotificationClose();
+  const markAsRead = async (id) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:4313/alarm/markAsRead/${id}`, {
+        method: 'PUT',
+      });
+      if (response.ok) {
+        const closedNotification = issue.find((item) => item.id === id);
+        setClosedNotifications((prevNotifications) => [
+          ...prevNotifications,
+          closedNotification,
+        ]);
+        localStorage.setItem(
+          `notification_${id}`,
+          JSON.stringify(closedNotification)
+        );
+        setIssue((prevIssue) => prevIssue.filter((item) => item.id !== id));
+        if (issue.length === 1) {
+          handleNotificationClose();
+        }
+        console.log('Notification marked as read successfully');
+      } else {
+        console.error('Failed to mark notification as read');
+      }
+    } catch (error) {
+      console.error('Error marking notification as read:', error.message);
     }
   };
 
@@ -437,13 +449,13 @@ const OrganizationHeadPage = () => {
     const fetchData = async () => {
       try {
         const ncountResponse = await fetch(
-          'http://127.0.0.1:8000/alarm/ncount'
+          'http://127.0.0.1:4313/alarm/ncount'
         );
         const ncountData = await ncountResponse.json();
         setNcount(ncountData[0]);
 
         const acountResponse = await fetch(
-          'http://127.0.0.1:8000/alarm/acount'
+          'http://127.0.0.1:4313/alarm/acount'
         );
         const acountData = await acountResponse.json();
         setAcount(acountData[0]);

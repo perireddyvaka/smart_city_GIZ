@@ -4,12 +4,13 @@ services:
   server:
     build: ./Server
     ports:
-      - "3000:3000"
+      - "4313:8000"
     networks:
       - postgres-network
     depends_on:
       postgres:
         condition: service_healthy  # Wait until postgres is healthy
+
 
   postgres:
     image: postgres:16.2
@@ -17,7 +18,7 @@ services:
     restart: always
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1234
+      POSTGRES_PASSWORD: postgres
       POSTGRES_DB: bypldb
     ports:
       - "5433:5432"
