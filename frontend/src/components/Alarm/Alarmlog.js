@@ -567,7 +567,7 @@ const AlarmLogPage = () => {
         <MenuItem value="Fault on LT side">Fault on LT side</MenuItem>
         <MenuItem value="Low oil level">Low oil level</MenuItem>
         <MenuItem value="Oil leakage">Oil leakage</MenuItem>
-        <MenuItem value="acb_3_current">acb_3_current</MenuItem>
+       
       </Select>
 
      <InputLabel shrink>Phase</InputLabel>
@@ -664,7 +664,7 @@ const AlarmLogPage = () => {
             <MenuItem value="Resolved">Fault on LT side</MenuItem>
             <MenuItem value="Resolved">Low Oil Level</MenuItem>
             <MenuItem value="Resolved">Oil Leakage</MenuItem>
-            <MenuItem value="Resolved">ACB</MenuItem>
+           
           </Select>
 
           <InputLabel shrink>Status</InputLabel>

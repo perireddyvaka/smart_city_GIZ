@@ -42,7 +42,7 @@ const styles = {
 const AppBar = () => {
     const navigate = useNavigate();
     const appbarStyle = {
-        backgroundColor: '#003366',
+        backgroundColor: '#002e41',
         color: '#ffffff',
         padding: '10px 20px',
         display: 'flex',
@@ -81,7 +81,7 @@ const AlarmLogs = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch("http://127.0.0.1:8000/alarm/alarmcloseddata");
+                const response = await fetch("http://127.0.0.1:4313/alarm/alarmcloseddata");
                 const data = await response.json();
                 setItems(data);
             } catch (error) {

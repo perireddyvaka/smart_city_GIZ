@@ -14,6 +14,7 @@ import {
   AppBar,
   Toolbar,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import ExistingUsersTable from "./ExistingUsersTable";
 // import { useNavigate } from "react-router-dom";
 
@@ -48,7 +49,7 @@ const SignupPage = () => {
   const [showExistingUsers, setShowExistingUsers] = useState(false);
   const [existingUsers, setExistingUsers] = useState([]);
   const existingUsersTableRef = useRef(null);
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch("http://127.0.0.1:4313/auth/", { method: "GET" })
@@ -126,7 +127,10 @@ const SignupPage = () => {
     <Grid item xs={12}>
       <AppBar position="static" style={styles.appBar}>
         <Toolbar style={styles.toolbar}>
-          <img src={logo} alt="Logo" style={styles.logo} />
+          <img src={logo} 
+          alt="Logo" 
+          style={styles.logo} 
+          onClick={() => navigate(-1)} />
           <Typography variant="h6" component="div" style={styles.title}>
             BYPL Dashboard
           </Typography>
