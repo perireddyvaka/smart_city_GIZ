@@ -1,6 +1,7 @@
 version: '3'
+
 services:
-  web:
-    build: .
+  frontend:
+    build: ./Frontend
     ports:
       - "8080:80"

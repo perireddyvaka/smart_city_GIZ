@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ExistingUsersTable from "./ExistingUsersTable";
+import config from "../../config";
 // import { useNavigate } from "react-router-dom";
 
 const styles = {
@@ -52,7 +53,7 @@ const SignupPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://127.0.0.1:4313/auth/", { method: "GET" })
+    fetch(`${config.backendAPI}/auth/`, { method: "GET" })
       .then((response) => response.json())
       .then((data) => {
         console.log("Fetched initial data:", data); // Debug log

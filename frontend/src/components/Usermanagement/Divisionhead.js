@@ -41,12 +41,14 @@ import {
   
   ChevronLeft as ChevronLeftIcon,
 } from '@material-ui/icons';
+import PersonIcon from '@mui/icons-material/Person';
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import ReplayIcon from "@mui/icons-material/Replay";
 import { Link, useNavigate } from 'react-router-dom';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { MdLocalGroceryStore } from 'react-icons/md';
 import yourImage from './logos.png';
+import config from '../../config';
 
 const drawerWidth = 240;
 
@@ -318,8 +320,8 @@ const DivisionHeadPage = () => {
   
     const endpoint =
       dataType === "add"
-        ? "http://127.0.0.1:4313/conditions/add"
-        : `http://127.0.0.1:4313/alarm/renew/${id}`;
+        ? `${config.backendAPI}/conditions/add`
+        : `${config.backendAPI}/alarm/renew/${id}`;
   
     fetch(endpoint, {
       method: "POST",
@@ -366,7 +368,7 @@ const DivisionHeadPage = () => {
   const handleNotificationOpen = async (event) => {
     setNotificationAnchorEl(event.currentTarget);
     try {
-      const response = await fetch('http://127.0.0.1:4313/alarm/notidata');
+      const response = await fetch(`${config.backendAPI}/alarm/notidata`);
       const data = await response.json();
       const notificationsWithTimestamp = data.map((item) => ({
         ...item,
@@ -399,7 +401,7 @@ const DivisionHeadPage = () => {
 
   const markAsRead = async (id) => {
     try {
-      const response = await fetch(`http://127.0.0.1:4313/alarm/markAsRead/${id}`, {
+      const response = await fetch(`${config.backendAPI}/alarm/markAsRead/${id}`, {
         method: 'PUT',
       });
       if (response.ok) {
@@ -448,13 +450,13 @@ const DivisionHeadPage = () => {
     const fetchData = async () => {
       try {
         const ncountResponse = await fetch(
-          'http://127.0.0.1:4313/alarm/ncount'
+          `${config.backendAPI}/alarm/ncount`
         );
         const ncountData = await ncountResponse.json();
         setNcount(ncountData[0]);
 
         const acountResponse = await fetch(
-          'http://127.0.0.1:4313/alarm/acount'
+          `${config.backendAPI}/alarm/acount`
         );
         const acountData = await acountResponse.json();
         setAcount(acountData[0]);
@@ -495,7 +497,7 @@ const DivisionHeadPage = () => {
             <img src={yourImage} alt="Your company logo" className={classes.logo} />
           </Hidden>
           <Typography variant="h6" noWrap className={classes.title}>
-            DivisionHead Dashboard 
+            DTR Dashboard 
             {/* <div
               className={classes.dropdownButton}
               onClick={handleDropdownOpen}
@@ -559,28 +561,33 @@ const DivisionHeadPage = () => {
             </Popover>
           </div>
           <IconButton component={Link} to="/Alarmlog" color="inherit">
-            <Badge badgeContent={acount?.count || 0} color="secondary">
-              <AlarmIcon />
-            </Badge>
-          </IconButton>
-          <IconButton color="inherit" onClick={handleUserClick}>
-            <LogoutIcon />
-          </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleClose}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right',
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-          >
-            <MenuItem onClick={handleLogout}>Logout</MenuItem>
-          </Menu>
+        <Badge badgeContent={acount?.count || 0} color="secondary">
+          <AlarmIcon />
+        </Badge>
+      </IconButton>
+
+      <IconButton color="inherit" onClick={handleUserClick}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <PersonIcon style={{ fontSize: 'calc(1em + 0.3vw)' }} />
+          <span style={{ fontSize: '0.8em' }}>OrganizationHead</span>
+        </div>
+      </IconButton>
+
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+      >
+        <MenuItem onClick={handleLogout}>Logout</MenuItem>
+      </Menu>
         </Toolbar>
       </AppBar>
 

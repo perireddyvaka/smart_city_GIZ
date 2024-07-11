@@ -9,6 +9,7 @@ import {
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import ReplayIcon from "@mui/icons-material/Replay";
 import { useNavigate } from 'react-router-dom';
+import config from '../../config';
 
 const styles = {
     sessionTimeoutDialog: {
@@ -81,7 +82,7 @@ const AlarmLogs = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch("http://127.0.0.1:4313/alarm/alarmcloseddata");
+                const response = await fetch(`${config.backendAPI}/alarm/alarmcloseddata`);
                 const data = await response.json();
                 setItems(data);
             } catch (error) {

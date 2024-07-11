@@ -24,6 +24,7 @@ import { Box } from '@material-ui/core';
 import TextField from '@mui/material/TextField';
 import axios from 'axios';
 import Logo from './logos.png';
+import config from '../../config';
 
 const styles = {
   sessionTimeoutDialog: {
@@ -67,7 +68,7 @@ const App = () => {
   useEffect(() => {
     // Fetch conditions from backend
     axios
-      .get('http://127.0.0.1:8000/conditions')
+      .get(`${config.backendAPI}/conditions`)
       .then((response) => {
         setConditions(response.data);
       })
@@ -125,7 +126,7 @@ const App = () => {
     };
 
     try {
-      await axios.put('http://127.0.0.1:8000/conditions/update', updatedCondition);
+      await axios.put(`${config.backendAPI}/conditions/update`, updatedCondition);
       setConditions((prevConditions) => {
         const newConditions = [...prevConditions];
         newConditions[selectedCondition] = updatedCondition;

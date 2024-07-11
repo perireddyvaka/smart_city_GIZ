@@ -12,6 +12,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { MdLocalGroceryStore } from "react-icons/md";
 import yourImage from './logos.png';
+import config from '../../config';
 
 const drawerWidth = 240;
 
@@ -198,8 +199,8 @@ const CustomAppBar = () => {
   
     const endpoint =
       dataType === "add"
-        ? "http://127.0.0.1:4313/conditions/add"
-        : `http://127.0.0.1:4313/alarm/renew/${id}`;
+        ? `${config.backendAPI}/conditions/add`
+        : `${config.backendAPI}/alarm/renew/${id}`;
   
     fetch(endpoint, {
       method: "POST",
@@ -246,7 +247,7 @@ const CustomAppBar = () => {
   const handleNotificationOpen = async (event) => {
     setNotificationAnchorEl(event.currentTarget);
     try {
-      const response = await fetch('http://127.0.0.1:4313/alarm/notidata');
+      const response = await fetch(`${config.backendAPI}/alarm/notidata`);
       const data = await response.json();
       const notificationsWithTimestamp = data.map(item => ({
         ...item,
@@ -273,7 +274,7 @@ const CustomAppBar = () => {
 
   const markAsRead = async (id) => {
     try {
-      const response = await fetch(`http://127.0.0.1:4313/alarm/markAsRead/${id}`, {
+      const response = await fetch(`${config.backendAPI}/alarm/markAsRead/${id}`, {
         method: 'PUT',
       });
       if (response.ok) {
@@ -322,11 +323,11 @@ const CustomAppBar = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const ncountResponse = await fetch('http://127.0.0.1:4313/alarm/ncount');
+        const ncountResponse = await fetch(`${config.backendAPI}/alarm/ncount`);
         const ncountData = await ncountResponse.json();
         setNcount(ncountData[0]);
 
-        const acountResponse = await fetch('http://127.0.0.1:4313/alarm/acount');
+        const acountResponse = await fetch(`${config.backendAPI}/alarm/acount`);
         const acountData = await acountResponse.json();
         setAcount(acountData[0]);
 

@@ -30,6 +30,7 @@ import ReplayIcon from "@mui/icons-material/Replay";
 import { Alarm } from "@material-ui/icons";
 import { Link, useNavigate } from "react-router-dom";
 import yourImage from './logos.png';
+import config from "../../config";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -238,7 +239,7 @@ const AlarmLogPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:4313/alarm/alarmdata");
+        const response = await fetch(`${config.backendAPI}/alarm/alarmdata`);
         const data = await response.json();
         setItems(data);
         setTotalPages(Math.ceil(data.length / perPage));
@@ -274,8 +275,8 @@ const AlarmLogPage = () => {
   
     const endpoint =
       dataType === "add"
-        ? "http://127.0.0.1:4313/conditions/add"
-        : `http://127.0.0.1:4313/alarm/renew/${id}`;
+        ? `${config.backendAPI}/conditions/add`
+        : `${config.backendAPI}/alarm/renew/${id}`;
   
     try {
       const response = await fetch(endpoint, {
