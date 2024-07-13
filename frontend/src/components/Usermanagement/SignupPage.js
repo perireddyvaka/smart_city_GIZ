@@ -92,7 +92,7 @@ const SignupPage = () => {
 
     setPasswordError('');
 
-    const response = await fetch("http://localhost:4313/auth/signup", {
+    const response = await fetch(`${config.backendAPI}/auth/signup`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
