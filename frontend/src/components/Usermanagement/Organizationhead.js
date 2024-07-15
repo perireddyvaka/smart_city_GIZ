@@ -649,7 +649,7 @@ const OrganizationHeadPage = () => {
       <main className={`${classes.content} ${drawerOpen && classes.contentShift}`}>
         <div className={classes.iframeContainer}>
           <iframe
-            src="https://public.tableau.com
+            src="https://10.125.126.68.8000/#/views/final_version-organization/organization
             // &:showVizHome=no
                 &embed=true
                 &:toolbar=no
