@@ -17,32 +17,33 @@ const styles = {
         color: 'black', // Optional: to ensure text is visible on a black background
     },
     sessionTimeoutDialog: {
-        width: "600px",
-        padding: "48px",
-        backgroundColor: "#f3e5f5",
+        width: "60vw",
+        padding: "2vw",
+        backgroundColor: "#f3e5f5", // Light purple background color
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-    },
-    errorIcon: {
-        fontSize: "96px",
-        color: "#c51162",
-        marginBottom: "24px",
-    },
-    sessionTimeoutText: {
-        marginBottom: "16px",
-        fontWeight: "bold",
-    },
-    loginAgainText: {
+      },
+      errorIcon: {
+        fontSize: "7vw", // Increased icon size
+        color: "#c51162", // Attractive red color
+        marginBottom: "2vw",
+      },
+      sessionTimeoutText: {
+        marginBottom: "1.5vw",
+        fontWeight: "bold", // Bold text for better visibility
+      },
+      loginAgainText: {
         display: "flex",
         alignItems: "center",
-        marginBottom: "32px",
-        fontSize: "18px",
-    },
-    loginAgainIcon: {
-        marginRight: "8px",
-    },
-};
+        marginRight: "3vw",
+        marginBottom: "1.7vw", // Increased bottom margin for better spacing
+        fontSize: "1.8vw", // Increased font size for better readability
+      },
+      loginAgainIcon: {
+        marginRight: "1vw",
+      },
+    };
 
 const AppBar = () => {
     const navigate = useNavigate();
@@ -55,7 +56,7 @@ const AppBar = () => {
         alignItems: 'center',
         marginBottom: '1vw',
         justifyContent: 'center',
-        width: '97.5    vw',
+        width: '97.3vw',
         boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
     };
 
@@ -150,7 +151,7 @@ const Notificationlog = () => {
 
     const tableStyle = {
         borderCollapse: 'collapse',
-        width: '100%',
+        width: '97vw',
     };
 
     const thStyle = {

@@ -34,7 +34,7 @@ import config from "../../config";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    minHeight: "100vh",
+    minHeight: "90vh",
     backgroundColor: "black",
     display: "flex",
     flexDirection: "column",
@@ -89,27 +89,51 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "space-between",
     marginBottom: theme.spacing(2),
   },
+  optionContainer: {
+    display: "flex",
+    width: "1vw",
+    justifyContent: "space-between",
+    marginBottom: theme.spacing(1),
+    marginRight: theme.spacing(20),
+    marginLeft: theme.spacing(-19),
+    marginTop: "0.3vw"
+  },
+  previousbutton:{
+    display: "flex",
+    width: "7vw",
+    justifyContent: "space-between",
+    marginBottom: theme.spacing(1),
+    marginRight: theme.spacing(20),
+    marginLeft: theme.spacing(-19),
+    marginTop: "0.3vw"
+  },
+  pagination: {
+    color: "#fff",
+    Left: "30vw",
+    justifyContent: "right",
+    display: "flex",
+    width: "6vw",
+    marginRight:  theme.spacing(-66)
+  },
   select: {
     marginLeft: theme.spacing(2),
   },
   searchByTextButton: {
     backgroundColor: "#CCCCCC",
+    marginLeft: "-21.7vw",
     color: "#000",
-    bottom: '3vw',
-    right: '22vw'
   },
   sortButton: {
+    marginRight: "-21.3vw",
     backgroundColor: "#CCCCCC",
     color: "#000",
-    bottom: '3.4vw',
-    left: '21vw'
   },
   appBar: {
-    width: "98vw",
+    borderRight: "9vw",
     border: "1px solid #fff",
     backgroundColor: "black",
-    bottom: '1vw',
-    marginRight: "0.6vw",
+    top: '0.2vw',
+    marginLeft: "-1vw",
     zIndex: theme.zIndex.drawer + 1,
   },
   title: {
@@ -126,8 +150,7 @@ const useStyles = makeStyles((theme) => ({
   table: {
     width: "96vw", // Make the table fill the entire width
     height: "10vw", // Make the table fill the entire height
-    marginLeft: "-22vw",
-    marginBottom: '40vw'
+    marginLeft: "-22vw"
   },
   // iconContainer: {
   //   marginTop: theme.spacing(-2), // Move icon container upwards
@@ -385,7 +408,7 @@ const AlarmLogPage = () => {
 
   return (
     <div className={classes.root}>
-     <AppBar position="relative" className={classes.appBar}>
+     <AppBar position="fixed" className={classes.appBar}>
       <Toolbar>
       <Hidden xsDown>
       <img
@@ -525,10 +548,10 @@ const AlarmLogPage = () => {
             </TableBody>
           </Table>
         {/* </TableContainer> */}
-        <div className={classes.optionsContainer}>
+        <div className={classes.optionContainer}>
         {currentPage > 1 && (
           <Button
-            className={classes.sortButton}
+            className={classes.previousbutton}
             variant="contained"
             color="primary"
             onClick={handlePrevPage}
@@ -538,7 +561,7 @@ const AlarmLogPage = () => {
         )}
         {items.length > currentPage * perPage && (
           <Button
-            className={classes.sortButton}
+            className={classes.optionContainer}
             variant="contained"
             color="primary"
             onClick={handleNextPage}
@@ -546,7 +569,8 @@ const AlarmLogPage = () => {
             Next
           </Button>
         )}
-        <Typography style={{ color: "#002e41", marginLeft: "auto" }}>
+        <Typography 
+        className={ classes.pagination}>
           Page {currentPage} of {totalPages}
         </Typography>
       </div>
