@@ -17,7 +17,7 @@ import AppBarComponent from './components/Usermanagement/Appbar2';
 import OrganizationHeadPage from './components/Usermanagement/Organizationhead';
 import CircleHeadPage from './components/Usermanagement/Circlehead';
 import DivisionHeadPage from './components/Usermanagement/Divisionhead';
-import NotificationHistory from './components/Alarm/NotificationHistory';
+import Notificationlog from './components/Alarm/Notificationlog';
 import Conditions from './components/Alarm/Conditions';
 
 function App() {
@@ -37,7 +37,7 @@ function App() {
       <Route path="/appbar" element={<AppBar />} />
       <Route path="/sidedrawer" element={<SideDrawer />} />
       <Route path="/tableauframe" element={<TableauFrame />} />
-      <Route path="/NotificationHistory" element={<NotificationHistory />} />
+      <Route path="/Notificationlog" element={<Notificationlog />} />
       <Route path="/Alarmlog" element={<Alarmlog />} />
       <Route path="/AlarmLogPage" element={<AlarmLogPage />} />
       <Route path="/LogStore" element={<LogStore />} />

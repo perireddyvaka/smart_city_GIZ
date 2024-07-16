@@ -10,11 +10,10 @@ import {
   Badge,
   Menu,
   MenuItem,
-  Card,
-  CardContent,
+  
   Typography,
   Button,
-  Popover,
+ 
   Dialog,
   DialogTitle,
   DialogContent,
@@ -49,12 +48,13 @@ import ReplayIcon from "@mui/icons-material/Replay";
 import yourImage from './logos.png';
 import config from '../../config';
 
-const drawerWidth = 240;
+const drawerWidth = 200;
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
-    height: '100vh',
+    height: '47vw',
+    width: '100vw'
   },
   appBar: {
     backgroundColor: '#002e41',
@@ -73,37 +73,43 @@ const useStyles = makeStyles((theme) => ({
   },
   toolbar: {
     display: 'flex',
-    justifyContent: 'space-between',
+    // justifyContent: 'space-between',
     alignItems: 'center',
+    width: '97vw',
     padding: theme.spacing(0, 2),
   },
   logo: {
-    height: '50px',
+    height: '4vw',
+    Size: '10rem',
     marginRight: theme.spacing(2),
   },
   title: {
     flexGrow: 1,
+    fontSize: '1.9vw',
     textAlign: 'center',
     display: 'flex',
     alignItems: 'center',
     flexDirection: 'column',
   },
-  dropdownButton: {
-    display: 'flex',
-    alignItems: 'center',
-    cursor: 'pointer',
-    padding: theme.spacing(0.5, 2),
-    borderRadius: '20px',
-    backgroundColor: 'transparent',
-    marginRight: theme.spacing(1),
-    border: '1px solid transparent',
-    transition: 'background-color 0.3s',
-    '&:hover': {
-      backgroundColor: theme.palette.grey[200],
-    },
-  },
-  dropdownMenu: {
-    marginTop: theme.spacing(1),
+  // dropdownButton: {
+  //   display: 'flex',
+  //   alignItems: 'center',
+  //   cursor: 'pointer',
+  //   padding: theme.spacing(0.5, 2),
+  //   borderRadius: '20px',
+  //   backgroundColor: 'transparent',
+  //   marginRight: theme.spacing(1),
+  //   border: '1px solid transparent',
+  //   transition: 'background-color 0.3s',
+  //   '&:hover': {
+  //     backgroundColor: theme.palette.grey[200],
+  //   },
+  // },
+  // dropdownMenu: {
+  //   marginTop: theme.spacing(1),
+  // },
+  drawerOpen:{
+    width: '1vw'
   },
   drawer: {
     width: drawerWidth,
@@ -128,6 +134,8 @@ const useStyles = makeStyles((theme) => ({
   notificationCard: {
     marginBottom: theme.spacing(1),
     position: 'relative',
+    width: '79vw',
+    height: '40vw'
   },
   notificationCardContent: {
     display: 'flex',
@@ -144,7 +152,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(0.2, 1),
     minWidth: 'unset',
     height: 'unset',
-    borderRadius: '10px',
+    borderRadius: '1vw',
     alignSelf: 'flex-end',
     marginBottom: theme.spacing(1),
   },
@@ -153,12 +161,13 @@ const useStyles = makeStyles((theme) => ({
   },
   content: {
     flexGrow: 1,
+    width: '120vw',
     padding: 0,
     transition: theme.transitions.create('margin', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
-    marginLeft: -drawerWidth,
+    marginLeft: '-14vw',
     marginTop: theme.mixins.toolbar.minHeight,
     height: `calc(100vh - ${theme.mixins.toolbar.minHeight}px)`,
     overflow: 'hidden',
@@ -171,42 +180,50 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: 0,
   },
   iframeContainer: {
-    width: '100%',
-    height: '100%',
+    width: '99vw',
+    height: '72vw',
+    border: 'black solid 1px',
+    marginTop: '1vw',
+    marginLeft: '0.3vw'
+    
   },
   iframe: {
-    width: '100%',
-    height: '100%',
-    border: 'none',
+    width: '98.5vw',
+    height: '70vw',
+    border: 'black solid 1px',
+    marginLeft: '0.2vw',
+    marginTop: '1vw'
+   
   },
 }));
 
 const styles = {
   sessionTimeoutDialog: {
-    width: "600px",
-    padding: "48px",
+    width: "60vw",
+    padding: "2vw",
     backgroundColor: "#f3e5f5", // Light purple background color
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
   },
   errorIcon: {
-    fontSize: "96px", // Increased icon size
+    fontSize: "7vw", // Increased icon size
     color: "#c51162", // Attractive red color
-    marginBottom: "24px",
+    marginBottom: "2vw",
   },
   sessionTimeoutText: {
-    marginBottom: "16px",
+    marginBottom: "1.5vw",
     fontWeight: "bold", // Bold text for better visibility
   },
   loginAgainText: {
     display: "flex",
     alignItems: "center",
-    marginBottom: "32px", // Increased bottom margin for better spacing
-    fontSize: "18px", // Increased font size for better readability
+    marginRight: "3vw",
+    marginBottom: "1.7vw", // Increased bottom margin for better spacing
+    fontSize: "1.8vw", // Increased font size for better readability
   },
   loginAgainIcon: {
-    marginRight: "8px",
+    marginRight: "1vw",
   },
 };
 
@@ -219,8 +236,8 @@ const OrganizationHeadPage = () => {
   const [ncount, setNcount] = useState(0);
   const [acount, setAcount] = useState(0);
   const [ setItems] = useState([]);
-  const [issue, setIssue] = useState([]);
-  const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
+  // const [issue, setIssue] = useState([]);
+  // const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
   // const [dropdownAnchorEl, setDropdownAnchorEl] = useState(null);
   // const [selectedOption, setSelectedOption] = useState('DTR');
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -246,7 +263,7 @@ const OrganizationHeadPage = () => {
 
   useEffect(() => {
     const startSessionTimer = () => {
-      const sessionDuration = 1 * 24 * 60 * 60 * 1000; // 5 seconds for testing, adjust as needed
+      const sessionDuration = 500000; // 5 seconds for testing, adjust as needed
       return setTimeout(() => {
         setSessionTimeoutAlert(true);
       }, sessionDuration);
@@ -368,24 +385,22 @@ const OrganizationHeadPage = () => {
     handleCloseDialog(dataType);
   };
 
-  const handleNotificationOpen = async (event) => {
-    setNotificationAnchorEl(event.currentTarget);
-    try {
-      const response = await fetch(`${config.backendAPI}/alarm/notidata`);
-      const data = await response.json();
-      const notificationsWithTimestamp = data.map((item) => ({
-        ...item,
-        timestamp: generateTimestamp(),
-      }));
-      setIssue(notificationsWithTimestamp);
-    } catch (error) {
-      console.error(error.message);
-    }
-  };
+  // const handleNotificationOpen = async (event) => {
+  //   setNotificationAnchorEl(event.currentTarget);
+  //   try {
+  //     const response = await fetch(`${config.backendAPI}/alarm/notidata`);
+  //     const data = await response.json();
+  //     const notificationsWithTimestamp = data.map((item) => ({
+  //       ...item,
+  //       timestamp: generateTimestamp(),
+  //     }));
+  //     setIssue(notificationsWithTimestamp);
+  //   } catch (error) {
+  //     console.error(error.message);
+  //   }
+  // };
 
-  const handleNotificationClose = () => {
-    setNotificationAnchorEl(null);
-  };
+ 
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -396,33 +411,33 @@ const OrganizationHeadPage = () => {
     navigate('/login');
   };
 
-  const markAsRead = async (id) => {
-    try {
-      const response = await fetch(`${config.backendAPI}/alarm/markAsRead/${id}`, {
-        method: 'PUT',
-      });
-      if (response.ok) {
-        const closedNotification = issue.find((item) => item.id === id);
-        setClosedNotifications((prevNotifications) => [
-          ...prevNotifications,
-          closedNotification,
-        ]);
-        localStorage.setItem(
-          `notification_${id}`,
-          JSON.stringify(closedNotification)
-        );
-        setIssue((prevIssue) => prevIssue.filter((item) => item.id !== id));
-        if (issue.length === 1) {
-          handleNotificationClose();
-        }
-        console.log('Notification marked as read successfully');
-      } else {
-        console.error('Failed to mark notification as read');
-      }
-    } catch (error) {
-      console.error('Error marking notification as read:', error.message);
-    }
-  };
+  // const markAsRead = async (id) => {
+  //   try {
+  //     const response = await fetch(`${config.backendAPI}/alarm/markAsRead/${id}`, {
+  //       method: 'PUT',
+  //     });
+  //     if (response.ok) {
+  //       const closedNotification = issue.find((item) => item.id === id);
+  //       setClosedNotifications((prevNotifications) => [
+  //         ...prevNotifications,
+  //         closedNotification,
+  //       ]);
+  //       localStorage.setItem(
+  //         `notification_${id}`,
+  //         JSON.stringify(closedNotification)
+  //       );
+  //       setIssue((prevIssue) => prevIssue.filter((item) => item.id !== id));
+  //       if (issue.length === 1) {
+  //         handleNotificationClose();
+  //       }
+  //       console.log('Notification marked as read successfully');
+  //     } else {
+  //       console.error('Failed to mark notification as read');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error marking notification as read:', error.message);
+  //   }
+  // };
 
   // const handleDropdownOpen = (event) => {
   //   setDropdownAnchorEl(event.currentTarget);
@@ -433,10 +448,10 @@ const OrganizationHeadPage = () => {
   //   setDropdownAnchorEl(null);
   // };
 
-  const generateTimestamp = () => {
-    const currentDate = new Date();
-    return currentDate.toLocaleString();
-  };
+  // const generateTimestamp = () => {
+  //   const currentDate = new Date();
+  //   return currentDate.toLocaleString();
+  // };
 
   const handleOpenAddDialog = () => { // Open dialog function
     setOpenAddDialog(true);
@@ -473,9 +488,9 @@ const OrganizationHeadPage = () => {
     fetchData();
   }, []);
 
-  const filteredIssue = issue.filter(
-    (item) => !closedNotifications.some((closedItem) => closedItem.id === item.id)
-  );
+  // const filteredIssue = issue.filter(
+  //   (item) => !closedNotifications.some((closedItem) => closedItem.id === item.id)
+  // );
 
   return (
     <div className={classes.root}>
@@ -486,6 +501,7 @@ const OrganizationHeadPage = () => {
         <Toolbar className={classes.toolbar}>
           <IconButton
             color="inherit"
+            size="1vw"
             aria-label="open drawer"
             onClick={toggleDrawer}
             edge="start"
@@ -523,13 +539,22 @@ const OrganizationHeadPage = () => {
               <MenuItem onClick={() => handleDropdownClose('ACB')}>ACB</MenuItem>
             </Menu> */}
           </Typography>
-          <div>
-            <IconButton color="inherit" onClick={handleNotificationOpen}>
-              <Badge badgeContent={ncount?.count || 0} color="secondary">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
-            <Popover
+          <div >
+           <IconButton color="inherit" component={Link} to="/Notificationlog" >
+           <Badge
+           badgeContent={ncount?.count || 0}
+           color="secondary"
+           style={{
+           transform: 'scale(0.9)', // Adjust the scale to decrease the overall size
+           transformOrigin: 'top right',
+           }}
+           >
+           <NotificationsIcon style={{ fontSize: '1.5rem' }} /> {/* Adjust the size of the icon */}
+           </Badge>
+           </IconButton>
+
+
+            {/* <Popover
               open={Boolean(notificationAnchorEl)}
               anchorEl={notificationAnchorEl}
               onClose={handleNotificationClose}
@@ -558,15 +583,21 @@ const OrganizationHeadPage = () => {
                   </Card>
                 ))}
               </div>
-            </Popover>
+            </Popover> */}
           </div>
           <IconButton component={Link} to="/Alarmlog" color="inherit">
-            <Badge badgeContent={acount?.count || 0} color="secondary">
-              <AlarmIcon />
+            <Badge badgeContent={acount?.count || 0} 
+            color="secondary"
+            style={{
+              transform: 'scale(0.9)', // Adjust the scale to decrease the overall size
+              transformOrigin: 'top right',
+              }}
+            >
+              <AlarmIcon style={{ fontSize: '1.5rem' }} />
             </Badge>
           </IconButton>
           <IconButton color="inherit" onClick={handleUserClick}>
-            <LogoutIcon />
+            <LogoutIcon style={{ fontSize: '1.3rem' }} />
           </IconButton>
           <Menu
             anchorEl={anchorEl}

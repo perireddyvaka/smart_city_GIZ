@@ -17,10 +17,10 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
+  
   TableHead,
   TableRow,
-  Paper,
+  
   Menu,
   AppBar,
   Toolbar,
@@ -35,7 +35,7 @@ import config from "../../config";
 const useStyles = makeStyles((theme) => ({
   root: {
     minHeight: "100vh",
-    backgroundColor: "#fff",
+    backgroundColor: "black",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -55,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
   },
   addButton: {
     borderRadius: "30%",
-    backgroundColor: "#CCCCCC", // Changed button color
+    backgroundColor: "#black", // Changed button color
     marginRight: theme.spacing(2),
   },
   closeButtonText: {
@@ -67,18 +67,21 @@ const useStyles = makeStyles((theme) => ({
   },
   logTable: {
     marginBottom: theme.spacing(3),
+    border: '1px solid #fff',
     maxWidth: "800px",
     width: "100%", // Adjusted to fill the entire width
-    backgroundColor: "#fff", // Changed table content color
+    backgroundColor: "black", // Changed table content color
   },
   tableHeader: {
     fontWeight: "bold",
-    border: "1px solid #000",
-    backgroundColor: "#f2f2f2", // Changed table header color
+    color: "white",
+    border: "1px solid #fff",
+    backgroundColor: "#black", // Changed table header color
   },
   tableCell: {
-    border: "1px solid #000",
-    backgroundColor: "#fff", // Changed table content color
+    border: "1px solid #fff",
+    color: "white",
+    backgroundColor: "black", // Changed table content color
   },
   optionsContainer: {
     display: "flex",
@@ -92,15 +95,21 @@ const useStyles = makeStyles((theme) => ({
   searchByTextButton: {
     backgroundColor: "#CCCCCC",
     color: "#000",
+    bottom: '3vw',
+    right: '22vw'
   },
   sortButton: {
     backgroundColor: "#CCCCCC",
     color: "#000",
+    bottom: '3.4vw',
+    left: '21vw'
   },
   appBar: {
-    width: "100%",
-    backgroundColor: "#002e41",
-    top: 0,
+    width: "98vw",
+    border: "1px solid #fff",
+    backgroundColor: "black",
+    bottom: '1vw',
+    marginRight: "0.6vw",
     zIndex: theme.zIndex.drawer + 1,
   },
   title: {
@@ -110,17 +119,19 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
     marginBottom: theme.spacing(1), // Move title slightly upwards
   },
-  tableContainer: {
-    width: "100%", // Make the table container fill the entire width
-    height: "100%", // Make the table container fill the entire height
-  },
+  // tableContainer: {
+  //   width: "100vw", 
+  //   height: "100vw",
+  // },
   table: {
-    width: "100%", // Make the table fill the entire width
-    height: "95%", // Make the table fill the entire height
+    width: "96vw", // Make the table fill the entire width
+    height: "10vw", // Make the table fill the entire height
+    marginLeft: "-22vw",
+    marginBottom: '40vw'
   },
-  iconContainer: {
-    marginTop: theme.spacing(-2), // Move icon container upwards
-  },
+  // iconContainer: {
+  //   marginTop: theme.spacing(-2), // Move icon container upwards
+  // },
   
 
 }));
@@ -374,7 +385,7 @@ const AlarmLogPage = () => {
 
   return (
     <div className={classes.root}>
-     <AppBar position="fixed" className={classes.appBar}>
+     <AppBar position="relative" className={classes.appBar}>
       <Toolbar>
       <Hidden xsDown>
       <img
@@ -457,7 +468,7 @@ const AlarmLogPage = () => {
 
 
 
-        <TableContainer component={Paper} className={classes.logTable}>
+        {/* <TableContainer component={Paper} className={classes.logTable}> */}
           <Table className={classes.table}>
             <TableHead>
               <TableRow>
@@ -513,7 +524,7 @@ const AlarmLogPage = () => {
                 ))}
             </TableBody>
           </Table>
-        </TableContainer>
+        {/* </TableContainer> */}
         <div className={classes.optionsContainer}>
         {currentPage > 1 && (
           <Button

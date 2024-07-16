@@ -22,21 +22,21 @@ import config from "../../config";
 const styles = {
   appBar: {
     backgroundColor: "#002e41",
-    paddingBottom: "8px",
+    paddingBottom: "0vw",
   },
   toolbar: {
     display: "flex",
     alignItems: "center",
   },
   logo: {
-    height: 40,
-    marginRight: "8px",
+    height: '3.5vw',
+    marginRight: "0vw",
   },
   title: {
     flexGrow: 1,
     textAlign: "center",
     color: "#fff",
-    marginLeft: "-8px",
+    marginLeft: "-2vw",
   },
 };
 
@@ -154,14 +154,14 @@ const SignupPage = () => {
         <Box
           sx={{
             border: "1px solid grey",
-            borderRadius: "8px",
-            p: "16px",
+            borderRadius: "1vw",
+            p: "2vw",
           }}
         >
           <Box
             component="form"
             onSubmit={handleSignup}
-            sx={{ display: "flex", flexDirection: "column", gap: "16px" }}
+            sx={{ display: "flex", flexDirection: "column", gap: "1vw" }}
           >
             <TextField
               label="Username"

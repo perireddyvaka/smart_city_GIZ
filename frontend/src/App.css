@@ -7,6 +7,11 @@
   pointer-events: none;
 }
 
+body {
+  background-color: black;
+  color: rgb(4, 4, 4); /* Optional: to ensure text is visible on a black background */
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
@@ -21,7 +26,7 @@
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
+  color: rgb(15, 14, 14);
 }
 
 .App-link {
