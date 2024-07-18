@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 // import logo from './logos.png';
-import IIITLogo from './iiith.png';
-import SCRCLogo from './scrc_logo.png';
-import BSESLogo from './BSES_logo1.png'
+// import IIITLogo from './iiith.png';
+// import SCRCLogo from './scrc_logo.png';
+// import BSESLogo from './BSES_logo1.png'
 import {
     Dialog,
     Box,
@@ -44,7 +44,7 @@ const styles = {
 };
 
 const AppBar = () => {
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const appbarStyle = {
         // marginTop: '1vw',
         height: '3vw',

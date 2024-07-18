@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import logo from './logos.png';
+// import logo from './logos.png';
 import {
     Dialog,
     Box,
@@ -46,7 +46,7 @@ const styles = {
     };
 
 const AppBar = () => {
-    const navigate = useNavigate();
+    
     const appbarStyle = {
         border: '1px solid #fff',
         backgroundColor: 'black',

@@ -3,7 +3,7 @@ import {
   Typography,
   Container,
   makeStyles,
-  Hidden,
+  // Hidden,
   Box,
   Button,
   Dialog,
@@ -29,7 +29,7 @@ import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import ReplayIcon from "@mui/icons-material/Replay";
 import { Alarm } from "@material-ui/icons";
 import { Link, useNavigate } from "react-router-dom";
-import yourImage from './logos.png';
+// import yourImage from './logos.png';
 import config from "../../config";
 
 const useStyles = makeStyles((theme) => ({
