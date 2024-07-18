@@ -5,6 +5,7 @@ import {  useNavigate } from "react-router-dom";
 import logo from "./logos.png";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import ReplayIcon from "@mui/icons-material/Replay";
+import config from "../../config";
 
 
 
@@ -129,7 +130,7 @@ const LoginPage = () => {
 
     setPasswordError('');
 
-    const response = await fetch("http://localhost:4313/auth/login", {
+    const response = await fetch(`${config.backendAPI}/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
