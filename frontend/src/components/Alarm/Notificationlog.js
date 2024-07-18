@@ -66,14 +66,14 @@ const AppBar = () => {
 
     return (
         <div style={appbarStyle}>
-            <div>
+            {/* <div>
                 <img
                     src={logo}
                     alt=""
                     style={{ width: '100px', marginRight: '1px' }}
                     onClick={() => navigate(-1)}
                 />
-            </div>
+            </div> */}
             <div style={{ flex: '1', textAlign: 'center' }}>
                 <span style={titleStyle}>Notification Log</span>
             </div>

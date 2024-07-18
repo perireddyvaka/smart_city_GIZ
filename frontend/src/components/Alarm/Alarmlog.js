@@ -410,14 +410,14 @@ const AlarmLogPage = () => {
     <div className={classes.root}>
      <AppBar position="fixed" className={classes.appBar}>
       <Toolbar>
-      <Hidden xsDown>
+      {/* <Hidden xsDown>
       <img
             src={yourImage}
             alt="Logo"
             className={classes.logo}
             onClick={() => navigate(-1)} // Navigate to previous page on click
           />
-          </Hidden>
+          </Hidden> */}
         <Button
           component={Link}
           to="/logstore"

@@ -1,5 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
-import logo from './logos.png';
+// import logo from './logos.png';
+import IIITLogo from './iiith.png';
+import SCRCLogo from './scrc_logo.png';
+import BSESLogo from './BSES_logo1.png'
 import {
     Dialog,
     Box,
@@ -43,13 +46,18 @@ const styles = {
 const AppBar = () => {
     const navigate = useNavigate();
     const appbarStyle = {
-        backgroundColor: '#002e41',
+        // marginTop: '1vw',
+        height: '3vw',
+        backgroundColor: 'black',
+        border: '1px solid #fff',
         color: '#ffffff',
-        padding: '10px 20px',
+        padding: '0.3vw 1.9vw',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+        top: '10vw',
+        width: '94.5vw',
+        boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)'
     };
 
     const titleStyle = {
@@ -58,17 +66,31 @@ const AppBar = () => {
 
     return (
         <div style={appbarStyle}>
-            <div>
+            {/* <div>
                 <img
-                    src={logo}
+                    src={IIITLogo}
                     alt=""
-                    style={{ width: '100px', marginRight: '1px' }}
+                    style={{ width: '6vw', marginRight: '0rem' }}
                     onClick={() => navigate(-1)}
                 />
             </div>
+            <div style={{height: '4vw'}}>
+            <img
+                src={SCRCLogo}
+                alt=""
+                style={{ width: '6vw', marginLeft: '0.2rem' }}
+                onClick={() => navigate(-1)}
+                />
+            </div> */}
             <div style={{ flex: '1', textAlign: 'center' }}>
                 <span style={titleStyle}>Alarm Logs History</span>
             </div>
+            {/* <img
+                src={BSESLogo}
+                alt=""
+                style={{ width: '6vw', marginLeft: '0.2rem' }}
+                onClick={() => navigate(-1)}
+                /> */}
         </div>
     );
 };
@@ -125,26 +147,30 @@ const AlarmLogs = () => {
 
     const tableStyle = {
         borderCollapse: 'collapse',
-        width: '100%',
+        width: '95vw',
     };
 
     const thStyle = {
-        border: '1px solid #dddddd',
+        border: '1px solid #fff',
         textAlign: 'left',
-        padding: '8px',
-        backgroundColor: '#f2f2f2',
+        padding: '0.5vw',
+        color: '#fff',
+        backgroundColor: 'black',
     };
 
     const tdStyle = {
-        border: '1px solid #dddddd',
+        border: '1px solid #fff',
         textAlign: 'left',
-        padding: '8px',
+        padding: '0.5vw',
+        color: '#fff',
+        backgroundColor: 'black',
     };
 
     return (
-        <div>
+        <div style={{backgroundColor: "black",}}>
             <AppBar />
-            <div className="alarm-logs" style={{ backgroundColor: '#f5f5f5', padding: '20px' }}>
+            <div className="alarm-logs" 
+            style={{ backgroundColor: 'black', padding: '2vw', height: '38.4vw', width: '94vw' }}>
                 <table style={tableStyle}>
                     <thead>
                         <tr>
