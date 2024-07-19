@@ -109,11 +109,12 @@ const useStyles = makeStyles((theme) => ({
   },
   pagination: {
     color: "#fff",
-    Left: "30vw",
+    left: "64vw",
     justifyContent: "right",
+    position: 'relative',
     display: "flex",
-    width: "6vw",
-    marginRight:  theme.spacing(-66)
+    width: "9vw",
+    bottom: "3.5vw"
   },
   select: {
     marginLeft: theme.spacing(2),
@@ -569,11 +570,12 @@ const AlarmLogPage = () => {
             Next
           </Button>
         )}
+         </div>
         <Typography 
         className={ classes.pagination}>
           Page {currentPage} of {totalPages}
         </Typography>
-      </div>
+     
       </Container>
 
       {/* ADD condition dialog */}

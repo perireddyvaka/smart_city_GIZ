@@ -4,13 +4,27 @@ import {
     Dialog,
     Box,
     Typography,
+    makeStyles,
     Button,
 } from '@material-ui/core';
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import ReplayIcon from "@mui/icons-material/Replay";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
 import config from '../../config';
 
+const useStyles = makeStyles((theme) => ({
+    pagination: {
+        color: "#fff",
+        position: "relative",
+        left:"85vw",
+        justifyContent: "right",
+        display: "flex",
+        width: "9vw",
+        bottom: "2.5vw"
+      },
+    
+}));
 const styles = {
     body: {
         backgroundColor: 'black',
@@ -46,9 +60,10 @@ const styles = {
     };
 
 const AppBar = () => {
-    
+    const navigate = useNavigate();
     const appbarStyle = {
         border: '1px solid #fff',
+        position: "relative",
         backgroundColor: 'black',
         color: '#fff',
         padding: '0.5vw 1vw',
@@ -66,14 +81,10 @@ const AppBar = () => {
 
     return (
         <div style={appbarStyle}>
-            {/* <div>
-                <img
-                    src={logo}
-                    alt=""
-                    style={{ width: '100px', marginRight: '1px' }}
-                    onClick={() => navigate(-1)}
-                />
-            </div> */}
+           <ArrowBackIcon
+                style={{ cursor: 'pointer', marginRight: '10px' }} 
+                onClick={() => navigate('/Alarmlog')} 
+            />
             <div style={{ flex: '1', textAlign: 'center' }}>
                 <span style={titleStyle}>Notification Log</span>
             </div>
@@ -81,7 +92,11 @@ const AppBar = () => {
     );
 };
 
+const perPage = 5;
 const Notificationlog = () => {
+    const classes = useStyles();
+    const [totalPages, setTotalPages] = useState(1);
+    const [currentPage, setCurrentPage] = useState(1);
     const [items, setItems] = useState([]);
     const [sessionTimeoutAlert, setSessionTimeoutAlert] = useState(false);
     const navigate = useNavigate();
@@ -93,6 +108,7 @@ const Notificationlog = () => {
                 const response = await fetch(`${config.backendAPI}/alarm/notidata`);
                 const data = await response.json();
                 setItems(data);
+                setTotalPages(Math.ceil(data.length / perPage));
             } catch (error) {
                 console.log(error.message);
             }
@@ -130,6 +146,14 @@ const Notificationlog = () => {
         setSessionTimeoutAlert(false);
         navigate("/login");
     };
+
+    const handleNextPage = () => {
+        setCurrentPage((prevPage) => prevPage + 1);
+      };
+    
+    const handlePrevPage = () => {
+        setCurrentPage((prevPage) => prevPage - 1);
+      };
 
     const markAsRead = async (id) => {
         try {
@@ -181,7 +205,7 @@ const Notificationlog = () => {
     return (
         <div style={styles.body}>
             <AppBar />
-            <div className="alarm-logs" style={{ backgroundColor: '#black', padding: '1.5vw' }}>
+            <div className="alarm-logs" style={{ backgroundColor: 'black', padding: '1.5vw' , height: '40.2vw'}}>
                 <table style={tableStyle}>
                     <thead>
                         <tr>
@@ -193,7 +217,9 @@ const Notificationlog = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {items.map(log => (
+                        {items
+                        .slice((currentPage - 1) * perPage, currentPage * perPage)
+                        .map(log => (
                             <tr key={log.id}>
                                 <td style={tdStyle}>{log.status}</td>
                                 <td style={tdStyle}>{log.location}</td>
@@ -211,6 +237,33 @@ const Notificationlog = () => {
                         ))}
                     </tbody>
                 </table>
+        <div style={{marginTop:"1vw"}}>
+        {currentPage > 1 && (
+          <Button
+            className={classes.previousbutton}
+            variant="contained"
+            color="primary"
+            onClick={handlePrevPage}
+          >
+            Previous
+          </Button>
+        )}
+        {items.length > currentPage * perPage && (
+          <Button
+            className={classes.optionContainer}
+            variant="contained"
+            color="primary"
+            onClick={handleNextPage}
+          >
+            Next
+          </Button>
+        )}
+         </div>
+        <Typography style={{width: '10vw', right: '10vw'}}
+        className={ classes.pagination}>
+          Page {currentPage} of {totalPages}
+        </Typography>
+     
             </div>
             <Dialog
                 open={sessionTimeoutAlert}
