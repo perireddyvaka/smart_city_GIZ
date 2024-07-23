@@ -20,7 +20,7 @@ RUN npm run build
 RUN npm install -g http-server
 
 # Step 9: Expose port 80
-EXPOSE 80
+EXPOSE 3000
 
 # Step 10: Command to run Nginx
 CMD ["npm", "start"]
