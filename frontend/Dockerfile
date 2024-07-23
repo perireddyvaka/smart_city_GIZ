@@ -16,14 +16,11 @@ COPY . .
 # Step 6: Build the application
 RUN npm run build
 
-# Step 7: Use an official Nginx runtime as a parent image
-FROM nginx:alpine
-
-# Step 8: Copy the built application from the previous stage
-COPY --from=build /app/build /usr/share/nginx/html
+# Step 7: Install Web Server
+RUN npm install -g http-server
 
 # Step 9: Expose port 80
 EXPOSE 80
 
 # Step 10: Command to run Nginx
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["npm", "start"]

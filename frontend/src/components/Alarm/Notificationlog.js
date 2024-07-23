@@ -9,7 +9,7 @@ import {
 } from '@material-ui/core';
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import ReplayIcon from "@mui/icons-material/Replay";
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+// import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
 import config from '../../config';
 
@@ -60,7 +60,7 @@ const styles = {
     };
 
 const AppBar = () => {
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const appbarStyle = {
         border: '1px solid #fff',
         position: "relative",
@@ -81,10 +81,10 @@ const AppBar = () => {
 
     return (
         <div style={appbarStyle}>
-           <ArrowBackIcon
+           {/* <ArrowBackIcon
                 style={{ cursor: 'pointer', marginRight: '10px' }} 
                 onClick={() => navigate('/Alarmlog')} 
-            />
+            /> */}
             <div style={{ flex: '1', textAlign: 'center' }}>
                 <span style={titleStyle}>Notification Log</span>
             </div>
