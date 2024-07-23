@@ -34,27 +34,25 @@ import config from "../../config";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    minHeight: "90vh",
+    height: "44.2vw",
+    width: '96.5vw',
     backgroundColor: "black",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex",
     padding: theme.spacing(3),
     position: "relative",
-    // overflow: "hidden", // Prevent scrolling
+    overflow: "hidden", // Prevent scrolling
   },
   container: {
-    maxWidth: "800px",
-    width: "100%",
+    maxWidth: "41.6vw",
+    
     position: "relative",
   },
-  logo: {
-    height: '50px',
-    marginRight: theme.spacing(2),
-  },
+  
   addButton: {
-    borderRadius: "30%",
+    borderRadius: "30vw",
     backgroundColor: "#black", // Changed button color
     marginRight: theme.spacing(2),
   },
@@ -65,13 +63,7 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(1),
     fontSize: "2rem",
   },
-  logTable: {
-    marginBottom: theme.spacing(3),
-    border: '1px solid #fff',
-    maxWidth: "800px",
-    width: "100%", // Adjusted to fill the entire width
-    backgroundColor: "black", // Changed table content color
-  },
+  
   tableHeader: {
     fontWeight: "bold",
     color: "white",
@@ -81,13 +73,15 @@ const useStyles = makeStyles((theme) => ({
   tableCell: {
     border: "1px solid #fff",
     color: "white",
+    width: '25vw',
+    position: '-webkit-sticky',
     backgroundColor: "black", // Changed table content color
   },
   optionsContainer: {
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: theme.spacing(2),
+    marginBottom: theme.spacing(0),
   },
   optionContainer: {
     display: "flex",
@@ -95,21 +89,20 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "space-between",
     marginBottom: theme.spacing(1),
     marginRight: theme.spacing(20),
-    marginLeft: theme.spacing(-19),
+    marginLeft: theme.spacing(-40),
     marginTop: "0.3vw"
   },
   previousbutton:{
     display: "flex",
-    width: "7vw",
+    maxWidth: "40vw",
     justifyContent: "space-between",
     marginBottom: theme.spacing(1),
-    marginRight: theme.spacing(20),
-    marginLeft: theme.spacing(-19),
-    marginTop: "0.3vw"
+    marginLeft: theme.spacing(-40),
+    marginTop: "0.5vw"
   },
   pagination: {
     color: "#fff",
-    left: "64vw",
+    left: "55vw",
     justifyContent: "right",
     position: 'relative',
     display: "flex",
@@ -121,21 +114,22 @@ const useStyles = makeStyles((theme) => ({
   },
   searchByTextButton: {
     backgroundColor: "#CCCCCC",
+    bottom: '1vw',
     marginLeft: "-21.7vw",
     color: "#000",
   },
   sortButton: {
+    bottom: '1vw',
     marginRight: "-21.3vw",
     backgroundColor: "#CCCCCC",
     color: "#000",
   },
   appBar: {
-    borderRight: "9vw",
+    top:'-1.5vw',
     border: "1px solid #fff",
     backgroundColor: "black",
-    top: '0.2vw',
-    marginLeft: "-1vw",
-    zIndex: theme.zIndex.drawer + 1,
+    width: '98vw',
+    position: '-webkit-sticky'
   },
   title: {
     flexGrow: 1,
@@ -149,9 +143,9 @@ const useStyles = makeStyles((theme) => ({
   //   height: "100vw",
   // },
   table: {
-    width: "96vw", // Make the table fill the entire width
-    height: "10vw", // Make the table fill the entire height
-    marginLeft: "-22vw"
+    width: "90vw", // Make the table fill the entire width
+    height: "9vw", // Make the table fill the entire height
+    marginLeft: "-25vw",
   },
   // iconContainer: {
   //   marginTop: theme.spacing(-2), // Move icon container upwards
@@ -162,33 +156,33 @@ const useStyles = makeStyles((theme) => ({
 
 const styles = {
   sessionTimeoutDialog: {
-    width: "600px",
-    padding: "48px",
+    width: "60vw",
+    padding: "2vw",
     backgroundColor: "#f3e5f5", // Light purple background color
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
   },
   errorIcon: {
-    fontSize: "96px", // Increased icon size
+    fontSize: "7vw", // Increased icon size
     color: "#c51162", // Attractive red color
-    marginBottom: "24px",
+    marginBottom: "2vw",
   },
   sessionTimeoutText: {
-    marginBottom: "16px",
+    marginBottom: "1.5vw",
     fontWeight: "bold", // Bold text for better visibility
   },
   loginAgainText: {
     display: "flex",
     alignItems: "center",
-    marginBottom: "32px", // Increased bottom margin for better spacing
-    fontSize: "18px", // Increased font size for better readability
+    marginRight: "3vw",
+    marginBottom: "1.7vw", // Increased bottom margin for better spacing
+    fontSize: "1.8vw", // Increased font size for better readability
   },
   loginAgainIcon: {
-    marginRight: "8px",
+    marginRight: "1vw",
   },
 };
-
 
 
 const perPage = 5;
@@ -409,7 +403,7 @@ const AlarmLogPage = () => {
 
   return (
     <div className={classes.root}>
-     <AppBar position="fixed" className={classes.appBar}>
+     <AppBar position="relative" className={classes.appBar}>
       <Toolbar>
       {/* <Hidden xsDown>
       <img
@@ -549,7 +543,7 @@ const AlarmLogPage = () => {
             </TableBody>
           </Table>
         {/* </TableContainer> */}
-        <div className={classes.optionContainer}>
+        <div className={classes.optionsContainer}>
         {currentPage > 1 && (
           <Button
             className={classes.previousbutton}
