@@ -34,7 +34,7 @@ import config from "../../config";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    height: "44.2vw",
+    // height: "44.2vw",
     width: '96.5vw',
     backgroundColor: "black",
     display: "flex",
@@ -402,7 +402,9 @@ const AlarmLogPage = () => {
   };
 
   return (
-    <div className={classes.root}>
+    <div className={classes.root} 
+    style={{color: 'black'}}
+    >
      <AppBar position="relative" className={classes.appBar}>
       <Toolbar>
       {/* <Hidden xsDown>
