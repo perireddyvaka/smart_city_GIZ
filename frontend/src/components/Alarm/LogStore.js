@@ -216,7 +216,10 @@ const AlarmLogs = () => {
                     </tbody>
                 </table>
         <div 
-        style={{marginTop:"1vw"}}>
+        style={{
+            marginTop:"0.2vw",
+            width: '2vw'
+            }}>
         {currentPage > 1 && (
           <Button
             className={classes.previousbutton}
@@ -238,7 +241,7 @@ const AlarmLogs = () => {
           </Button>
         )}
          </div>
-        <Typography style={{width: '10vw', right: '10vw'}}
+        <Typography style={{width: '10vw', right: '10vw', bottom: '1.7vw'}}
         className={ classes.pagination}>
           Page {currentPage} of {totalPages}
         </Typography>

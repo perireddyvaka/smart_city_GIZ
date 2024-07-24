@@ -89,7 +89,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "space-between",
     marginBottom: theme.spacing(1),
     marginRight: theme.spacing(20),
-    marginLeft: theme.spacing(-40),
+    marginLeft: theme.spacing(-59),
     marginTop: "0.3vw"
   },
   previousbutton:{
@@ -107,7 +107,7 @@ const useStyles = makeStyles((theme) => ({
     position: 'relative',
     display: "flex",
     width: "9vw",
-    bottom: "3.5vw"
+    top: "-2vw"
   },
   select: {
     marginLeft: theme.spacing(2),
@@ -125,7 +125,7 @@ const useStyles = makeStyles((theme) => ({
     color: "#000",
   },
   appBar: {
-    top:'-1.5vw',
+    top:'0.01vw',
     border: "1px solid #fff",
     backgroundColor: "black",
     width: '98vw',
