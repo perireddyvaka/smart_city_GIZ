@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Typography,
   Container,
   makeStyles,
   // Hidden,
-  Box,
+  
   Button,
   Dialog,
   DialogTitle,
@@ -25,10 +25,9 @@ import {
   AppBar,
   Toolbar,
 } from "@material-ui/core";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import ReplayIcon from "@mui/icons-material/Replay";
+
 import { Alarm } from "@material-ui/icons";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 // import yourImage from './logos.png';
 import config from "../../config";
 
@@ -154,42 +153,14 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
-const styles = {
-  sessionTimeoutDialog: {
-    width: "60vw",
-    padding: "2vw",
-    backgroundColor: "#f3e5f5", // Light purple background color
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-  },
-  errorIcon: {
-    fontSize: "7vw", // Increased icon size
-    color: "#c51162", // Attractive red color
-    marginBottom: "2vw",
-  },
-  sessionTimeoutText: {
-    marginBottom: "1.5vw",
-    fontWeight: "bold", // Bold text for better visibility
-  },
-  loginAgainText: {
-    display: "flex",
-    alignItems: "center",
-    marginRight: "3vw",
-    marginBottom: "1.7vw", // Increased bottom margin for better spacing
-    fontSize: "1.8vw", // Increased font size for better readability
-  },
-  loginAgainIcon: {
-    marginRight: "1vw",
-  },
-};
+
 
 
 const perPage = 5;
 
 const AlarmLogPage = () => {
   const classes = useStyles();
-  const [sessionTimeoutAlert, setSessionTimeoutAlert] = useState(false);
+  
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openCloseDialog, setOpenCloseDialog] = useState(false);
   const [items, setItems] = useState([]);
@@ -209,44 +180,28 @@ const AlarmLogPage = () => {
     incharge: "",
   });
   const [closeErrors, setCloseErrors] = useState({});
-  const [downloadFormat] = useState("json");
+  
   const [searchStatus, setSearchStatus] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [searchAnchorEl, setSearchAnchorEl] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const sessionTimer = useRef(null);
-  const navigate = useNavigate();
-
+  
+ 
   useEffect(() => {
-    const startSessionTimer = () => {
-      const sessionDuration = 1 * 24 *60 * 60 * 60 * 60 * 1000; // 5 seconds for testing, adjust as needed
-      return setTimeout(() => {
-        setSessionTimeoutAlert(true);
-      }, sessionDuration);
-    };
+    
 
-    const resetTimer = () => {
-      clearTimeout(sessionTimer.current);
-      sessionTimer.current = startSessionTimer();
-    };
+    
 
-    sessionTimer.current = startSessionTimer();
-
-    document.addEventListener("mousemove", resetTimer);
-    document.addEventListener("keypress", resetTimer);
+   
+   
 
     return () => {
-      clearTimeout(sessionTimer.current);
-      document.removeEventListener("mousemove", resetTimer);
-      document.removeEventListener("keypress", resetTimer);
+      
     };
   }, []);
 
-  const handleSessionTimeoutAlertClose = () => {
-    setSessionTimeoutAlert(false);
-    navigate("/login");
-  };
+  
 
 
   const handleCloseDialog = (dialogType) => {

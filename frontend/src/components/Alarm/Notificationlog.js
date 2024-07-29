@@ -1,16 +1,12 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState} from 'react';
 // import logo from './logos.png';
 import {
-    Dialog,
-    Box,
     Typography,
     makeStyles,
     Button,
 } from '@material-ui/core';
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import ReplayIcon from "@mui/icons-material/Replay";
 // import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useNavigate } from 'react-router-dom';
+
 import config from '../../config';
 
 const useStyles = makeStyles((theme) => ({
@@ -98,9 +94,7 @@ const Notificationlog = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [currentPage, setCurrentPage] = useState(1);
     const [items, setItems] = useState([]);
-    const [sessionTimeoutAlert, setSessionTimeoutAlert] = useState(false);
-    const navigate = useNavigate();
-    const sessionTimer = useRef(null);
+    
 
     useEffect(() => {
         const fetchData = async () => {
@@ -118,34 +112,14 @@ const Notificationlog = () => {
     }, []);
 
     useEffect(() => {
-        const startSessionTimer = () => {
-            const sessionDuration = 1 * 24 *60 * 60 * 60 * 60 * 1000; // 1 day
-            return setTimeout(() => {
-                setSessionTimeoutAlert(true);
-            }, sessionDuration);
-        };
 
-        const resetTimer = () => {
-            clearTimeout(sessionTimer.current);
-            sessionTimer.current = startSessionTimer();
-        };
-
-        sessionTimer.current = startSessionTimer();
-
-        document.addEventListener("mousemove", resetTimer);
-        document.addEventListener("keypress", resetTimer);
-
+        
         return () => {
-            clearTimeout(sessionTimer.current);
-            document.removeEventListener("mousemove", resetTimer);
-            document.removeEventListener("keypress", resetTimer);
+           
         };
     }, []);
 
-    const handleSessionTimeoutAlertClose = () => {
-        setSessionTimeoutAlert(false);
-        navigate("/login");
-    };
+   
 
     const handleNextPage = () => {
         setCurrentPage((prevPage) => prevPage + 1);
