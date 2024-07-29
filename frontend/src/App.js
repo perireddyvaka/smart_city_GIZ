@@ -18,7 +18,7 @@ import LogStore from './components/Alarm/LogStore';
 // import CircleHeadPage from './components/Usermanagement/Circlehead';
 // import DivisionHeadPage from './components/Usermanagement/Divisionhead';
 import Notificationlog from './components/Alarm/Notificationlog';
-// import Conditions from './components/Alarm/Conditions';
+import Conditions from './components/Alarm/Conditions';
 
 function App() {
   return (
@@ -40,6 +40,7 @@ function App() {
       <Route path="/Notificationlog" element={<Notificationlog />} />
       <Route path="/Alarmlog" element={<Alarmlog />} />
       <Route path="/LogStore" element={<LogStore />} />
+      <Route path="/Conditions" element={<Conditions />} />
      
     </Routes>
   );

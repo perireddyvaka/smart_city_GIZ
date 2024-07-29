@@ -220,7 +220,7 @@ const AlarmLogPage = () => {
 
   useEffect(() => {
     const startSessionTimer = () => {
-      const sessionDuration = 1 * 24 * 60 * 60 * 1000; // 5 seconds for testing, adjust as needed
+      const sessionDuration = 1 * 24 *60 * 60 * 60 * 60 * 1000; // 5 seconds for testing, adjust as needed
       return setTimeout(() => {
         setSessionTimeoutAlert(true);
       }, sessionDuration);
@@ -370,36 +370,36 @@ const AlarmLogPage = () => {
     setCurrentPage((prevPage) => prevPage - 1);
   };
 
-  const downloadLogs = () => {
-    let logsContent = "";
+  // const downloadLogs = () => {
+  //   let logsContent = "";
 
-    if (downloadFormat === "json") {
-      logsContent = JSON.stringify(items);
-    } else if (downloadFormat === "csv") {
-      const header = Object.keys(items[0]).join(",") + "\n";
-      const rows = items
-        .map((item) => Object.values(item).join(","))
-        .join("\n");
-      logsContent = header + rows;
-    }
+  //   if (downloadFormat === "json") {
+  //     logsContent = JSON.stringify(items);
+  //   } else if (downloadFormat === "csv") {
+  //     const header = Object.keys(items[0]).join(",") + "\n";
+  //     const rows = items
+  //       .map((item) => Object.values(item).join(","))
+  //       .join("\n");
+  //     logsContent = header + rows;
+  //   }
 
-    const blob = new Blob([logsContent], {
-      type: downloadFormat === "json" ? "application/json" : "text/csv",
-    });
+  //   const blob = new Blob([logsContent], {
+  //     type: downloadFormat === "json" ? "application/json" : "text/csv",
+  //   });
 
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute(
-      "download",
-      `alarm_logs.${downloadFormat}`
-    );
-    document.body.appendChild(link);
-    link.click();
+  //   const url = window.URL.createObjectURL(blob);
+  //   const link = document.createElement("a");
+  //   link.href = url;
+  //   link.setAttribute(
+  //     "download",
+  //     `alarm_logs.${downloadFormat}`
+  //   );
+  //   document.body.appendChild(link);
+  //   link.click();
 
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(link);
-  };
+  //   window.URL.revokeObjectURL(url);
+  //   document.body.removeChild(link);
+  // };
 
   return (
     <div className={classes.root} 
@@ -430,6 +430,15 @@ const AlarmLogPage = () => {
         >
           ADD
         </Button>
+
+        <Button
+          component={Link}
+          to="/Conditions"
+          color="inherit"
+          style={{ color: "#fff" }}
+        >
+          Conditions
+        </Button>
         
         <div className={classes.title} style={{ marginLeft: "auto", marginRight: "auto" }}>
           <Alarm className={classes.alarmIcon} />
@@ -437,13 +446,13 @@ const AlarmLogPage = () => {
             Alarm
           </Typography>
         </div>
-        <Button
+        {/* <Button
           color="inherit"
           onClick={downloadLogs}
           style={{ color: "#fff" }}
         >
           Download Logs
-        </Button>
+        </Button> */}
       </Toolbar>
     </AppBar>
     <Toolbar /> {/* To push the content below the AppBar */}
@@ -489,18 +498,19 @@ const AlarmLogPage = () => {
 
 
         {/* <TableContainer component={Paper} className={classes.logTable}> */}
-          <Table className={classes.table}>
-            <TableHead>
-              <TableRow>
-                <TableCell className={classes.tableHeader}>ID</TableCell>
-                <TableCell className={classes.tableHeader}>Status</TableCell>
-                <TableCell className={classes.tableHeader}>Location</TableCell>
-                <TableCell className={classes.tableHeader}>Occurrence</TableCell>
-                <TableCell className={classes.tableHeader}>Time</TableCell>
-                <TableCell className={classes.tableHeader}>Action</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
+        <Table className={classes.table}>
+                <TableHead>
+                  <TableRow>
+                    <TableCell className={classes.tableHeader}>Sl.no</TableCell>
+                    <TableCell className={classes.tableHeader}>ID</TableCell>
+                    <TableCell className={classes.tableHeader}>Status</TableCell>
+                    <TableCell className={classes.tableHeader}>Occurrence</TableCell>
+                    <TableCell className={classes.tableHeader}>Parameter: Threshold</TableCell>
+                    <TableCell className={classes.tableHeader}>Time</TableCell>
+                    <TableCell className={classes.tableHeader}>Action</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
               {items
                 .filter((item) =>
                   searchStatus ? item.status === searchStatus : true
@@ -517,7 +527,10 @@ const AlarmLogPage = () => {
                 })
                 .slice((currentPage - 1) * perPage, currentPage * perPage)
                 .map((item, index) => (
-                  <TableRow key={index}>
+                  <TableRow key={item.id}>
+                     <TableCell className={classes.tableCell}>
+                       {(currentPage - 1) * perPage + index + 1}
+                      </TableCell>
                     <TableCell className={classes.tableCell}>{item.id}</TableCell>
                     <TableCell className={classes.tableCell}>{item.status}</TableCell>
                     <TableCell className={classes.tableCell}>{item.location}</TableCell>
@@ -592,16 +605,29 @@ const AlarmLogPage = () => {
         helperText={addErrors.parameter}
       >
         <MenuItem value="">Select problem</MenuItem>
-        <MenuItem value="Overloaded LT Feeders">
-          Overloaded LT Feeders
+        <MenuItem value="oil_Temp">
+          Oil_Temp
         </MenuItem>
-        <MenuItem value="Loose connection on LT side">
-          Loose connection on LT side
+        <MenuItem value="oil_low">
+          Oil_Low
         </MenuItem>
-        <MenuItem value="Fault on LT side">Fault on LT side</MenuItem>
-        <MenuItem value="Low oil level">Low oil level</MenuItem>
-        <MenuItem value="Oil leakage">Oil leakage</MenuItem>
-       
+        <MenuItem value="BatteryVoltage">Battery Voltage</MenuItem>
+        <MenuItem value="SupplyOK">SupplyOK</MenuItem>
+        <MenuItem value="THD">THD</MenuItem>
+        <MenuItem value="PF">PF</MenuItem>
+        <MenuItem value="DT Voltage">DT Voltage</MenuItem>
+        <MenuItem value="ACB 1 Current">ACB 1 Current</MenuItem>
+        <MenuItem value="ACB 2 Current">ACB 2 Current</MenuItem>
+        <MenuItem value="ACB 3 Current">ACB 3 Current</MenuItem>
+        <MenuItem value="ACB 4 Current">ACB 4 Current</MenuItem>
+        <MenuItem value="ACB 5 Current">ACB 5 Current</MenuItem>
+        <MenuItem value="ACB 6 Current">ACB 6 Current</MenuItem>
+        <MenuItem value="ACB 7 Current">ACB 7 Current</MenuItem>
+        <MenuItem value="ACB 8 Current">ACB 8 Current</MenuItem>
+        <MenuItem value="Temperature">Temperature</MenuItem>
+        <MenuItem value="Phase">Phase</MenuItem>
+        <MenuItem value="DTVolt/Current_Phase">DTVolt/Current_Phase</MenuItem>
+        <MenuItem value="Current">Current</MenuItem>
       </Select>
 
      <InputLabel shrink>Phase</InputLabel>
@@ -616,10 +642,10 @@ const AlarmLogPage = () => {
         helperText={addErrors.phase}
       >
         <MenuItem value="">Select Phase</MenuItem>
-        <MenuItem value="phaseR">phaseR</MenuItem>
-        <MenuItem value="phaseY">phaseY</MenuItem>
-        <MenuItem value="phaseB">phaseB</MenuItem>
-        <MenuItem value="phaseN">phaseN</MenuItem>
+        <MenuItem value="phaseR">R</MenuItem>
+        <MenuItem value="phaseY">Y</MenuItem>
+        <MenuItem value="phaseB">B</MenuItem>
+        <MenuItem value="phaseN">N</MenuItem>
 
       </Select>
 
@@ -692,12 +718,29 @@ const AlarmLogPage = () => {
             error={!!closeErrors.Problem}
             helperText={closeErrors.Problem}
           >
-            <MenuItem value="">Select Problem</MenuItem>
-            <MenuItem value="Error">Overload LT Feeders</MenuItem>
-            <MenuItem value="Pending">Loose Connection on LT side</MenuItem>
-            <MenuItem value="Resolved">Fault on LT side</MenuItem>
-            <MenuItem value="Resolved">Low Oil Level</MenuItem>
-            <MenuItem value="Resolved">Oil Leakage</MenuItem>
+            <MenuItem value="oil_Temp">
+          Oil_Temp
+        </MenuItem>
+        <MenuItem value="oil_low">
+          Oil_Low
+        </MenuItem>
+        <MenuItem value="BatteryVoltage">Battery Voltage</MenuItem>
+        <MenuItem value="SupplyOK">SupplyOK</MenuItem>
+        <MenuItem value="THD">THD</MenuItem>
+        <MenuItem value="PF">PF</MenuItem>
+        <MenuItem value="DT Voltage">DT Voltage</MenuItem>
+        <MenuItem value="ACB 1 Current">ACB 1 Current</MenuItem>
+        <MenuItem value="ACB 2 Current">ACB 2 Current</MenuItem>
+        <MenuItem value="ACB 3 Current">ACB 3 Current</MenuItem>
+        <MenuItem value="ACB 4 Current">ACB 4 Current</MenuItem>
+        <MenuItem value="ACB 5 Current">ACB 5 Current</MenuItem>
+        <MenuItem value="ACB 6 Current">ACB 6 Current</MenuItem>
+        <MenuItem value="ACB 7 Current">ACB 7 Current</MenuItem>
+        <MenuItem value="ACB 8 Current">ACB 8 Current</MenuItem>
+        <MenuItem value="Temperature">Temperature</MenuItem>
+        <MenuItem value="Phase">Phase</MenuItem>
+        <MenuItem value="DTVolt/Current_Phase">DTVolt/Current_Phase</MenuItem>
+        <MenuItem value="Current">Current</MenuItem>
            
           </Select>
 
@@ -751,34 +794,8 @@ const AlarmLogPage = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Session Timeout Alert Dialog */}
-      <Dialog
-        open={sessionTimeoutAlert}
-        onClose={handleSessionTimeoutAlertClose}
-        PaperProps={{
-          style: styles.sessionTimeoutDialog,
-        }}
-      >
-       <ErrorOutlineIcon style={styles.errorIcon} />
-        <Typography variant="h5" gutterBottom style={styles.sessionTimeoutText}>
-          Oops!
-        </Typography>
-        <Typography variant="body1" gutterBottom style={styles.sessionTimeoutText}>
-          Your session is expired.
-        </Typography>
-        <Box style={styles.loginAgainText}>
-          <ReplayIcon style={styles.loginAgainIcon} />
-          <Typography variant="body1">Please kindly login again</Typography>
-        </Box>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSessionTimeoutAlertClose}
-          autoFocus
-        >
-          OK
-        </Button>
-      </Dialog>
+     
+     
 
     </div>
   );

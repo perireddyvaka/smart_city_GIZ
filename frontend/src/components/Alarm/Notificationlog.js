@@ -119,7 +119,7 @@ const Notificationlog = () => {
 
     useEffect(() => {
         const startSessionTimer = () => {
-            const sessionDuration = 1 * 24 * 60 * 60 * 1000; // 1 day
+            const sessionDuration = 1 * 24 *60 * 60 * 60 * 60 * 1000; // 1 day
             return setTimeout(() => {
                 setSessionTimeoutAlert(true);
             }, sessionDuration);
@@ -265,33 +265,7 @@ const Notificationlog = () => {
         </Typography>
      
             </div>
-            <Dialog
-                open={sessionTimeoutAlert}
-                onClose={handleSessionTimeoutAlertClose}
-                PaperProps={{
-                    style: styles.sessionTimeoutDialog,
-                }}
-            >
-                <ErrorOutlineIcon style={styles.errorIcon} />
-                <Typography variant="h5" gutterBottom style={styles.sessionTimeoutText}>
-                    Oops!
-                </Typography>
-                <Typography variant="body1" gutterBottom style={styles.sessionTimeoutText}>
-                    Your session is expired.
-                </Typography>
-                <Box style={styles.loginAgainText}>
-                    <ReplayIcon style={styles.loginAgainIcon} />
-                    <Typography variant="body1">Please kindly login again</Typography>
-                </Box>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleSessionTimeoutAlertClose}
-                    autoFocus
-                >
-                    OK
-                </Button>
-            </Dialog>
+           
         </div>
     );
 }

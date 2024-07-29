@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
@@ -12,98 +12,126 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import ReplayIcon from '@mui/icons-material/Replay';
-import { Box } from '@material-ui/core';
 import TextField from '@mui/material/TextField';
-import axios from 'axios';
-import Logo from './logos.png';
+import { makeStyles } from '@mui/styles';
 import config from '../../config';
-
-const styles = {
-  sessionTimeoutDialog: {
-    width: '600px',
-    padding: '48px',
-    backgroundColor: '#f3e5f5',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  errorIcon: {
-    fontSize: '96px',
-    color: '#c51162',
-    marginBottom: '24px',
-  },
-  sessionTimeoutText: {
-    marginBottom: '16px',
-    fontWeight: 'bold',
-  },
-  loginAgainText: {
-    display: 'flex',
-    alignItems: 'center',
-    marginBottom: '32px',
-    fontSize: '18px',
-  },
-  loginAgainIcon: {
-    marginRight: '8px',
-  },
-};
 
 const theme = createTheme();
 
+const useStyles = makeStyles({
+  root: {
+    width: '96.5vw',
+    backgroundColor: "black",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    padding: theme.spacing(3),
+    position: "relative",
+    overflow: "hidden",
+  },
+  container: {
+    maxWidth: "41.6vw",
+    position: "relative",
+  },
+  closeButtonText: {
+    color: "#fff",
+  },
+  tableHeader: {
+    fontWeight: "bold",
+    color: "white",
+    border: "1px solid #fff",
+    backgroundColor: "black",
+  },
+  tableCell: {
+    border: "1px solid #fff",
+    color: "#fff",
+    width: '25vw',
+    backgroundColor: "black",
+  },
+  optionsContainer: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: theme.spacing(0),
+  },
+  optionContainer: {
+    display: "flex",
+    width: "1vw",
+    justifyContent: "space-between",
+    marginBottom: theme.spacing(1),
+    marginRight: theme.spacing(20),
+    marginLeft: theme.spacing(-59),
+    marginTop: "0.3vw"
+  },
+  previousButton: {
+    display: "flex",
+    maxWidth: "40vw",
+    justifyContent: "space-between",
+    marginBottom: theme.spacing(1),
+    marginLeft: theme.spacing(-40),
+    marginTop: "0.5vw"
+  },
+  pagination: {
+    color: "#fff",
+    left: "55vw",
+    justifyContent: "right",
+    position: 'relative',
+    display: "flex",
+    width: "9vw",
+    top: "-2vw"
+  },
+  appBar: {
+    top: '0.01vw',
+    border: "1px solid #fff",
+    backgroundColor: "black",
+    width: '98vw',
+    position: '-webkit-sticky'
+  },
+  title: {
+    flexGrow: 1,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: theme.spacing(1),
+  },
+  table: {
+    width: "90vw",
+    height: "9vw",
+    margin: "-0vw",
+  }
+});
+
+const perPage = 5;
 const App = () => {
+  const classes = useStyles();
   const [conditions, setConditions] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [open, setOpen] = useState(false);
+  const [totalPages, setTotalPages] = useState(1);
   const [selectedCondition, setSelectedCondition] = useState(null);
-  const [sessionTimeoutAlert, setSessionTimeoutAlert] = useState(false);
   const navigate = useNavigate();
-  const sessionTimer = useRef(null);
 
   useEffect(() => {
-    // Fetch conditions from backend
-    axios
-      .get(`${config.backendAPI}/conditions`)
-      .then((response) => {
-        setConditions(response.data);
-      })
-      .catch((error) => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${config.backendAPI}/conditions`);
+        const data = await response.json();
+        setConditions(data);
+        setTotalPages(Math.ceil(data.length / perPage));
+      } catch (error) {
         console.error('There was an error fetching the data!', error);
-      });
-
-    const startSessionTimer = () => {
-      const sessionDuration = 1 * 24 * 60 * 60 * 1000; // 1 day for testing, adjust as needed
-      return setTimeout(() => {
-        setSessionTimeoutAlert(true);
-      }, sessionDuration);
+      }
     };
 
-    const resetTimer = () => {
-      clearTimeout(sessionTimer.current);
-      sessionTimer.current = startSessionTimer();
-    };
-
-    sessionTimer.current = startSessionTimer();
-
-    document.addEventListener('mousemove', resetTimer);
-    document.addEventListener('keypress', resetTimer);
-
-    return () => {
-      clearTimeout(sessionTimer.current);
-      document.removeEventListener('mousemove', resetTimer);
-      document.removeEventListener('keypress', resetTimer);
-    };
+    fetchData();
   }, []);
-
-  const handleSessionTimeoutAlertClose = () => {
-    setSessionTimeoutAlert(false);
-    navigate('/login');
-  };
 
   const handleUpdateCondition = (index) => {
     setSelectedCondition(index);
@@ -113,6 +141,14 @@ const App = () => {
   const handleClose = () => {
     setOpen(false);
     setSelectedCondition(null);
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prevPage) => prevPage + 1);
+  };
+
+  const handlePrevPage = () => {
+    setCurrentPage((prevPage) => prevPage - 1);
   };
 
   const handleSaveChanges = async () => {
@@ -126,13 +162,24 @@ const App = () => {
     };
 
     try {
-      await axios.put(`${config.backendAPI}/conditions/update`, updatedCondition);
-      setConditions((prevConditions) => {
-        const newConditions = [...prevConditions];
-        newConditions[selectedCondition] = updatedCondition;
-        return newConditions;
+      const response = await fetch(`${config.backendAPI}/conditions/update`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedCondition),
       });
-      handleClose();
+
+      if (response.ok) {
+        setConditions((prevConditions) => {
+          const newConditions = [...prevConditions];
+          newConditions[selectedCondition] = updatedCondition;
+          return newConditions;
+        });
+        handleClose();
+      } else {
+        console.error('There was an error updating the condition!');
+      }
     } catch (error) {
       console.error('There was an error updating the condition!', error);
     }
@@ -140,49 +187,92 @@ const App = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <AppBar position="static" style={{ backgroundColor: '#002e41' }}>
+      <AppBar position="relative" className={classes.appBar} style={{
+        backgroundColor: 'black',
+        width: '99.5vw',
+        height: '4vw',
+        marginBottom: '1vw',
+        marginTop: '0.5vw'
+      }}>
         <Toolbar>
-          <img
-            src={Logo}
-            alt="Logo"
-            style={{ marginRight: theme.spacing(2), width: 110, height: 50 }}
-            onClick={() => navigate(-1)}
-          />
-          <Typography variant="h6" component="div" style={{ flexGrow: 1, textAlign: 'center' }}>
+        <ArrowBackIcon
+                style={{ cursor: 'pointer', marginRight: '0.5vw', width: '2vw' }} 
+                onClick={() => navigate('/Alarmlog')} 
+            />
+          <Typography variant="h6" component="div" style={{ flexGrow: 1, textAlign: 'center', marginBottom: '0.6vw' }}>
             Alarm Conditions
           </Typography>
         </Toolbar>
       </AppBar>
-      <TableContainer component={Paper}>
-        <Table aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell style={{ fontWeight: 'bold', backgroundColor: '#f2f2f2' }}>Parameter</TableCell>
-              <TableCell style={{ fontWeight: 'bold', backgroundColor: '#f2f2f2' }}>Phase</TableCell>
-              <TableCell style={{ fontWeight: 'bold', backgroundColor: '#f2f2f2' }}>Min Range</TableCell>
-              <TableCell style={{ fontWeight: 'bold', backgroundColor: '#f2f2f2' }}>Max Range</TableCell>
-              <TableCell style={{ fontWeight: 'bold', backgroundColor: '#f2f2f2' }}>Parameter Units</TableCell>
-              <TableCell style={{ fontWeight: 'bold', backgroundColor: '#f2f2f2' }}>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {conditions.map((row, index) => (
-              <TableRow key={index}>
-                <TableCell>{row.parameter}</TableCell>
-                <TableCell>{row.phase}</TableCell>
-                <TableCell>{row.range_max}</TableCell>
-                <TableCell>{row.range_min}</TableCell>
-                <TableCell>{row.parameter_units}</TableCell>
-                <TableCell>
-                  <IconButton color="primary" onClick={() => handleUpdateCondition(index)}>
-                    <EditIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+
+      <Table className={classes.table} style={{
+    backgroundColor: 'black',
+    width: '99.5vw',
+    height: '4vw',
+    marginBottom: '1vw',
+    marginTop: '0.5vw'
+  }}>
+    <TableHead>
+      <TableRow>
+        <TableCell className={classes.tableHeader} style={{ color: 'white' }}>Sl.no</TableCell>
+        <TableCell className={classes.tableHeader} style={{ color: 'white' }}>Parameter</TableCell>
+        <TableCell className={classes.tableHeader} style={{ color: 'white' }}>Phase</TableCell>
+        <TableCell className={classes.tableHeader} style={{ color: 'white' }}>Max Range</TableCell>
+        <TableCell className={classes.tableHeader} style={{ color: 'white' }}>Min Range</TableCell>
+        <TableCell className={classes.tableHeader} style={{ color: 'white' }}>Parameter Units</TableCell>
+        <TableCell className={classes.tableHeader} style={{ color: 'white' }}>Actions</TableCell>
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      {conditions
+        .slice((currentPage - 1) * perPage, currentPage * perPage)
+        .map((item, index) => (
+          <TableRow key={index}>
+            <TableCell className={classes.tableCell} style={{ color: 'white' }}>{(currentPage - 1) * perPage + index + 1}</TableCell>
+            <TableCell className={classes.tableCell} style={{ color: 'white' }}>{item.parameter}</TableCell>
+            <TableCell className={classes.tableCell} style={{ color: 'white' }}>{item.phase}</TableCell>
+            <TableCell className={classes.tableCell} style={{ color: 'white' }}>{item.range_max}</TableCell>
+            <TableCell className={classes.tableCell} style={{ color: 'white' }}>{item.range_min}</TableCell>
+            <TableCell className={classes.tableCell} style={{ color: 'white' }}>{item.parameter_units}</TableCell>
+            <TableCell className={classes.tableCell}>
+              <IconButton color="primary" onClick={() => handleUpdateCondition((currentPage - 1) * perPage + index)}>
+                <EditIcon />
+              </IconButton>
+            </TableCell>
+          </TableRow>
+        ))}
+    </TableBody>
+  </Table>
+
+
+      <div className={classes.optionsContainer}>
+        {currentPage > 1 && (
+          <Button
+            className={classes.previousButton}
+            variant="contained"
+            color="primary"
+            onClick={handlePrevPage}
+          >
+            Previous
+          </Button>
+        )}
+        {currentPage < totalPages && (
+          <Button
+            className={classes.optionContainer}
+            variant="contained"
+            color="primary"
+            onClick={handleNextPage}
+            style={{ backgroundColor: '#1976D2' }}
+          >
+            Next
+          </Button>
+        )}
+      </div>
+      <Typography
+        className={classes.pagination} style={{ top: '0.2vw', left: '90vw' }}>
+        Page {currentPage} of {totalPages}
+      </Typography>
+
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Edit Condition</DialogTitle>
         <DialogContent>
@@ -239,31 +329,6 @@ const App = () => {
             Save Changes
           </Button>
         </DialogActions>
-      </Dialog>
-      <Dialog
-        open={sessionTimeoutAlert}
-        onClose={handleSessionTimeoutAlertClose}
-        PaperProps={{ style: styles.sessionTimeoutDialog }}
-      >
-        <ErrorOutlineIcon style={styles.errorIcon} />
-        <Typography variant="h5" gutterBottom style={styles.sessionTimeoutText}>
-          Oops!
-        </Typography>
-        <Typography variant="body1" gutterBottom style={styles.sessionTimeoutText}>
-          Your session has expired.
-        </Typography>
-        <Box style={styles.loginAgainText}>
-          <ReplayIcon style={styles.loginAgainIcon} />
-          <Typography variant="body1">Please log in again</Typography>
-        </Box>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSessionTimeoutAlertClose}
-          autoFocus
-        >
-          OK
-        </Button>
       </Dialog>
     </ThemeProvider>
   );

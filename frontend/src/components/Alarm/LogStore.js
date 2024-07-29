@@ -190,31 +190,34 @@ const AlarmLogs = () => {
             <div className="alarm-logs" 
             style={{ backgroundColor: 'black', padding: '2vw', height: '39.9vw', width: '94vw' }}>
                 <table style={tableStyle}>
-                    <thead>
-                        <tr>
-                            <th style={thStyle}>Status</th>
-                            <th style={thStyle}>Location</th>
-                            <th style={thStyle}>Problem</th>
-                            <th style={thStyle}>Occurrence Count</th>
-                            <th style={thStyle}>Error Time</th>
-                            <th style={thStyle}>Resolved Time</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {items
-                        .slice((currentPage - 1) * perPage, currentPage * perPage)
-                        .map(log => (
-                            <tr key={log.id}>
-                                <td style={tdStyle}>{log.status}</td>
-                                <td style={tdStyle}>{log.location}</td>
-                                <td style={tdStyle}>{log.occurrence}</td>
-                                <td style={tdStyle}>{log.occurrence_count}</td>
-                                <td style={tdStyle}>{log.timeerror}</td>
-                                <td style={tdStyle}>{log.timeupdate}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+    <thead>
+        <tr>
+            <th style={thStyle}>Sl.no</th>
+            <th style={thStyle}>Status</th>
+            <th style={thStyle}>Location</th>
+            <th style={thStyle}>Problem</th>
+            <th style={thStyle}>Occurrence Count</th>
+            <th style={thStyle}>Error Time</th>
+            <th style={thStyle}>Resolved Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        {items
+        .slice((currentPage - 1) * perPage, currentPage * perPage)
+        .map((log, index) => (
+            <tr key={log.id}>
+                <td style={tdStyle}>{(currentPage - 1) * perPage + index + 1}</td>
+                <td style={tdStyle}>{log.status}</td>
+                <td style={tdStyle}>{log.location}</td>
+                <td style={tdStyle}>{log.occurrence}</td>
+                <td style={tdStyle}>{log.occurrence_count}</td>
+                <td style={tdStyle}>{log.timeerror}</td>
+                <td style={tdStyle}>{log.timeupdate}</td>
+            </tr>
+        ))}
+    </tbody>
+</table>
+
         <div 
         style={{
             marginTop:"0.2vw",
