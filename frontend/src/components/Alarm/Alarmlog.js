@@ -501,7 +501,7 @@ const AlarmLogPage = () => {
         <Table className={classes.table}>
                 <TableHead>
                   <TableRow>
-                    <TableCell className={classes.tableHeader}>Sl.no</TableCell>
+                    <TableCell className={classes.tableHeader}>Sl.No</TableCell>
                     <TableCell className={classes.tableHeader}>ID</TableCell>
                     <TableCell className={classes.tableHeader}>Status</TableCell>
                     <TableCell className={classes.tableHeader}>Occurrence</TableCell>

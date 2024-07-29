@@ -206,37 +206,40 @@ const Notificationlog = () => {
         <div style={styles.body}>
             <AppBar />
             <div className="alarm-logs" style={{ backgroundColor: 'black', padding: '1.5vw' , height: '40.2vw'}}>
-                <table style={tableStyle}>
-                    <thead>
-                        <tr>
-                            <th style={thStyle}>Status</th>
-                            <th style={thStyle}>Occurrence</th>
-                            <th style={thStyle}>Location</th>
-                            <th style={thStyle}>Timestamp</th>
-                            <th style={thStyle}>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {items
-                        .slice((currentPage - 1) * perPage, currentPage * perPage)
-                        .map(log => (
-                            <tr key={log.id}>
-                                <td style={tdStyle}>{log.status}</td>
-                                <td style={tdStyle}>{log.location}</td>
-                                <td style={tdStyle}>{log.occurrence}</td>
-                                <td style={tdStyle}>{log.timeerror}</td>
-                                <td style={tdStyle}>
-                                    <button
-                                        style={buttonStyle}
-                                        onClick={() => markAsRead(log.id)}
-                                    >
-                                        Mark As Read
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+            <table style={tableStyle}>
+    <thead>
+        <tr>
+            <th style={thStyle}>Sl.No</th> 
+            <th style={thStyle}>Status</th>
+            <th style={thStyle}>Occurrence</th>
+            <th style={thStyle}>Location</th>
+            <th style={thStyle}>Timestamp</th>
+            <th style={thStyle}>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {items
+        .slice((currentPage - 1) * perPage, currentPage * perPage)
+        .map((log, index) => (
+            <tr key={log.id}>
+                <td style={tdStyle}>{(currentPage - 1) * perPage + index + 1}</td> 
+                <td style={tdStyle}>{log.status}</td>
+                <td style={tdStyle}>{log.location}</td>
+                <td style={tdStyle}>{log.occurrence}</td>
+                <td style={tdStyle}>{log.timeerror}</td>
+                <td style={tdStyle}>
+                    <button
+                        style={buttonStyle}
+                        onClick={() => markAsRead(log.id)}
+                    >
+                        Mark As Read
+                    </button>
+                </td>
+            </tr>
+        ))}
+    </tbody>
+</table>
+
         <div style={{marginTop:"1vw"}}>
         {currentPage > 1 && (
           <Button

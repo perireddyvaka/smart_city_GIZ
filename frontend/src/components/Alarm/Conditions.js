@@ -214,7 +214,7 @@ const App = () => {
   }}>
     <TableHead>
       <TableRow>
-        <TableCell className={classes.tableHeader} style={{ color: 'white' }}>Sl.no</TableCell>
+        <TableCell className={classes.tableHeader} style={{ color: 'white' }}>Sl.No</TableCell>
         <TableCell className={classes.tableHeader} style={{ color: 'white' }}>Parameter</TableCell>
         <TableCell className={classes.tableHeader} style={{ color: 'white' }}>Phase</TableCell>
         <TableCell className={classes.tableHeader} style={{ color: 'white' }}>Max Range</TableCell>

@@ -192,7 +192,7 @@ const AlarmLogs = () => {
                 <table style={tableStyle}>
     <thead>
         <tr>
-            <th style={thStyle}>Sl.no</th>
+            <th style={thStyle}>Sl.No</th>
             <th style={thStyle}>Status</th>
             <th style={thStyle}>Location</th>
             <th style={thStyle}>Problem</th>
