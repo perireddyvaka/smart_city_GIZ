@@ -2,12 +2,12 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const client = require("../db"); // Import the PostgreSQL client
 const router = express.Router();
-const { v4: uuidv4 } = require("uuid");
+// const { v4: uuidv4 } = require("uuid");
 
 // Fetch alarm count with specific checklog
 router.get("/ncount", async (req, res) => {
   try {
-    const query = "SELECT count(*) FROM alarm WHERE checklog = $1";
+    const query = "SELECT count(*) FROM modified_data WHERE checklog = $1";
     const value = ["N/S"];
     const { rows } = await client.query(query, value);
     res.status(200).json(rows);
@@ -20,7 +20,7 @@ router.get("/ncount", async (req, res) => {
 // Fetch alarm count with specific checklog and stage
 router.get("/acount", async (req, res) => {
   try {
-    const query = "SELECT count(*) FROM alarm WHERE checklog = $1 AND stage = $2";
+    const query = "SELECT count(*) FROM modified_data WHERE checklog = $1 AND stage = $2";
     const value = ["N/S", "A"];
     const { rows } = await client.query(query, value);
     res.status(200).json(rows);
@@ -33,11 +33,11 @@ router.get("/acount", async (req, res) => {
 // Fetch alarm data with stage 'A'
 router.get("/alarmdata", async (req, res) => {
   try {
-    const query = "SELECT * FROM alarm WHERE stage = 'A'";
+    const query = "SELECT * FROM modified_data WHERE stage = 'A'";
     const { rows } = await client.query(query);
     res.status(200).json(rows);
   } catch (err) {
-    console.log(err.stack);
+    console.log("done");
     res.status(500).send("Server Error");
   }
 });
@@ -48,7 +48,7 @@ router.get("/alarmcloseddata", async (req, res) => {
     const query = `
       SELECT *,
         ROW_NUMBER() OVER (PARTITION BY occurrence ORDER BY timeupdate) AS occurrence_count
-      FROM alarm
+      FROM modified_data
       WHERE stage = 'D'
       ORDER BY timeupdate;
     `;
@@ -64,7 +64,7 @@ router.get("/alarmcloseddata", async (req, res) => {
 // Fetch alarm data with stage 'N' or 'A'
 router.get("/notidata", async (req, res) => {
   try {
-    const query = "SELECT * FROM alarm WHERE stage = 'A' or 'N'";
+    const query = "SELECT * FROM modified_data WHERE stage = 'A' or 'N'";
     const { rows } = await client.query(query);
     res.status(200).json(rows);
   } catch (err) {
@@ -77,7 +77,11 @@ router.get("/notidata", async (req, res) => {
 router.post("/generated/create", async (req, res) => {
   try {
     const { status, location, stage, ...currentValues } = req.body;
+    for (const key in req.body){
+      console.log(`${key}: ${req.body[key]}`);
+    }
     const checkout = "N/S";
+    let final_occ="";
     // console.log(occurrence);
     // Generate the list of relevant parameters
     const var_list = Object.keys(currentValues);
@@ -109,28 +113,25 @@ router.post("/generated/create", async (req, res) => {
       const valueObj = list.find(obj => obj.hasOwnProperty(key));
       return valueObj ? valueObj[key] : null;
     };
-
+    console.log("var_list", var_list)
     // Check for each parameter if it exceeds the max threshold value or below the min threshold
     for (const parameter of var_list) {
       const currentValue = parsedCurrentValues[parameter];
       const maxValue = getThresholdValue(threshold_list_max, parameter);
       const minValue = getThresholdValue(threshold_list_min, parameter);
+      console.log("::",parameter, currentValue, maxValue, minValue)
 
       if (typeof currentValue === 'number') {
-        if (maxValue !== null && currentValue > maxValue) {
+        if ((maxValue !== null && currentValue > maxValue) ||(minValue !== null && currentValue < minValue)) {
           // const occurrence={}
           const occurrence = `${parameter} : ${currentValue}`;
-          await insertAlarm(uuidv4(), status, location, occurrence, checkout, 'A');
-          // console.log(`I am here - ${parameter} exceeds the max threshold`);
-        }
-        if (minValue !== null && currentValue < minValue) {
-          // const occurrence={}
-          const occurrence = `${parameter} : ${currentValue}`;
-          await insertAlarm(uuidv4(), status, location, occurrence, checkout, 'A');
-          console.log(`I am here - ${parameter} is below the min threshold`);
+          final_occ += (" "+occurrence+",")
+          console.log("Params:", status, final_occ, checkout, req.body['id']);
+          console.log(`I am here - ${parameter} not in threshould`);
         }
       }
     }
+    await updateAlarm(status, final_occ, checkout, 'A', req.body['id']);
 
     console.log("Max thresholds:", threshold_list_max);
     console.log("Min thresholds:", threshold_list_min);
@@ -142,25 +143,18 @@ router.post("/generated/create", async (req, res) => {
   }
 });
 
-// Function to insert data into the alarm table
-async function insertAlarm(id, status, location, occurrence, checkout, stage) {
+// Function to update data in the alarm table
+async function updateAlarm(status, occurrence, checkout, stage, id) {
   try {
     const query =
-      "INSERT INTO alarm (id, status, location, occurrence, checklog, stage) VALUES ($1, $2, $3, $4, $5, $6)";
-    await client.query(query, [
-      id,  
-      status,
-      location,
-      occurrence,
-      checkout,
-      // stageAorN === 'N' ? stageNConditions : stageAorN, // Use stageNConditions when stage is 'N'
-      stage
-    ]);
-    console.log("Data inserted into alarm table successfully");
+      "UPDATE modified_data SET status = $1, occurrence = $2, checklog = $3, stage = $4 WHERE id = $5";
+    await client.query(query, [status, occurrence, checkout, stage, id]);
+    console.log("Data updated in alarm table successfully");
   } catch (error) {
     throw error;
   }
 }
+
 
 
     
@@ -188,11 +182,11 @@ router.put("/renew/:id", async (req, res) => {
 
     if (status === "Resolved") {
       // If status is "Resolved", update stage to 'D' and status, remarks, incharge, and timestamp
-      const query = "UPDATE alarm SET occurrence = $1, status = $2, remarks = $3, incharge = $4, stage = 'D',checklog = 'S',  timeupdate = $5 WHERE id = $6";
+      const query = "UPDATE modified_data SET occurrence = $1, status = $2, remarks = $3, incharge = $4, stage = 'D',checklog = 'S',  timeupdate = $5 WHERE id = $6";
       await client.query(query, [occurrence, status, remarks, incharge, timeupdate, id]);
     } else {
       // If status is not "Resolved", update only status, remarks, incharge, and timestamp
-      const query = "UPDATE alarm SET occurrence = $1, status = $2, remarks = $3, incharge = $4, timeupdate = $5 WHERE id = $6";
+      const query = "UPDATE modified_data SET occurrence = $1, status = $2, remarks = $3, incharge = $4, timeupdate = $5 WHERE id = $6";
       await client.query(query, [occurrence, status, remarks, incharge, timeupdate, id]);
     }
 
@@ -206,7 +200,7 @@ router.put("/renew/:id", async (req, res) => {
 router.put("/markAsRead/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const query = "UPDATE alarm SET checklog = 'S' WHERE id = $1";
+    const query = "UPDATE modified_data SET checklog = 'S' WHERE id = $1";
     await client.query(query, [id]);
     res.status(200).send("Notification marked as read");
   } catch (err) {

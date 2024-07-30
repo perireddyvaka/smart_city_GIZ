@@ -19,7 +19,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: bypldb
+      POSTGRES_DB: GIZ_Final
     ports:
       - "5433:5432"
     networks:

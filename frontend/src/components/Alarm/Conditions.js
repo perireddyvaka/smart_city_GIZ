@@ -111,6 +111,7 @@ const App = () => {
   const classes = useStyles();
   const [conditions, setConditions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [items, setItems] = useState([]);
   const [open, setOpen] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
   const [selectedCondition, setSelectedCondition] = useState(null);
@@ -121,7 +122,7 @@ const App = () => {
       try {
         const response = await fetch(`${config.backendAPI}/conditions`);
         const data = await response.json();
-        setConditions(data);
+        setItems(data);
         setTotalPages(Math.ceil(data.length / perPage));
       } catch (error) {
         console.error('There was an error fetching the data!', error);
@@ -222,7 +223,8 @@ const App = () => {
       </TableRow>
     </TableHead>
     <TableBody>
-      {conditions
+    {Array.isArray(items) && items.length > 0 ? (
+        items
         .slice((currentPage - 1) * perPage, currentPage * perPage)
         .map((item, index) => (
           <TableRow key={index}>
@@ -238,10 +240,14 @@ const App = () => {
               </IconButton>
             </TableCell>
           </TableRow>
-        ))}
+        ))
+      ) : (
+        <TableRow>
+          {/* <TableCell colSpan={7} style={{ color: 'white', textAlign: 'center' }}>No items available</TableCell> */}
+        </TableRow>
+      )}
     </TableBody>
   </Table>
-
 
       <div className={classes.optionsContainer}>
         {currentPage > 1 && (
