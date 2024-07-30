@@ -17,7 +17,7 @@ const { Pool } = require('pg');
 const pool = new Pool({
   user: "postgres",
   // host: "postgres",  // Service name of PostgreSQL container in Docker Compose
-  host: "192.168.0.167",
+  host: "127.0.0.1",
   database: "GIZ_Final",
   password: "postgres",
   port: 5433,
