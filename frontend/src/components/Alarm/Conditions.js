@@ -8,15 +8,13 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import IconButton from '@mui/material/IconButton';
-import EditIcon from '@mui/icons-material/Edit';
+import Button from '@mui/material/Button';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
-import {  useNavigate } from 'react-router-dom';
-import Button from '@mui/material/Button';
+import { useNavigate } from 'react-router-dom';
 import TextField from '@mui/material/TextField';
 import { makeStyles } from '@mui/styles';
 import config from '../../config';
@@ -78,12 +76,12 @@ const useStyles = makeStyles({
   },
   pagination: {
     color: "#fff",
-    left: "55vw",
-    justifyContent: "right",
-    position: 'relative',
+    justifyContent: "left",
     display: "flex",
-    width: "9vw",
-    top: "-2vw"
+    width: "20vw",
+    position: "absolute",
+    bottom: "1vw",
+    left: "1vw",
   },
   appBar: {
     top: '0.01vw',
@@ -107,14 +105,20 @@ const useStyles = makeStyles({
 });
 
 const perPage = 5;
+
 const App = () => {
   const classes = useStyles();
   const [conditions, setConditions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [items, setItems] = useState([]);
   const [open, setOpen] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
   const [selectedCondition, setSelectedCondition] = useState(null);
+  const [parameter, setParameter] = useState('');
+  const [phase, setPhase] = useState('');
+  const [items, setItems] = useState([]);
+  const [rangeMin, setRangeMin] = useState('');
+  const [rangeMax, setRangeMax] = useState('');
+  const [parameterUnits, setParameterUnits] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -122,6 +126,7 @@ const App = () => {
       try {
         const response = await fetch(`${config.backendAPI}/conditions`);
         const data = await response.json();
+        setConditions(data);
         setItems(data);
         setTotalPages(Math.ceil(data.length / perPage));
       } catch (error) {
@@ -133,7 +138,13 @@ const App = () => {
   }, []);
 
   const handleUpdateCondition = (index) => {
+    const condition = conditions[index];
     setSelectedCondition(index);
+    setParameter(condition.parameter);
+    setPhase(condition.phase);
+    setRangeMin(condition.range_min);
+    setRangeMax(condition.range_max);
+    setParameterUnits(condition.parameter_units);
     setOpen(true);
   };
 
@@ -151,36 +162,38 @@ const App = () => {
   };
 
   const handleSaveChanges = async () => {
-    const updatedCondition = {
-      id: conditions[selectedCondition].id,
-      parameter: document.getElementById('parameter').value,
-      phase: document.getElementById('phase').value,
-      range_min: document.getElementById('range_min').value,
-      range_max: document.getElementById('range_max').value,
-      parameter_units: document.getElementById('parameter_units').value,
-    };
+    if (selectedCondition !== null) {
+      const updatedCondition = {
+        id: conditions[selectedCondition].id,
+        parameter: parameter,
+        phase: phase,
+        range_min: rangeMin,
+        range_max: rangeMax,
+        parameter_units: parameterUnits,
+      };
 
-    try {
-      const response = await fetch(`${config.backendAPI}/conditions/update`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedCondition),
-      });
-
-      if (response.ok) {
-        setConditions((prevConditions) => {
-          const newConditions = [...prevConditions];
-          newConditions[selectedCondition] = updatedCondition;
-          return newConditions;
+      try {
+        const response = await fetch(`${config.backendAPI}/conditions/update`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updatedCondition),
         });
-        handleClose();
-      } else {
-        console.error('There was an error updating the condition!');
+
+        if (response.ok) {
+          setConditions((prevConditions) => {
+            const newConditions = [...prevConditions];
+            newConditions[selectedCondition] = updatedCondition;
+            return newConditions;
+          });
+          handleClose();
+        } else {
+          console.error('There was an error updating the condition!');
+        }
+      } catch (error) {
+        console.error('There was an error updating the condition!', error);
       }
-    } catch (error) {
-      console.error('There was an error updating the condition!', error);
     }
   };
 
@@ -194,10 +207,10 @@ const App = () => {
         marginTop: '0.5vw'
       }}>
         <Toolbar>
-        <ArrowBackIcon
-                style={{ cursor: 'pointer', marginRight: '0.5vw', width: '2vw' }} 
-                onClick={() => navigate('/Alarmlog')} 
-            />
+          <ArrowBackIcon
+            style={{ cursor: 'pointer', marginRight: '0.5vw', width: '2vw' }} 
+            onClick={() => navigate('/Alarmlog')} 
+          />
           <Typography variant="h6" component="div" style={{ flexGrow: 1, textAlign: 'center', marginBottom: '0.6vw' }}>
             Alarm Conditions
           </Typography>
@@ -205,54 +218,61 @@ const App = () => {
       </AppBar>
 
       <Table className={classes.table} style={{
-    backgroundColor: 'black',
-    width: '99.5vw',
-    height: '4vw',
-    marginBottom: '1vw',
-    marginTop: '0.5vw'
-  }}>
-    <TableHead>
-      <TableRow>
-        <TableCell className={classes.tableHeader} style={{ color: 'white' }}>Sl.No</TableCell>
-        <TableCell className={classes.tableHeader} style={{ color: 'white' }}>Parameter</TableCell>
-        <TableCell className={classes.tableHeader} style={{ color: 'white' }}>Phase</TableCell>
-        <TableCell className={classes.tableHeader} style={{ color: 'white' }}>Max Range</TableCell>
-        <TableCell className={classes.tableHeader} style={{ color: 'white' }}>Min Range</TableCell>
-        <TableCell className={classes.tableHeader} style={{ color: 'white' }}>Parameter Units</TableCell>
-        <TableCell className={classes.tableHeader} style={{ color: 'white' }}>Actions</TableCell>
-      </TableRow>
-    </TableHead>
-    <TableBody>
-    {Array.isArray(items) && items.length > 0 ? (
-        items
-        .slice((currentPage - 1) * perPage, currentPage * perPage)
-        .map((item, index) => (
-          <TableRow key={index}>
-            <TableCell className={classes.tableCell} style={{ color: 'white' }}>{(currentPage - 1) * perPage + index + 1}</TableCell>
-            <TableCell className={classes.tableCell} style={{ color: 'white' }}>{item.parameter}</TableCell>
-            <TableCell className={classes.tableCell} style={{ color: 'white' }}>{item.phase}</TableCell>
-            <TableCell className={classes.tableCell} style={{ color: 'white' }}>{item.range_max}</TableCell>
-            <TableCell className={classes.tableCell} style={{ color: 'white' }}>{item.range_min}</TableCell>
-            <TableCell className={classes.tableCell} style={{ color: 'white' }}>{item.parameter_units}</TableCell>
-            <TableCell className={classes.tableCell}>
-              <IconButton color="primary" onClick={() => handleUpdateCondition((currentPage - 1) * perPage + index)}>
-                <EditIcon />
-              </IconButton>
-            </TableCell>
+        backgroundColor: 'black',
+        width: '99.5vw',
+        height: '4vw',
+        marginBottom: '1vw',
+        marginTop: '0.5vw'
+      }}>
+        <TableHead>
+          <TableRow>
+            <TableCell className={classes.tableHeader} style={{ color: 'white' }}>Sl.No</TableCell>
+            <TableCell className={classes.tableHeader} style={{ color: 'white' }}>Parameter</TableCell>
+            <TableCell className={classes.tableHeader} style={{ color: 'white' }}>Phase</TableCell>
+            <TableCell className={classes.tableHeader} style={{ color: 'white' }}>Max Range</TableCell>
+            <TableCell className={classes.tableHeader} style={{ color: 'white' }}>Min Range</TableCell>
+            <TableCell className={classes.tableHeader} style={{ color: 'white' }}>Parameter Units</TableCell>
+            <TableCell className={classes.tableHeader} style={{ color: 'white' }}>Actions</TableCell>
           </TableRow>
-        ))
-      ) : (
-        <TableRow>
-          {/* <TableCell colSpan={7} style={{ color: 'white', textAlign: 'center' }}>No items available</TableCell> */}
-        </TableRow>
-      )}
-    </TableBody>
-  </Table>
+        </TableHead>
+        <TableBody>
+          {Array.isArray(conditions) && conditions.length > 0 ? (
+            conditions
+              .slice((currentPage - 1) * perPage, currentPage * perPage)
+              .map((item, index) => (
+                <TableRow key={index}>
+                  <TableCell className={classes.tableCell} style={{ color: 'white' }}>{(currentPage - 1) * perPage + index + 1}</TableCell>
+                  <TableCell className={classes.tableCell} style={{ color: 'white' }}>{item.parameter}</TableCell>
+                  <TableCell className={classes.tableCell} style={{ color: 'white' }}>{item.phase}</TableCell>
+                  <TableCell className={classes.tableCell} style={{ color: 'white' }}>{item.range_max}</TableCell>
+                  <TableCell className={classes.tableCell} style={{ color: 'white' }}>{item.range_min}</TableCell>
+                  <TableCell className={classes.tableCell} style={{ color: 'white' }}>{item.parameter_units}</TableCell>
+                  <TableCell className={classes.tableCell} style={{ color: 'white' }}>
+                    <Button
+                      onClick={() => handleUpdateCondition((currentPage - 1) * perPage + index)}
+                      style={{ color: '#1A84D3' }}
+                    >
+                      Update
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+          ) : (
+            <TableRow>
+              
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
 
-      <div className={classes.optionsContainer}>
+      <div 
+        style={{
+            marginTop:"0.2vw",
+            width: '2vw'
+            }}>
         {currentPage > 1 && (
           <Button
-            className={classes.previousButton}
+            className={classes.previousbutton}
             variant="contained"
             color="primary"
             onClick={handlePrevPage}
@@ -260,77 +280,74 @@ const App = () => {
             Previous
           </Button>
         )}
-        {currentPage < totalPages && (
+        {items.length > currentPage * perPage && (
           <Button
             className={classes.optionContainer}
             variant="contained"
             color="primary"
             onClick={handleNextPage}
-            style={{ backgroundColor: '#1976D2' }}
           >
             Next
           </Button>
         )}
-      </div>
-      <Typography
-        className={classes.pagination} style={{ top: '0.2vw', left: '90vw' }}>
-        Page {currentPage} of {totalPages}
-      </Typography>
+         </div>
+        <Typography style={{width: '10vw', left: '90vw', bottom: '0vw', position: 'relative'}}
+        className={ classes.pagination}>
+          Page {currentPage} of {totalPages}
+        </Typography>
+     
+        
 
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Edit Condition</DialogTitle>
         <DialogContent>
-          {selectedCondition !== null && (
-            <>
-              <TextField
-                id="parameter"
-                label="Parameter"
-                defaultValue={conditions[selectedCondition]?.parameter}
-                fullWidth
-                margin="normal"
-                variant="outlined"
-              />
-              <TextField
-                id="phase"
-                label="Phase"
-                defaultValue={conditions[selectedCondition]?.phase}
-                fullWidth
-                margin="normal"
-                variant="outlined"
-              />
-              <TextField
-                id="range_min"
-                label="Min Range"
-                defaultValue={conditions[selectedCondition]?.range_min}
-                fullWidth
-                margin="normal"
-                variant="outlined"
-              />
-              <TextField
-                id="range_max"
-                label="Max Range"
-                defaultValue={conditions[selectedCondition]?.range_max}
-                fullWidth
-                margin="normal"
-                variant="outlined"
-              />
-              <TextField
-                id="parameter_units"
-                label="Parameter Units"
-                defaultValue={conditions[selectedCondition]?.parameter_units}
-                fullWidth
-                margin="normal"
-                variant="outlined"
-              />
-            </>
-          )}
+          <TextField
+            margin="dense"
+            label="Parameter"
+            type="text"
+            fullWidth
+            value={parameter}
+            onChange={(e) => setParameter(e.target.value)}
+          />
+          <TextField
+            margin="dense"
+            label="Phase"
+            type="text"
+            fullWidth
+            value={phase}
+            onChange={(e) => setPhase(e.target.value)}
+          />
+          <TextField
+            margin="dense"
+            label="Max Range"
+            type="text"
+            fullWidth
+            value={rangeMax}
+            onChange={(e) => setRangeMax(e.target.value)}
+          />
+          <TextField
+            margin="dense"
+            label="Min Range"
+            type="text"
+            fullWidth
+            value={rangeMin}
+            onChange={(e) => setRangeMin(e.target.value)}
+          />
+          <TextField
+            margin="dense"
+            label="Parameter Units"
+            type="text"
+            fullWidth
+            value={parameterUnits}
+            onChange={(e) => setParameterUnits(e.target.value)}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">
-            Close
+            Cancel
           </Button>
           <Button onClick={handleSaveChanges} color="primary">
-            Save Changes
+            Save
           </Button>
         </DialogActions>
       </Dialog>

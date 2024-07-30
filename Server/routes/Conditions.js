@@ -6,7 +6,7 @@ const router = express.Router();
 // Fetch conditions
 router.get("/", async (req, res) => {
   try {
-    const query = "SELECT * FROM conditions WHERE phase IN ('phaseR', 'phaseY', 'phaseB', 'phaseN')";
+    const query = "SELECT * FROM conditions WHERE phase IN ('R', 'Y', 'B', 'N')";
     const { rows } = await client.query(query);
     res.status(200).json(rows);
   } catch (err) {

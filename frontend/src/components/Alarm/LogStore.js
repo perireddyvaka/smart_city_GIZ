@@ -126,7 +126,7 @@ const AlarmLogs = () => {
 
     useEffect(() => {
         const startSessionTimer = () => {
-            const sessionDuration = 1 * 24 * 60 * 60 * 1000; // 1 day
+            const sessionDuration = 1 * 24 * 60 * 60 * 60 * 1000; // 1 day
             return setTimeout(() => {
                 setSessionTimeoutAlert(true);
             }, sessionDuration);
@@ -193,9 +193,10 @@ const AlarmLogs = () => {
     <thead>
         <tr>
             <th style={thStyle}>Sl.No</th>
+            <th style={thStyle}>ID</th>
             <th style={thStyle}>Status</th>
             <th style={thStyle}>Location</th>
-            <th style={thStyle}>Problem</th>
+            <th style={thStyle}>Parameter: Threshold</th>
             <th style={thStyle}>Occurrence Count</th>
             <th style={thStyle}>Error Time</th>
             <th style={thStyle}>Resolved Time</th>
@@ -207,11 +208,12 @@ const AlarmLogs = () => {
         .map((log, index) => (
             <tr key={log.id}>
                 <td style={tdStyle}>{(currentPage - 1) * perPage + index + 1}</td>
+                <td style={tdStyle}>{log.id}</td>
                 <td style={tdStyle}>{log.status}</td>
-                <td style={tdStyle}>{log.location}</td>
+                <td style={tdStyle}>{log.Location}</td>
                 <td style={tdStyle}>{log.occurrence}</td>
                 <td style={tdStyle}>{log.occurrence_count}</td>
-                <td style={tdStyle}>{log.timeerror}</td>
+                <td style={tdStyle}>{log.record_time}</td>
                 <td style={tdStyle}>{log.timeupdate}</td>
             </tr>
         ))}
@@ -244,13 +246,13 @@ const AlarmLogs = () => {
           </Button>
         )}
          </div>
-        <Typography style={{width: '10vw', right: '10vw', bottom: '1.7vw'}}
+        <Typography style={{width: '10vw', right: '10vw', position: 'relative'}}
         className={ classes.pagination}>
           Page {currentPage} of {totalPages}
         </Typography>
      
         </div>
-            <Dialog
+            {/* <Dialog
                 open={sessionTimeoutAlert}
                 onClose={handleSessionTimeoutAlertClose}
                 PaperProps={{
@@ -276,7 +278,7 @@ const AlarmLogs = () => {
                 >
                     OK
                 </Button>
-            </Dialog>
+            </Dialog> */}
         </div>
     );
 }

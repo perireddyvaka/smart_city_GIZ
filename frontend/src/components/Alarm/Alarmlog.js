@@ -65,6 +65,8 @@ const useStyles = makeStyles((theme) => ({
   
   tableHeader: {
     fontWeight: "bold",
+    padding: "1vw",
+    height: "1vw",
     color: "white",
     border: "1px solid #fff",
     backgroundColor: "#black", // Changed table header color
@@ -72,8 +74,10 @@ const useStyles = makeStyles((theme) => ({
   tableCell: {
     border: "1px solid #fff",
     color: "white",
-    width: '25vw',
-    position: '-webkit-sticky',
+    padding: "1vw",
+    width: '20vw',
+    height: "-1vw",
+    // position: '-webkit-sticky',
     backgroundColor: "black", // Changed table content color
   },
   optionsContainer: {
@@ -234,77 +238,76 @@ const AlarmLogPage = () => {
 
     fetchData();
   }, []);
+const handleSubmit = async (dataType) => {
+  const data = dataType === "add" ? addData : closeData;
+  const setData = dataType === "add" ? setAddData : setCloseData;
+  const errors = {};
+  let hasErrors = false;
 
-  const handleSubmit = async (dataType) => {
-    const data = dataType === "add" ? addData : closeData;
-    const setData = dataType === "add" ? setAddData : setCloseData;
-    const errors = {};
-    let hasErrors = false;
-  
-    for (const key in data) {
-      if (!data[key]) {
-        errors[key] = "Required";
-        hasErrors = true;
-      }
+  for (const key in data) {
+    if (!data[key]) {
+      errors[key] = "Required";
+      hasErrors = true;
     }
-  
-    if (hasErrors) {
-      if (dataType === "add") {
-        setAddErrors(errors);
-      } else if (dataType === "close") {
-        setCloseErrors(errors);
-      }
-      return;
+  }
+
+  if (hasErrors) {
+    if (dataType === "add") {
+      setAddErrors(errors);
+    } else if (dataType === "close") {
+      setCloseErrors(errors);
     }
-  
-    const endpoint =
-      dataType === "add"
-        ? `${config.backendAPI}/conditions/add`
-        : `${config.backendAPI}/alarm/renew/${id}`;
-  
-    try {
-      const response = await fetch(endpoint, {
-        method: dataType === "add" ? "POST" : "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-  
-      if (response.ok) {
-        if (dataType === "close" && data.status === "Resolved") {
-          setItems((prevItems) => prevItems.filter((item) => item.id !== id));
-        } else if (dataType === "add") {
-          const newItem = await response.json();
-          setItems((prevItems) => [...prevItems, newItem]);
+    return;
+  }
+
+  const endpoint =
+    dataType === "add"
+      ? `${config.backendAPI}/conditions/add`
+      : `${config.backendAPI}/alarm/renew/${id}`;
+
+  try {
+    const response = await fetch(endpoint, {
+      method: dataType === "add" ? "POST" : "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (response.ok) {
+      if (dataType === "close" && data.status === "Resolved") {
+        setItems((prevItems) => prevItems.filter((item) => item.id !== id));
+      } else if (dataType === "add") {
+        const newItem = await response.json();
+        setItems((prevItems) => [...prevItems, newItem]);
+      }
+      handleCloseDialog(dataType);
+    } else {
+      const errorData = await response.json();
+      console.log("Error:", response.status, errorData);
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
+
+  setData(
+    dataType === "add"
+      ? {
+          parameter: "",
+          phase: "",
+          range_min: "",
+          range_max: "",
+          parameter_units: "",
         }
-        handleCloseDialog(dataType);
-      } else {
-        console.log("Error:", response.status);
-      }
-    } catch (error) {
-      console.log(error.message);
-    }
-  
-    setData(
-      dataType === "add"
-        ? {
-            parameter: "",
-            phase: "",
-            range_min: "",
-            range_max: "",
-            parameter_units: "",
-          }
-        : {
-            occurrence: "",
-            status: "",
-            remarks: "",
-            incharge: "",
-          }
-    );
-  
-  
-  };
+      : {
+          occurrence: "",
+          status: "",
+          remarks: "",
+          incharge: "",
+        }
+  );
+};
+
 
   const handleSearchStatus = (status) => {
     setSearchStatus(status);
@@ -458,8 +461,9 @@ const AlarmLogPage = () => {
                   <TableRow>
                     <TableCell className={classes.tableHeader}>Sl.No</TableCell>
                     <TableCell className={classes.tableHeader}>ID</TableCell>
+                    <TableCell className={classes.tableHeader}>Phase</TableCell>
                     <TableCell className={classes.tableHeader}>Status</TableCell>
-                    <TableCell className={classes.tableHeader}>Occurrence</TableCell>
+                    <TableCell className={classes.tableHeader}>Location</TableCell>
                     <TableCell className={classes.tableHeader}>Parameter: Threshold</TableCell>
                     <TableCell className={classes.tableHeader}>Time</TableCell>
                     <TableCell className={classes.tableHeader}>Action</TableCell>
@@ -487,10 +491,11 @@ const AlarmLogPage = () => {
                        {(currentPage - 1) * perPage + index + 1}
                       </TableCell>
                     <TableCell className={classes.tableCell}>{item.id}</TableCell>
+                    <TableCell className={classes.tableCell}>{item.phase}</TableCell>
                     <TableCell className={classes.tableCell}>{item.status}</TableCell>
-                    <TableCell className={classes.tableCell}>{item.location}</TableCell>
+                    <TableCell className={classes.tableCell}>{item.Location}</TableCell>
                     <TableCell className={classes.tableCell}>{item.occurrence}</TableCell>
-                    <TableCell className={classes.tableCell}>{item.timeerror}</TableCell>
+                    <TableCell className={classes.tableCell}>{item.record_time}</TableCell>
                     <TableCell className={classes.tableCell}>
                       <Button
                         onClick={() => {
@@ -536,7 +541,7 @@ const AlarmLogPage = () => {
         )}
          </div>
         <Typography 
-        className={ classes.pagination}>
+        className={ classes.pagination} style={{top: '1vw'}}>
           Page {currentPage} of {totalPages}
         </Typography>
      
@@ -580,7 +585,7 @@ const AlarmLogPage = () => {
         <MenuItem value="ACB 7 Current">ACB 7 Current</MenuItem>
         <MenuItem value="ACB 8 Current">ACB 8 Current</MenuItem>
         <MenuItem value="Temperature">Temperature</MenuItem>
-        <MenuItem value="Phase">Phase</MenuItem>
+        {/* <MenuItem value="Phase">Phase</MenuItem> */}
         <MenuItem value="DTVolt/Current_Phase">DTVolt/Current_Phase</MenuItem>
         <MenuItem value="Current">Current</MenuItem>
       </Select>

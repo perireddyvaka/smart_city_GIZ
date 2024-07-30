@@ -185,8 +185,8 @@ const Notificationlog = () => {
         <tr>
             <th style={thStyle}>Sl.No</th> 
             <th style={thStyle}>Status</th>
-            <th style={thStyle}>Occurrence</th>
             <th style={thStyle}>Location</th>
+            <th style={thStyle}>Parameter: Threshold</th>
             <th style={thStyle}>Timestamp</th>
             <th style={thStyle}>Action</th>
         </tr>
@@ -194,17 +194,17 @@ const Notificationlog = () => {
     <tbody>
         {items
         .slice((currentPage - 1) * perPage, currentPage * perPage)
-        .map((log, index) => (
-            <tr key={log.id}>
+        .map((item, index) => (
+            <tr key={item.id}>
                 <td style={tdStyle}>{(currentPage - 1) * perPage + index + 1}</td> 
-                <td style={tdStyle}>{log.status}</td>
-                <td style={tdStyle}>{log.location}</td>
-                <td style={tdStyle}>{log.occurrence}</td>
-                <td style={tdStyle}>{log.timeerror}</td>
+                <td style={tdStyle}>{item.status}</td>
+                <td style={tdStyle}>{item.Location}</td>
+                <td style={tdStyle}>{item.occurrence}</td>
+                <td style={tdStyle}>{item.record_time}</td>
                 <td style={tdStyle}>
                     <button
                         style={buttonStyle}
-                        onClick={() => markAsRead(log.id)}
+                        onClick={() => markAsRead(item.id)}
                     >
                         Mark As Read
                     </button>
@@ -236,7 +236,7 @@ const Notificationlog = () => {
           </Button>
         )}
          </div>
-        <Typography style={{width: '10vw', right: '10vw'}}
+        <Typography style={{width: '10vw', right: '10vw',top: "1vw", position: 'relative'}}
         className={ classes.pagination}>
           Page {currentPage} of {totalPages}
         </Typography>
