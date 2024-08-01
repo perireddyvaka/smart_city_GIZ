@@ -3,5 +3,7 @@ version: '3'
 services:
   frontend:
     build: .
+    image: frontend-2307
     ports:
       - "8080:80"
+    container_name: frontend
