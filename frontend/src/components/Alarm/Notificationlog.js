@@ -199,7 +199,9 @@ const Notificationlog = () => {
                 <td style={tdStyle}>{(currentPage - 1) * perPage + index + 1}</td> 
                 <td style={tdStyle}>{item.status}</td>
                 <td style={tdStyle}>{item.Location}</td>
-                <td style={tdStyle}>{item.occurrence}</td>
+                <td style={tdStyle}> {item.occurrence ? item.occurrence.split(", ").map((occ, idx) => (
+            <div key={idx}>{occ}</div>
+          )) : null}</td>
                 <td style={tdStyle}>{item.record_time}</td>
                 <td style={tdStyle}>
                     <button

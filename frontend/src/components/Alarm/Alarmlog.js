@@ -229,15 +229,20 @@ const AlarmLogPage = () => {
       try {
         const response = await fetch(`${config.backendAPI}/alarm/alarmdata`);
         const data = await response.json();
-        setItems(data);
-        setTotalPages(Math.ceil(data.length / perPage));
+        const processedData = data.map(item => ({
+          ...item,
+          occurrence: item.occurrence || "", // Ensure occurrence is always a string
+        }));
+        setItems(processedData);
+        setTotalPages(Math.ceil(processedData.length / perPage));
       } catch (error) {
         console.log(error.message);
       }
     };
-
+  
     fetchData();
   }, []);
+  
 const handleSubmit = async (dataType) => {
   const data = dataType === "add" ? addData : closeData;
   const setData = dataType === "add" ? setAddData : setCloseData;
@@ -470,56 +475,57 @@ const handleSubmit = async (dataType) => {
     </TableRow>
   </TableHead>
   <TableBody>
-    {items
-      .filter((item) =>
-        searchStatus ? item.status === searchStatus : true
-      )
-      .sort((a, b) => {
-        const timeA = a.timeerror || ""; // Provide a default empty string if timeerror is undefined
-        const timeB = b.timeerror || ""; // Provide a default empty string if timeerror is undefined
+  {items
+    .filter((item) =>
+      searchStatus ? item.status === searchStatus : true
+    )
+    .sort((a, b) => {
+      const timeA = a.timeerror || ""; // Provide a default empty string if timeerror is undefined
+      const timeB = b.timeerror || ""; // Provide a default empty string if timeerror is undefined
 
-        if (sortOrder === "asc") {
-          return timeA.localeCompare(timeB);
-        } else {
-          return timeB.localeCompare(timeA);
-        }
-      })
-      .slice((currentPage - 1) * perPage, currentPage * perPage)
-      .map((item, index) => (
-        <TableRow key={item.id}>
-          <TableCell className={classes.tableCell}>
-            {(currentPage - 1) * perPage + index + 1}
-          </TableCell>
-          <TableCell className={classes.tableCell}>{item.id}</TableCell>
-          <TableCell className={classes.tableCell}>{item.phase}</TableCell>
-          <TableCell className={classes.tableCell}>{item.status}</TableCell>
-          <TableCell className={classes.tableCell}>{item.Location}</TableCell>
-          <TableCell className={classes.tableCell}>
-            {item.occurrence.split(", ").map((occ, idx) => (
-              <div key={idx}>{occ}</div>
-            ))}
-          </TableCell>
-          <TableCell className={classes.tableCell}>{item.record_time}</TableCell>
-          <TableCell className={classes.tableCell}>
-            <Button
-              onClick={() => {
-                setOpenCloseDialog(true);
-                setId(item.id);
-                setCloseData({
-                  occurrence: item.occurrence,
-                  status: item.status,
-                  remarks: item.remarks || "",
-                  incharge: item.incharge || "",
-                });
-              }}
-              color="primary"
-            >
-              Update
-            </Button>
-          </TableCell>
-        </TableRow>
-      ))}
-  </TableBody>
+      if (sortOrder === "asc") {
+        return timeA.localeCompare(timeB);
+      } else {
+        return timeB.localeCompare(timeA);
+      }
+    })
+    .slice((currentPage - 1) * perPage, currentPage * perPage)
+    .map((item, index) => (
+      <TableRow key={item.id}>
+        <TableCell className={classes.tableCell}>
+          {(currentPage - 1) * perPage + index + 1}
+        </TableCell>
+        <TableCell className={classes.tableCell}>{item.id}</TableCell>
+        <TableCell className={classes.tableCell}>{item.phase}</TableCell>
+        <TableCell className={classes.tableCell}>{item.status}</TableCell>
+        <TableCell className={classes.tableCell}>{item.Location}</TableCell>
+        <TableCell className={classes.tableCell}>
+          {item.occurrence ? item.occurrence.split(", ").map((occ, idx) => (
+            <div key={idx}>{occ}</div>
+          )) : null}
+        </TableCell>
+        <TableCell className={classes.tableCell}>{item.record_time}</TableCell>
+        <TableCell className={classes.tableCell}>
+          <Button
+            onClick={() => {
+              setOpenCloseDialog(true);
+              setId(item.id);
+              setCloseData({
+                occurrence: item.occurrence,
+                status: item.status,
+                remarks: item.remarks || "",
+                incharge: item.incharge || "",
+              });
+            }}
+            color="primary"
+          >
+            Update
+          </Button>
+        </TableCell>
+      </TableRow>
+    ))}
+</TableBody>
+
 </Table>
 
         {/* </TableContainer> */}
@@ -607,10 +613,10 @@ const handleSubmit = async (dataType) => {
         helperText={addErrors.phase}
       >
         <MenuItem value="">Select Phase</MenuItem>
-        <MenuItem value="phaseR">R</MenuItem>
-        <MenuItem value="phaseY">Y</MenuItem>
-        <MenuItem value="phaseB">B</MenuItem>
-        <MenuItem value="phaseN">N</MenuItem>
+        <MenuItem value="R">R</MenuItem>
+        <MenuItem value="Y">Y</MenuItem>
+        <MenuItem value="B">B</MenuItem>
+        <MenuItem value="N">N</MenuItem>
 
       </Select>
 
