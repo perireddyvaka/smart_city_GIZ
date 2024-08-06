@@ -223,6 +223,11 @@ const AlarmLogPage = () => {
     const setData = dataType === "add" ? setAddData : setCloseData;
     setData({ ...data, [event.target.name]: event.target.value });
   };
+
+  const [conditions, setConditions] = useState([]);
+  const [showNewConditionInput, setShowNewConditionInput] = useState(false);
+  const [newCondition, setNewCondition] = useState("");
+
   
   useEffect(() => {
     const fetchData = async () => {
@@ -242,6 +247,33 @@ const AlarmLogPage = () => {
   
     fetchData();
   }, []);
+
+  const fetchConditions = async () => {
+    try {
+      const response = await fetch(`${config.backendAPI}/conditions`);
+      const data = await response.json();
+      // Process data if needed (e.g., filtering, mapping)
+      setConditions(data);
+    } catch (error) {
+      console.error('Error fetching conditions:', error.message);
+    }
+  };
+  
+  fetchConditions();
+
+  const handleAddNewCondition = () => {
+    setShowNewConditionInput(true);
+  };
+
+  const handleSaveNewCondition = () => {
+    if (newCondition.trim() !== "") {
+      const newConditionData = { id: conditions.length + 1, parameter: newCondition };
+      setConditions([...conditions, newConditionData]);
+      setNewCondition("");
+      setShowNewConditionInput(false);
+    }
+  };
+  
   
 const handleSubmit = async (dataType) => {
   const data = dataType === "add" ? addData : closeData;
@@ -384,7 +416,7 @@ const handleSubmit = async (dataType) => {
           color="inherit"
           style={{ color: "#fff" }}
         >
-          History
+          Alarm History
         </Button>
         <Button
           color="inherit"
@@ -394,14 +426,14 @@ const handleSubmit = async (dataType) => {
           ADD
         </Button>
 
-        <Button
+        {/* <Button
           component={Link}
           to="/Conditions"
           color="inherit"
           style={{ color: "#fff" }}
         >
           Conditions
-        </Button>
+        </Button> */}
         
         <div className={classes.title} style={{ marginLeft: "auto", marginRight: "auto" }}>
           <Alarm className={classes.alarmIcon} />
@@ -465,12 +497,12 @@ const handleSubmit = async (dataType) => {
   <TableHead>
     <TableRow>
       <TableCell className={classes.tableHeader}>Sl.No</TableCell>
-      <TableCell className={classes.tableHeader}>ID</TableCell>
-      <TableCell className={classes.tableHeader}>Phase</TableCell>
-      <TableCell className={classes.tableHeader}>Status</TableCell>
+      <TableCell className={classes.tableHeader}>Timestamp</TableCell>
       <TableCell className={classes.tableHeader}>Location</TableCell>
-      <TableCell className={classes.tableHeader}>Parameter: Threshold</TableCell>
-      <TableCell className={classes.tableHeader}>Time</TableCell>
+      <TableCell className={classes.tableHeader}>Name</TableCell>
+      <TableCell className={classes.tableHeader}>Phase</TableCell>
+      <TableCell className={classes.tableHeader}>Condition</TableCell>
+      <TableCell className={classes.tableHeader}>Status</TableCell>
       <TableCell className={classes.tableHeader}>Action</TableCell>
     </TableRow>
   </TableHead>
@@ -495,16 +527,17 @@ const handleSubmit = async (dataType) => {
         <TableCell className={classes.tableCell}>
           {(currentPage - 1) * perPage + index + 1}
         </TableCell>
-        <TableCell className={classes.tableCell}>{item.id}</TableCell>
-        <TableCell className={classes.tableCell}>{item.phase}</TableCell>
-        <TableCell className={classes.tableCell}>{item.status}</TableCell>
+        <TableCell className={classes.tableCell}>{item.record_time}</TableCell>
         <TableCell className={classes.tableCell}>{item.Location}</TableCell>
         <TableCell className={classes.tableCell}>
           {item.occurrence ? item.occurrence.split(", ").map((occ, idx) => (
             <div key={idx}>{occ}</div>
           )) : null}
         </TableCell>
-        <TableCell className={classes.tableCell}>{item.record_time}</TableCell>
+        <TableCell className={classes.tableCell}>{item.phase}</TableCell>
+        <TableCell className={classes.tableCell}>{item.condition}</TableCell>
+        <TableCell className={classes.tableCell}>{item.status}</TableCell>
+        
         <TableCell className={classes.tableCell}>
           <Button
             onClick={() => {
@@ -519,7 +552,7 @@ const handleSubmit = async (dataType) => {
             }}
             color="primary"
           >
-            Update
+            Change
           </Button>
         </TableCell>
       </TableRow>
@@ -565,12 +598,12 @@ const handleSubmit = async (dataType) => {
   >
     <DialogTitle>Add Condition</DialogTitle>
     <DialogContent>
-     <InputLabel shrink>Problem</InputLabel>
+     <InputLabel shrink>Name</InputLabel>
       <Select
         autoFocus
         margin="dense"
         fullWidth
-        name="parameter"
+        name="Name"
         onChange={(event) => handleInputChange(event, "add")}
         error={!!addErrors.parameter}
         helperText={addErrors.parameter}
@@ -620,6 +653,42 @@ const handleSubmit = async (dataType) => {
 
       </Select>
 
+      <InputLabel shrink>Condition</InputLabel>
+        <Select
+          margin="dense"
+          fullWidth
+          name="condition"
+          value={addData.condition}
+          onChange={(event) => handleInputChange(event, "add")}
+          error={!!addErrors.condition}
+          helperText={addErrors.condition}
+        >
+          <MenuItem value="">Select Condition</MenuItem>
+          {conditions.map((condition) => (
+            <MenuItem key={condition.id} value={condition.parameter}>
+              {condition.parameter}
+            </MenuItem>
+          ))}
+          <MenuItem>
+            <Button onClick={handleAddNewCondition}>Add Condition</Button>
+          </MenuItem>
+        </Select>
+
+        {showNewConditionInput && (
+          <div style={{ marginTop: 16 }}>
+            <TextField
+              margin="dense"
+              label="New Condition"
+              type="text"
+              fullWidth
+              value={newCondition}
+              onChange={(event) => setNewCondition(event.target.value)}
+            />
+            <Button onClick={handleSaveNewCondition} color="primary" style={{ marginTop: 8 }}>
+              Save
+            </Button>
+          </div>
+        )}
 
       <TextField
         margin="dense"

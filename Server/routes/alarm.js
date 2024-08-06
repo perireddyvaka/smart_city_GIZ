@@ -81,8 +81,9 @@ router.post("/generated/create", async (req, res) => {
       console.log(`${key}: ${req.body[key]}`);
     }
     const checkout = "N/S";
-    let final_occ="";
-    // console.log(occurrence);
+    let final_occ = "";
+    let updatedStatus = status; // Create a variable to hold the updated status
+
     // Generate the list of relevant parameters
     const var_list = Object.keys(currentValues);
 
@@ -113,25 +114,30 @@ router.post("/generated/create", async (req, res) => {
       const valueObj = list.find(obj => obj.hasOwnProperty(key));
       return valueObj ? valueObj[key] : null;
     };
-    console.log("var_list", var_list)
+
+    console.log("var_list", var_list);
     // Check for each parameter if it exceeds the max threshold value or below the min threshold
     for (const parameter of var_list) {
       const currentValue = parsedCurrentValues[parameter];
       const maxValue = getThresholdValue(threshold_list_max, parameter);
       const minValue = getThresholdValue(threshold_list_min, parameter);
-      console.log("::",parameter, currentValue, maxValue, minValue)
+      console.log("::",parameter, currentValue, maxValue, minValue);
 
       if (typeof currentValue === 'number') {
-        if ((maxValue !== null && currentValue > maxValue) ||(minValue !== null && currentValue < minValue)) {
-          // const occurrence={}
+        if ((maxValue !== null && currentValue > maxValue) || (minValue !== null && currentValue < minValue)) {
           const occurrence = `${parameter} : ${currentValue}`;
-          final_occ += (" "+occurrence+",")
-          console.log("Params:", status, final_occ, checkout, req.body['id']);
-          console.log(`I am here - ${parameter} not in threshould`);
+          final_occ += (" " + occurrence + ",");
+          console.log("Params:", updatedStatus, final_occ, checkout, req.body['id']);
+          console.log(`I am here - ${parameter} not in threshold`);
+
+          // Update the status to "Error" if threshold exceeded
+          updatedStatus = "Unresolved";
         }
       }
     }
-    await updateAlarm(status, final_occ, checkout, 'A', req.body['id']);
+
+    // Use updatedStatus when calling updateAlarm function
+    await updateAlarm(updatedStatus, final_occ, checkout, 'A', req.body['id']);
 
     console.log("Max thresholds:", threshold_list_max);
     console.log("Min thresholds:", threshold_list_min);
