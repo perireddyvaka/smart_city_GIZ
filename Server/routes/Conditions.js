@@ -15,14 +15,26 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/get", async (req, res) => {
+  try {
+    const { phase, parameter, Location } = req.body;
+    const query = "SELECT condition,range_max,range_min FROM conditions where location=$1 and phase=$2 and parameter = $3";
+    const { rows } = await client.query(query,[Location, phase, parameter]);
+    res.status(200).json(rows);
+  } catch (err) {
+    console.log(err.stack);
+    res.status(500).send({ error: "Internal Server Error" });
+  }
+});
+
 // Add a new condition
 router.post("/add", async (req, res) => {
   try {
-    const { phase, parameter, range_max, range_min, parameter_units } = req.body;
+    const { phase, parameter, range_max, range_min, parameter_units,condition, Location } = req.body;
     const id = require("uuid").v4();
 
-    const query = "INSERT INTO conditions (id, phase, parameter, range_max, range_min, parameter_units) VALUES ($1, $2, $3, $4, $5, $6)";
-    await client.query(query, [id, phase, parameter, range_max, range_min, parameter_units]);
+    const query = "INSERT INTO conditions (id, phase, parameter, range_max, range_min, parameter_units, condition, location) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)";
+    await client.query(query, [id, phase, parameter, range_max, range_min, parameter_units,condition,Location]);
 
     res.status(200).send({ status: "Data inserted successfully" });
   } catch (err) {
