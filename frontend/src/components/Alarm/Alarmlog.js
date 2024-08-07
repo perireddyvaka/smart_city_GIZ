@@ -499,7 +499,7 @@ const handleSubmit = async (dataType) => {
       <TableCell className={classes.tableHeader}>Sl.No</TableCell>
       <TableCell className={classes.tableHeader}>Timestamp</TableCell>
       <TableCell className={classes.tableHeader}>Location</TableCell>
-      <TableCell className={classes.tableHeader}>Name</TableCell>
+      <TableCell className={classes.tableHeader}>Parameter</TableCell>
       <TableCell className={classes.tableHeader}>Phase</TableCell>
       <TableCell className={classes.tableHeader}>Condition</TableCell>
       <TableCell className={classes.tableHeader}>Status</TableCell>
@@ -530,13 +530,15 @@ const handleSubmit = async (dataType) => {
         <TableCell className={classes.tableCell}>{item.record_time}</TableCell>
         <TableCell className={classes.tableCell}>{item.Location}</TableCell>
         <TableCell className={classes.tableCell}>
-          {item.occurrence ? item.occurrence.split(", ").map((occ, idx) => (
-            <div key={idx}>{occ}</div>
-          )) : null}
-        </TableCell>
+          Oil_Temp,
+          Current,
+          </TableCell>
         <TableCell className={classes.tableCell}>{item.phase}</TableCell>
-        <TableCell className={classes.tableCell}>{item.condition}</TableCell>
-        <TableCell className={classes.tableCell}>{item.status}</TableCell>
+        <TableCell className={classes.tableCell}>
+          Outofrange:500,
+          Outofrange:300,
+          </TableCell>
+        <TableCell className={classes.tableCell}>Unresolved</TableCell>
         
         <TableCell className={classes.tableCell}>
           <Button
@@ -598,7 +600,26 @@ const handleSubmit = async (dataType) => {
   >
     <DialogTitle>Add Condition</DialogTitle>
     <DialogContent>
-     <InputLabel shrink>Name</InputLabel>
+    <InputLabel shrink>Location</InputLabel>
+      <Select
+        autoFocus
+        margin="dense"
+        fullWidth
+        name="Location"
+        value={addData.Location}
+        onChange={(event) => handleInputChange(event, "add")}
+        error={!!addErrors.Location}
+        helperText={addErrors.Location}
+      >
+        <MenuItem value="">Select Location</MenuItem>
+        <MenuItem value="R">Madhuvihar-DT1</MenuItem>
+        <MenuItem value="Y">Madhuvihar-DT1</MenuItem>
+        <MenuItem value="B">Substation 15</MenuItem>
+        <MenuItem value="N">Substation 15X</MenuItem>
+
+      </Select>
+
+     <InputLabel shrink>Parameter</InputLabel>
       <Select
         autoFocus
         margin="dense"
@@ -663,15 +684,12 @@ const handleSubmit = async (dataType) => {
           error={!!addErrors.condition}
           helperText={addErrors.condition}
         >
-          <MenuItem value="">Select Condition</MenuItem>
-          {conditions.map((condition) => (
-            <MenuItem key={condition.id} value={condition.parameter}>
-              {condition.parameter}
-            </MenuItem>
-          ))}
+          <MenuItem value="">Select Phase</MenuItem>
           <MenuItem>
-            <Button onClick={handleAddNewCondition}>Add Condition</Button>
+            <Button style={{backgroundColor: "blue", color: 'white'}} onClick={handleAddNewCondition}>Add New Condition</Button>
           </MenuItem>
+        <MenuItem value="R">Outofrange</MenuItem>
+        
         </Select>
 
         {showNewConditionInput && (
@@ -684,9 +702,7 @@ const handleSubmit = async (dataType) => {
               value={newCondition}
               onChange={(event) => setNewCondition(event.target.value)}
             />
-            <Button onClick={handleSaveNewCondition} color="primary" style={{ marginTop: 8 }}>
-              Save
-            </Button>
+           
           </div>
         )}
 
@@ -712,7 +728,7 @@ const handleSubmit = async (dataType) => {
         error={!!addErrors.range_max}
         helperText={addErrors.range_max}
       />
-      <TextField
+      {/* <TextField
         margin="dense"
         label="Parameter Units"
         type="text"
@@ -722,7 +738,7 @@ const handleSubmit = async (dataType) => {
         onChange={(event) => handleInputChange(event, "add")}
         error={!!addErrors.parameter_units}
         helperText={addErrors.parameter_units}
-      />
+      /> */}
     </DialogContent>
     <DialogActions>
           <Button

@@ -193,12 +193,14 @@ const AlarmLogs = () => {
     <thead>
         <tr>
             <th style={thStyle}>Sl.No</th>
-            <th style={thStyle}>ID</th>
-            <th style={thStyle}>Status</th>
             <th style={thStyle}>Location</th>
-            <th style={thStyle}>Parameter: Threshold</th>
-            <th style={thStyle}>Occurrence Count</th>
-            <th style={thStyle}>Error Time</th>
+            <th style={thStyle}>Parameter</th>
+            
+            <th style={thStyle}>Phase</th>
+            <th style={thStyle}>Condition</th>
+            <th style={thStyle}>Occurrence count</th>
+            <th style={thStyle}>Status</th>
+            <th style={thStyle}>Triggered Time</th>
             <th style={thStyle}>Resolved Time</th>
         </tr>
     </thead>
@@ -208,11 +210,14 @@ const AlarmLogs = () => {
         .map((log, index) => (
             <tr key={log.id}>
                 <td style={tdStyle}>{(currentPage - 1) * perPage + index + 1}</td>
-                <td style={tdStyle}>{log.id}</td>
-                <td style={tdStyle}>{log.status}</td>
                 <td style={tdStyle}>{log.Location}</td>
-                <td style={tdStyle}>{log.occurrence}</td>
+                <td style={tdStyle}>oil_Low,Acb_2_current</td>
+                
+                <td style={tdStyle}>{log.phase}</td>
+                <td style={tdStyle}>  Outofrange:500,
+                Outofrange:300,</td>
                 <td style={tdStyle}>{log.occurrence_count}</td>
+                <td style={tdStyle}>Resolved</td>
                 <td style={tdStyle}>{log.record_time}</td>
                 <td style={tdStyle}>{log.timeupdate}</td>
             </tr>

@@ -183,11 +183,13 @@ const Notificationlog = () => {
             <table style={tableStyle}>
     <thead>
         <tr>
-            <th style={thStyle}>Sl.No</th> 
-            <th style={thStyle}>Status</th>
+        <th style={thStyle}>Sl.No</th>
+        <th style={thStyle}>Timestamp</th>
             <th style={thStyle}>Location</th>
-            <th style={thStyle}>Parameter: Threshold</th>
-            <th style={thStyle}>Timestamp</th>
+            <th style={thStyle}>Parameter</th>
+            <th style={thStyle}>Phase</th>
+            <th style={thStyle}>Condition</th>
+            <th style={thStyle}>Status</th>
             <th style={thStyle}>Action</th>
         </tr>
     </thead>
@@ -197,12 +199,18 @@ const Notificationlog = () => {
         .map((item, index) => (
             <tr key={item.id}>
                 <td style={tdStyle}>{(currentPage - 1) * perPage + index + 1}</td> 
-                <td style={tdStyle}>{item.status}</td>
-                <td style={tdStyle}>{item.Location}</td>
-                <td style={tdStyle}> {item.occurrence ? item.occurrence.split(", ").map((occ, idx) => (
-            <div key={idx}>{occ}</div>
-          )) : null}</td>
                 <td style={tdStyle}>{item.record_time}</td>
+                <td style={tdStyle}>{item.Location}</td>
+                <td style={tdStyle}> 
+                Oil_Temp,
+                Current,
+                </td>
+                <td style={tdStyle}>{item.phase}</td>
+                <td style={tdStyle}> 
+                Outofrange:500,
+                Outofrange:300,
+                </td>
+                <td style={tdStyle}>Unresolved</td>
                 <td style={tdStyle}>
                     <button
                         style={buttonStyle}
