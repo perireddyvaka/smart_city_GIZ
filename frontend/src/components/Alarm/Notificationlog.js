@@ -202,13 +202,11 @@ const Notificationlog = () => {
                 <td style={tdStyle}>{item.record_time}</td>
                 <td style={tdStyle}>{item.Location}</td>
                 <td style={tdStyle}> 
-                Oil_Temp,
-                Current,
+                Oil_Temp
                 </td>
                 <td style={tdStyle}>{item.phase}</td>
                 <td style={tdStyle}> 
-                Outofrange:500,
-                Outofrange:300,
+                Outofrange:500
                 </td>
                 <td style={tdStyle}>Unresolved</td>
                 <td style={tdStyle}>

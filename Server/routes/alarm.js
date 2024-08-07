@@ -60,7 +60,6 @@ router.get("/alarmcloseddata", async (req, res) => {
   }
 });
 
-
 // Fetch alarm data with stage 'N' or 'A'
 router.get("/notidata", async (req, res) => {
   try {
@@ -77,7 +76,7 @@ router.get("/notidata", async (req, res) => {
 router.post("/generated/create", async (req, res) => {
   try {
     const { status, location, stage, ...currentValues } = req.body;
-    for (const key in req.body){
+    for (const key in req.body) {
       console.log(`${key}: ${req.body[key]}`);
     }
     const checkout = "N/S";
@@ -89,7 +88,7 @@ router.post("/generated/create", async (req, res) => {
 
     // Convert numeric currentValues to numbers for comparison
     const parsedCurrentValues = {};
-    var_list.forEach(key => {
+    var_list.forEach((key) => {
       const value = parseFloat(currentValues[key]);
       parsedCurrentValues[key] = isNaN(value) ? currentValues[key] : value;
     });
@@ -111,9 +110,11 @@ router.post("/generated/create", async (req, res) => {
 
     // Function to get value from the threshold lists
     const getThresholdValue = (list, key) => {
-      const valueObj = list.find(obj => obj.hasOwnProperty(key));
+      const valueObj = list.find((obj) => obj.hasOwnProperty(key));
       return valueObj ? valueObj[key] : null;
     };
+
+    let Outofrange;
 
     console.log("var_list", var_list);
     // Check for each parameter if it exceeds the max threshold value or below the min threshold
@@ -121,28 +122,28 @@ router.post("/generated/create", async (req, res) => {
       const currentValue = parsedCurrentValues[parameter];
       const maxValue = getThresholdValue(threshold_list_max, parameter);
       const minValue = getThresholdValue(threshold_list_min, parameter);
-      console.log("::",parameter, currentValue, maxValue, minValue);
+      console.log("::", parameter, currentValue, maxValue, minValue);
 
-      if (typeof currentValue === 'number') {
-        if ((maxValue !== null && currentValue > maxValue) || (minValue !== null && currentValue < minValue)) {
+      if (typeof currentValue === "number") {
+        if (maxValue !== null && currentValue > maxValue) {
           const occurrence = `${parameter} : ${currentValue}`;
-          final_occ += (" " + occurrence + ",");
-          console.log("Params:", updatedStatus, final_occ, checkout, req.body['id']);
+          final_occ += " " + occurrence + ",";
+          console.log("Params:", updatedStatus, final_occ, checkout, req.body["id"]);
           console.log(`I am here - ${parameter} not in threshold`);
 
           // Update the status to "Error" if threshold exceeded
           updatedStatus = "Unresolved";
+          Outofrange = currentValue;
         }
       }
     }
 
     // Use updatedStatus when calling updateAlarm function
-    await updateAlarm(updatedStatus, final_occ, checkout, 'A', req.body['id']);
+    await updateAlarm(updatedStatus, final_occ, checkout, "A", req.body["id"], ["Outofrange", Outofrange]);
 
     console.log("Max thresholds:", threshold_list_max);
     console.log("Min thresholds:", threshold_list_min);
     res.status(200).send("Data fetched successfully");
-
   } catch (error) {
     console.error(error);
     res.status(500).send("An error occurred");
@@ -150,35 +151,31 @@ router.post("/generated/create", async (req, res) => {
 });
 
 // Function to update data in the alarm table
-async function updateAlarm(status, occurrence, checkout, stage, id) {
+async function updateAlarm(status, occurrence, checkout, stage, id, Outofrange) {
+  console.log(Outofrange)
   try {
-    const query =
-      "UPDATE modified_data SET status = $1, occurrence = $2, checklog = $3, stage = $4 WHERE id = $5";
-    await client.query(query, [status, occurrence, checkout, stage, id]);
+    const query = "UPDATE modified_data SET status = $1, occurrence = $2, checklog = $3, stage = $4, Condition= $6 WHERE id = $5";
+    await client.query(query, [status, occurrence, checkout, stage, id, Outofrange]);
     console.log("Data updated in alarm table successfully");
   } catch (error) {
     throw error;
   }
 }
 
+// Insert data into the alaram table
+//   const query =
+//     "INSERT INTO alarm (id, status, location, occurrence, checklog, stage) VALUES ($1, $2, $3, $4, $5, $6)";
+//   await client.query(query, [
+//     id,
+//     status,
+//     location,
+//     occurrence,
+//     checkout,
+//     stage,
+//   ]);
 
-
-    
-    // Insert data into the alaram table
-  //   const query =
-  //     "INSERT INTO alarm (id, status, location, occurrence, checklog, stage) VALUES ($1, $2, $3, $4, $5, $6)";
-  //   await client.query(query, [
-  //     id,
-  //     status,
-  //     location,
-  //     occurrence,
-  //     checkout,
-  //     stage,
-  //   ]);
-
-  //   res.status(200).send("Data inserted successfully");
-  // return acb_1_current;
-
+//   res.status(200).send("Data inserted successfully");
+// return acb_1_current;
 
 router.put("/renew/:id", async (req, res) => {
   try {
@@ -215,8 +212,4 @@ router.put("/markAsRead/:id", async (req, res) => {
   }
 });
 
-
 module.exports = router;
-
-
-
