@@ -198,17 +198,16 @@ const Notificationlog = () => {
         .slice((currentPage - 1) * perPage, currentPage * perPage)
         .map((item, index) => (
             <tr key={item.id}>
-                <td style={tdStyle}>{(currentPage - 1) * perPage + index + 1}</td> 
-                <td style={tdStyle}>{item.record_time}</td>
-                <td style={tdStyle}>{item.Location}</td>
-                <td style={tdStyle}> 
-                Oil_Temp
-                </td>
+                {/* <td style={tdStyle}>{(currentPage - 1) * perPage + index + 1}</td>  */}
+                <td style={tdStyle}>{item.id}</td>
+                <td style={tdStyle}>{item.timeerror}</td>
+                <td style={tdStyle}>{item.location}</td>
+                <td style={tdStyle}>{item.occurrence}</td>
                 <td style={tdStyle}>{item.phase}</td>
                 <td style={tdStyle}> 
-                Outofrange:500
+                {item.condition}
                 </td>
-                <td style={tdStyle}>Unresolved</td>
+                <td style={tdStyle}>{item.status}</td>
                 <td style={tdStyle}>
                     <button
                         style={buttonStyle}

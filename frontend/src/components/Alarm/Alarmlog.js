@@ -475,12 +475,12 @@ const AlarmLogPage = () => {
               .map((item, index) => (
                 <TableRow key={item.id}>
                   <TableCell className={classes.tableCell}>{(currentPage - 1) * perPage + index + 1}</TableCell>
-                  <TableCell className={classes.tableCell}>{item.record_time}</TableCell>
-                  <TableCell className={classes.tableCell}>{item.Location}</TableCell>
-                  <TableCell className={classes.tableCell}>Oil_Temp, Current,</TableCell>
+                  <TableCell className={classes.tableCell}>{item.timeerror}</TableCell>
+                  <TableCell className={classes.tableCell}>{item.location}</TableCell>
+                  <TableCell className={classes.tableCell}>{item.occurrence}</TableCell>
                   <TableCell className={classes.tableCell}>{item.phase}</TableCell>
-                  <TableCell className={classes.tableCell}>Outofrange:500, Outofrange:300,</TableCell>
-                  <TableCell className={classes.tableCell}>Unresolved</TableCell>
+                  <TableCell className={classes.tableCell}>{item.condition}</TableCell>
+                  <TableCell className={classes.tableCell}>{item.status}</TableCell>
 
                   <TableCell className={classes.tableCell}>
                     <Button
