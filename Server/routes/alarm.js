@@ -80,7 +80,7 @@ router.post("/generated/create", async (req, res) => {
       console.log(`${key}: ${req.body[key]}`);
     }
     const checkout = "N/S";
-    let final_occ = ""; 
+    let final_occ = "";
     let updatedStatus = status; // Create a variable to hold the updated status
 
     // Generate the list of relevant parameters
@@ -119,7 +119,7 @@ router.post("/generated/create", async (req, res) => {
 
     console.log("var_list", var_list);
     // Check for each parameter if it exceeds the max threshold value or below the min threshold
-    thrslog=""
+    thrslog = "";
     for (const parameter of var_list) {
       const currentValue = parsedCurrentValues[parameter];
       const maxValue = getThresholdValue(threshold_list_max, parameter);
@@ -128,25 +128,24 @@ router.post("/generated/create", async (req, res) => {
 
       if (typeof currentValue === "number") {
         console.log("MaxValue", maxValue, " Current Value", currentValue);
-        if (maxValue !== null && currentValue > (maxValue/2)) {
-          Notifalg = "N";
-          const Noccurrence = `${parameter} `;
-          final_occ = Noccurrence ;
-          updatedStatus = "Unresolved";
-          Outofrange = currentValue;
-          await updateAlarm(updatedStatus, final_occ, checkout, "N", req.body.time, `Warning:${Outofrange}`, req.body.Location, req.body.phase);
-          console.log("Notification Noted.")
-        }
-        if (maxValue !== null && currentValue > maxValue) {
+        if (maxValue !== null && currentValue >= maxValue) {
           const Aoccurrence = `${parameter} `;
-          final_occ = Aoccurrence ;
+          final_occ = Aoccurrence;
 
           // Update the status to "Error" if threshold exceeded
           updatedStatus = "Unresolved";
           Outofrange = currentValue;
           await updateAlarm(updatedStatus, final_occ, checkout, "A", req.body.time, `Outofrange:${Outofrange}`, req.body.Location, req.body.phase);
-
+        } else if (maxValue !== null && currentValue >= (maxValue * 3) / 4) {
+          Notifalg = "N";
+          const Noccurrence = `${parameter} `;
+          final_occ = Noccurrence;
+          updatedStatus = "Unresolved";
+          Outofrange = currentValue;
+          await updateAlarm(updatedStatus, final_occ, checkout, "N", req.body.time, `Warning:${Outofrange}`, req.body.Location, req.body.phase);
+          console.log("Notification Noted.");
         }
+
         // let mmaxValue = maxValue*50/100
         // if(mmaxValue !== null && currentValue > mmaxValue){
         //   Outofrange = currentValue;
@@ -186,7 +185,6 @@ async function updateAlarm(status, occurrence, checkout, stage, time, Outofrange
     throw error;
   }
 }
-
 
 // Insert data into the alaram table
 //   const query =

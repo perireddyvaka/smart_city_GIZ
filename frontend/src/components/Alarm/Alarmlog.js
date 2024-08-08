@@ -199,17 +199,15 @@ const AlarmLogPage = () => {
     // Update data in ref
     if (dataType === "add") {
       addDataRef.current = { ...addDataRef.current, [name]: value };
-      console.log(addDataRef.current, "Called even condition", name, value); // Verify that the data is updated correctly
+      // Optionally call fetchmaxrange() if needed
+      if (name !== "condition" && name !== "range_max") {
+        fetchmaxrange();
+      } else if (name === "condition") {
+        getRangeMax(value);
+      }
     } else {
       // Handle closeData if needed
       setCloseData({ ...closeData, [event.target.name]: event.target.value });
-    }
-
-    // Optionally call fetchmaxrange() if needed
-    if (name !== "condition" && name !== "range_max") {
-      fetchmaxrange();
-    } else if (name === "condition") {
-      getRangeMax(value);
     }
   };
 
