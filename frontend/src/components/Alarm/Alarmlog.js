@@ -89,7 +89,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "space-between",
     marginBottom: theme.spacing(1),
     marginRight: theme.spacing(20),
-    marginLeft: theme.spacing(-59),
+    marginLeft: theme.spacing(-45),
     marginTop: "0.3vw",
   },
   previousbutton: {
@@ -120,7 +120,7 @@ const useStyles = makeStyles((theme) => ({
   },
   sortButton: {
     bottom: "1vw",
-    marginRight: "-21.3vw",
+    right: "-54.3vw",
     backgroundColor: "#CCCCCC",
     color: "#000",
   },
@@ -278,7 +278,8 @@ const AlarmLogPage = () => {
   };
 
   const handleSubmit = async (dataType) => {
-    const data = addDataRef.current; // Use ref to get current data
+    const data = dataType === "add" ? addDataRef.current : closeData; // Use ref to get current data
+    console.log(data);
     const errors = {};
     let hasErrors = false;
 
@@ -296,7 +297,7 @@ const AlarmLogPage = () => {
     }
 
     const endpoint = dataType === "add" ? `${config.backendAPI}/conditions/add` : `${config.backendAPI}/alarm/renew/${id}`;
-
+    console.log(dataType);
     try {
       const response = await fetch(endpoint, {
         method: dataType === "add" ? "POST" : "PUT",
@@ -428,7 +429,7 @@ const AlarmLogPage = () => {
       <Toolbar /> {/* To push the content below the AppBar */}
       <Container className={classes.container} maxWidth="md">
         <div className={classes.optionsContainer}>
-          <Button className={classes.searchByTextButton} variant="contained" color="primary" onClick={(event) => setSearchAnchorEl(event.currentTarget)}>
+          {/* <Button className={classes.searchByTextButton} variant="contained" color="primary" onClick={(event) => setSearchAnchorEl(event.currentTarget)}>
             Search by Status
           </Button>
           <Menu anchorEl={searchAnchorEl} keepMounted open={Boolean(searchAnchorEl)} onClose={() => setSearchAnchorEl(null)}>
@@ -436,7 +437,7 @@ const AlarmLogPage = () => {
             <MenuItem onClick={() => handleSearchStatus("Error")}>Error</MenuItem>
             <MenuItem onClick={() => handleSearchStatus("Pending")}>Pending</MenuItem>
             <MenuItem onClick={() => handleSearchStatus("Resolved")}>Resolved</MenuItem>
-          </Menu>
+          </Menu> */}
           <Button className={classes.sortButton} variant="contained" color="primary" onClick={handleSortTime}>
             Sort by Time {sortOrder === "asc" ? "▲" : "▼"}
           </Button>
@@ -704,8 +705,7 @@ const AlarmLogPage = () => {
             helperText={closeErrors.status}
           >
             <MenuItem value="">Select Status</MenuItem>
-            <MenuItem value="Error">Error</MenuItem>
-            <MenuItem value="Pending">Pending</MenuItem>
+            <MenuItem value="Pending">Unresolved</MenuItem>
             <MenuItem value="Resolved">Resolved</MenuItem>
           </Select>
 

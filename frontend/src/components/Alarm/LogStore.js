@@ -211,14 +211,14 @@ const AlarmLogs = () => {
         .map((log, index) => (
             <tr key={log.id}>
                 <td style={tdStyle}>{(currentPage - 1) * perPage + index + 1}</td>
-                <td style={tdStyle}>{log.record_time}</td>
-                <td style={tdStyle}>{log.Location}</td>
-                <td style={tdStyle}>ACB_3_current</td>
+                <td style={tdStyle}>{log.timeerror}</td>
+                <td style={tdStyle}>{log.location}</td>
+                <td style={tdStyle}>{log.occurrence}</td>
                 
                 <td style={tdStyle}>{log.phase}</td>
-                <td style={tdStyle}>  Outofrange:500</td>
+                <td style={tdStyle}>{log.condition}</td>
                 <td style={tdStyle}>{log.occurrence_count}</td>
-                <td style={tdStyle}>Resolved</td>
+                <td style={tdStyle}>{log.status}</td>
                 
                 <td style={tdStyle}>{log.timeupdate}</td>
             </tr>
