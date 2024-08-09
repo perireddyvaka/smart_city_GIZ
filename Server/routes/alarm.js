@@ -63,7 +63,7 @@ router.get("/alarmcloseddata", async (req, res) => {
 // Fetch alarm data with stage 'N' or 'A'
 router.get("/notidata", async (req, res) => {
   try {
-    const query = "SELECT * FROM alarm WHERE stage = 'A' OR stage = 'N';";
+    const query = "SELECT * FROM alarm WHERE stage = 'N';";
     const { rows } = await client.query(query);
     res.status(200).json(rows);
   } catch (err) {

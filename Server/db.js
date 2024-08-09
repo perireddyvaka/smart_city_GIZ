@@ -18,7 +18,7 @@ const pool = new Pool({
   user: "postgres",
   // host: "postgres",  // Service name of PostgreSQL container in Docker Compose
   host: "postgres",
-  database: "bypldb",
+  database: "bypl",
   password: "postgres",
   port: 5432,
   idleTimeoutMillis: 200000,
