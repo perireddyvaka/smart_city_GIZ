@@ -75,7 +75,7 @@ router.get("/notidata", async (req, res) => {
 // Create a new alarm entry
 router.post("/generated/create", async (req, res) => {
   try {
-    const { status, Location, stage, ...currentValues } = req.body;
+    const { status, location, stage, ...currentValues } = req.body;
     for (const key in req.body) {
       console.log(`${key}: ${req.body[key]}`);
     }
@@ -135,14 +135,14 @@ router.post("/generated/create", async (req, res) => {
           // Update the status to "Error" if threshold exceeded
           updatedStatus = "Unresolved";
           Outofrange = currentValue;
-          await updateAlarm(updatedStatus, final_occ, checkout, "A", req.body.time, `Outofrange:${Outofrange}`, req.body.Location, req.body.phase);
+          await updateAlarm(updatedStatus, final_occ, checkout, "A", req.body.time, `Outofrange:${Outofrange}`, req.body.location, req.body.phase);
         } else if (maxValue !== null && currentValue >= (maxValue * 3) / 4) {
           Notifalg = "N";
           const Noccurrence = `${parameter} `;
           final_occ = Noccurrence;
           updatedStatus = "Unresolved";
           Outofrange = currentValue;
-          await updateAlarm(updatedStatus, final_occ, checkout, "N", req.body.time, `Warning:${Outofrange}`, req.body.Location, req.body.phase);
+          await updateAlarm(updatedStatus, final_occ, checkout, "N", req.body.time, `Warning:${Outofrange}`, req.body.location, req.body.phase);
           console.log("Notification Noted.");
         }
 
@@ -169,16 +169,16 @@ router.post("/generated/create", async (req, res) => {
 });
 
 // Function to update data in the alarm table
-async function updateAlarm(status, occurrence, checkout, stage, time, Outofrange, Location, phase) {
+async function updateAlarm(status, occurrence, checkout, stage, time, Outofrange, location, phase) {
   console.log(Outofrange);
   try {
     const query = `
     INSERT INTO public.alarm(
-	status, occurrence,checklog,stage,timeerror, condition, Location, phase)
+	status, occurrence,checklog,stage,timeerror, condition, location, phase)
 	VALUES ($1,$2,$3,$4,$5,$6,$7, $8);
       
     `;
-    await client.query(query, [status, occurrence, checkout, stage, time, Outofrange, Location, phase]);
+    await client.query(query, [status, occurrence, checkout, stage, time, Outofrange, location, phase]);
     console.log("Data inserted in alarm table successfully");
   } catch (error) {
     console.error("Error updating data in alarm table:", error);
@@ -227,7 +227,7 @@ router.put("/renew/:id", async (req, res) => {
 router.put("/markAsRead/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const query = "UPDATE alarm SET checklog = 'S' WHERE id = $1";
+    const query = "UPDATE alarm SET checklog = 'S', stage = 'D' WHERE id = $1";
     await client.query(query, [id]);
     res.status(200).send("Notification marked as read");
   } catch (err) {
