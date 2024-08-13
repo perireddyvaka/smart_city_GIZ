@@ -2,7 +2,7 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const client = require("../db"); // Import the PostgreSQL client
 const router = express.Router();
-const { v4: uuidv4 } = require("uuid");
+// const { v4: uuidv4 } = require("uuid");
 
 // Fetch alarm count with specific checklog
 router.get("/ncount", async (req, res) => {
@@ -18,17 +18,17 @@ router.get("/ncount", async (req, res) => {
 });
 
 // Fetch alarm count with specific checklog and stage
-router.get("/acount", async (req, res) => {
-  try {
-    const query = "SELECT count(*) FROM alarm WHERE checklog = $1 AND stage = $2";
-    const value = ["N/S", "A"];
-    const { rows } = await client.query(query, value);
-    res.status(200).json(rows);
-  } catch (err) {
-    console.log(err.stack);
-    res.status(500).send("Server Error");
-  }
-});
+// router.get("/acount", async (req, res) => {
+//   try {
+//     const query = "SELECT count(*) FROM alarm WHERE checklog = $1 AND stage = $2";
+//     const value = ["N/S", "A"];
+//     const { rows } = await client.query(query, value);
+//     res.status(200).json(rows);
+//   } catch (err) {
+//     console.log(err.stack);
+//     res.status(500).send("Server Error");
+//   }
+// });
 
 // Fetch alarm data with stage 'A'
 router.get("/alarmdata", async (req, res) => {
@@ -37,7 +37,7 @@ router.get("/alarmdata", async (req, res) => {
     const { rows } = await client.query(query);
     res.status(200).json(rows);
   } catch (err) {
-    console.log(err.stack);
+    console.log("done");
     res.status(500).send("Server Error");
   }
 });
@@ -60,11 +60,10 @@ router.get("/alarmcloseddata", async (req, res) => {
   }
 });
 
-
 // Fetch alarm data with stage 'N' or 'A'
 router.get("/notidata", async (req, res) => {
   try {
-    const query = "SELECT * FROM alarm WHERE stage = 'A' or 'N'";
+    const query = "SELECT * FROM alarm WHERE stage = 'N';";
     const { rows } = await client.query(query);
     res.status(200).json(rows);
   } catch (err) {
@@ -77,14 +76,19 @@ router.get("/notidata", async (req, res) => {
 router.post("/generated/create", async (req, res) => {
   try {
     const { status, location, stage, ...currentValues } = req.body;
+    for (const key in req.body) {
+      console.log(`${key}: ${req.body[key]}`);
+    }
     const checkout = "N/S";
-    // console.log(occurrence);
+    let final_occ = "";
+    let updatedStatus = status; // Create a variable to hold the updated status
+
     // Generate the list of relevant parameters
     const var_list = Object.keys(currentValues);
 
     // Convert numeric currentValues to numbers for comparison
     const parsedCurrentValues = {};
-    var_list.forEach(key => {
+    var_list.forEach((key) => {
       const value = parseFloat(currentValues[key]);
       parsedCurrentValues[key] = isNaN(value) ? currentValues[key] : value;
     });
@@ -106,79 +110,96 @@ router.post("/generated/create", async (req, res) => {
 
     // Function to get value from the threshold lists
     const getThresholdValue = (list, key) => {
-      const valueObj = list.find(obj => obj.hasOwnProperty(key));
+      const valueObj = list.find((obj) => obj.hasOwnProperty(key));
       return valueObj ? valueObj[key] : null;
     };
 
+    let Outofrange;
+    let Notifalg = "";
+
+    console.log("var_list", var_list);
     // Check for each parameter if it exceeds the max threshold value or below the min threshold
+    thrslog = "";
     for (const parameter of var_list) {
       const currentValue = parsedCurrentValues[parameter];
       const maxValue = getThresholdValue(threshold_list_max, parameter);
-      const minValue = getThresholdValue(threshold_list_min, parameter);
+      // const minValue = getThresholdValue(threshold_list_min, parameter);
+      console.log("::", parameter, currentValue, maxValue);
 
-      if (typeof currentValue === 'number') {
-        if (maxValue !== null && currentValue > maxValue) {
-          // const occurrence={}
-          const occurrence = `${parameter} : ${currentValue}`;
-          await insertAlarm(uuidv4(), status, location, occurrence, checkout, 'A');
-          // console.log(`I am here - ${parameter} exceeds the max threshold`);
+      if (typeof currentValue === "number") {
+        console.log("MaxValue", maxValue, " Current Value", currentValue);
+        if (maxValue !== null && currentValue >= maxValue) {
+          const Aoccurrence = `${parameter} `;
+          final_occ = Aoccurrence;
+
+          // Update the status to "Error" if threshold exceeded
+          updatedStatus = "Unresolved";
+          Outofrange = currentValue;
+          await updateAlarm(updatedStatus, final_occ, checkout, "A", req.body.time, `Outofrange:${Outofrange}`, req.body.location, req.body.phase);
+        } else if (maxValue !== null && currentValue >= (maxValue * 3) / 4) {
+          Notifalg = "N";
+          const Noccurrence = `${parameter} `;
+          final_occ = Noccurrence;
+          updatedStatus = "Unresolved";
+          Outofrange = currentValue;
+          await updateAlarm(updatedStatus, final_occ, checkout, "N", req.body.time, `Warning:${Outofrange}`, req.body.location, req.body.phase);
+          console.log("Notification Noted.");
         }
-        if (minValue !== null && currentValue < minValue) {
-          // const occurrence={}
-          const occurrence = `${parameter} : ${currentValue}`;
-          await insertAlarm(uuidv4(), status, location, occurrence, checkout, 'A');
-          console.log(`I am here - ${parameter} is below the min threshold`);
-        }
+
+        // let mmaxValue = maxValue*50/100
+        // if(mmaxValue !== null && currentValue > mmaxValue){
+        //   Outofrange = currentValue;
+        // }
       }
     }
+
+    // Use updatedStatus when calling updateAlarm function
+    // if (Notifalg == "N") {
+    //   await updateAlarm(updatedStatus, final_occ, checkout, "N", req.body.time, `Warning:${Outofrange}`);
+    // }
+    // await updateAlarm(updatedStatus, final_occ, checkout, "A", req.body.time, `Outofrange:${Outofrange}`);
 
     console.log("Max thresholds:", threshold_list_max);
     console.log("Min thresholds:", threshold_list_min);
     res.status(200).send("Data fetched successfully");
-
   } catch (error) {
     console.error(error);
     res.status(500).send("An error occurred");
   }
 });
 
-// Function to insert data into the alarm table
-async function insertAlarm(id, status, location, occurrence, checkout, stage) {
+// Function to update data in the alarm table
+async function updateAlarm(status, occurrence, checkout, stage, time, Outofrange, location, phase) {
+  console.log(Outofrange);
   try {
-    const query =
-      "INSERT INTO alarm (id, status, location, occurrence, checklog, stage) VALUES ($1, $2, $3, $4, $5, $6)";
-    await client.query(query, [
-      id,  
-      status,
-      location,
-      occurrence,
-      checkout,
-      // stageAorN === 'N' ? stageNConditions : stageAorN, // Use stageNConditions when stage is 'N'
-      stage
-    ]);
-    console.log("Data inserted into alarm table successfully");
+    const query = `
+    INSERT INTO public.alarm(
+	status, occurrence,checklog,stage,timeerror, condition, location, phase)
+	VALUES ($1,$2,$3,$4,$5,$6,$7, $8);
+      
+    `;
+    await client.query(query, [status, occurrence, checkout, stage, time, Outofrange, location, phase]);
+    console.log("Data inserted in alarm table successfully");
   } catch (error) {
+    console.error("Error updating data in alarm table:", error);
     throw error;
   }
 }
 
+// Insert data into the alaram table
+//   const query =
+//     "INSERT INTO alarm (id, status, location, occurrence, checklog, stage) VALUES ($1, $2, $3, $4, $5, $6)";
+//   await client.query(query, [
+//     id,
+//     status,
+//     location,
+//     occurrence,
+//     checkout,
+//     stage,
+//   ]);
 
-    
-    // Insert data into the alaram table
-  //   const query =
-  //     "INSERT INTO alarm (id, status, location, occurrence, checklog, stage) VALUES ($1, $2, $3, $4, $5, $6)";
-  //   await client.query(query, [
-  //     id,
-  //     status,
-  //     location,
-  //     occurrence,
-  //     checkout,
-  //     stage,
-  //   ]);
-
-  //   res.status(200).send("Data inserted successfully");
-  // return acb_1_current;
-
+//   res.status(200).send("Data inserted successfully");
+// return acb_1_current;
 
 router.put("/renew/:id", async (req, res) => {
   try {
@@ -206,7 +227,7 @@ router.put("/renew/:id", async (req, res) => {
 router.put("/markAsRead/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const query = "UPDATE alarm SET checklog = 'S' WHERE id = $1";
+    const query = "UPDATE alarm SET checklog = 'S', stage = 'D' WHERE id = $1";
     await client.query(query, [id]);
     res.status(200).send("Notification marked as read");
   } catch (err) {
@@ -215,8 +236,4 @@ router.put("/markAsRead/:id", async (req, res) => {
   }
 });
 
-
 module.exports = router;
-
-
-

@@ -1,16 +1,34 @@
 import React, { useEffect, useState, useRef } from 'react';
-import logo from './logos.png';
+// import logo from './logos.png';
+// import IIITLogo from './iiith.png';
+// import SCRCLogo from './scrc_logo.png';
+// import BSESLogo from './BSES_logo1.png'
 import {
     Dialog,
     Box,
     Typography,
+    makeStyles,
     Button,
 } from '@material-ui/core';
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import ReplayIcon from "@mui/icons-material/Replay";
 import { useNavigate } from 'react-router-dom';
+// import { useHistory } from 'react-router-dom';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import config from '../../config';
 
+const useStyles = makeStyles((theme) => ({
+    pagination: {
+        color: "#fff",
+        // Left: "30vw",
+        position: "relative",
+        left:"85vw",
+        justifyContent: "right",
+        display: "flex",
+        width: "9vw",
+        bottom: "2.vw"
+      },
+}));
 const styles = {
     sessionTimeoutDialog: {
         width: "600px",
@@ -42,14 +60,21 @@ const styles = {
 
 const AppBar = () => {
     const navigate = useNavigate();
+   
+    // const navigate = useNavigate();
     const appbarStyle = {
-        backgroundColor: '#002e41',
+        // marginTop: '1vw',
+        height: '3vw',
+        backgroundColor: 'black',
+        border: '1px solid #fff',
         color: '#ffffff',
-        padding: '10px 20px',
+        padding: '0.3vw 1.9vw',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+        top: '10vw',
+        width: '94.5vw',
+        boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)'
     };
 
     const titleStyle = {
@@ -58,23 +83,26 @@ const AppBar = () => {
 
     return (
         <div style={appbarStyle}>
-            <div>
-                <img
-                    src={logo}
-                    alt=""
-                    style={{ width: '100px', marginRight: '1px' }}
-                    onClick={() => navigate(-1)}
-                />
-            </div>
+             <ArrowBackIcon
+                style={{ cursor: 'pointer', marginRight: '10px' }} 
+                onClick={() => navigate('/Alarmlog')} 
+            />
+           
             <div style={{ flex: '1', textAlign: 'center' }}>
                 <span style={titleStyle}>Alarm Logs History</span>
             </div>
+           
         </div>
     );
 };
 
+const perPage = 5;
 const AlarmLogs = () => {
+    
+    const classes = useStyles();
+    const [totalPages, setTotalPages] = useState(1);
     const [items, setItems] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
     const [sessionTimeoutAlert, setSessionTimeoutAlert] = useState(false);
     const navigate = useNavigate();
     const sessionTimer = useRef(null);
@@ -85,6 +113,7 @@ const AlarmLogs = () => {
                 const response = await fetch(`${config.backendAPI}/alarm/alarmcloseddata`);
                 const data = await response.json();
                 setItems(data);
+                setTotalPages(Math.ceil(data.length / perPage));
             } catch (error) {
                 console.log(error.message);
             }
@@ -93,9 +122,11 @@ const AlarmLogs = () => {
         fetchData();
     }, []);
 
+    
+
     useEffect(() => {
         const startSessionTimer = () => {
-            const sessionDuration = 1 * 24 * 60 * 60 * 1000; // 1 day
+            const sessionDuration = 1 * 24 * 60 * 60 * 60 * 1000; // 1 day
             return setTimeout(() => {
                 setSessionTimeoutAlert(true);
             }, sessionDuration);
@@ -123,54 +154,111 @@ const AlarmLogs = () => {
         navigate("/login");
     };
 
+    const handleNextPage = () => {
+        setCurrentPage((prevPage) => prevPage + 1);
+      };
+    
+      const handlePrevPage = () => {
+        setCurrentPage((prevPage) => prevPage - 1);
+      };
+
+    
     const tableStyle = {
         borderCollapse: 'collapse',
-        width: '100%',
+        width: '95vw',
     };
 
     const thStyle = {
-        border: '1px solid #dddddd',
+        border: '1px solid #fff',
         textAlign: 'left',
-        padding: '8px',
-        backgroundColor: '#f2f2f2',
+        padding: '0.5vw',
+        color: '#fff',
+        backgroundColor: 'black',
     };
 
     const tdStyle = {
-        border: '1px solid #dddddd',
+        border: '1px solid #fff',
         textAlign: 'left',
-        padding: '8px',
+        padding: '0.5vw',
+        color: '#fff',
+        backgroundColor: 'black',
     };
 
     return (
-        <div>
+        <div style={{backgroundColor: "black",}}>
             <AppBar />
-            <div className="alarm-logs" style={{ backgroundColor: '#f5f5f5', padding: '20px' }}>
+            <div className="alarm-logs" 
+            style={{ backgroundColor: 'black', padding: '2vw', height: '39.9vw', width: '94vw' }}>
                 <table style={tableStyle}>
-                    <thead>
-                        <tr>
-                            <th style={thStyle}>Status</th>
-                            <th style={thStyle}>Location</th>
-                            <th style={thStyle}>Problem</th>
-                            <th style={thStyle}>Occurrence Count</th>
-                            <th style={thStyle}>Error Time</th>
-                            <th style={thStyle}>Resolved Time</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {items.map(log => (
-                            <tr key={log.id}>
-                                <td style={tdStyle}>{log.status}</td>
-                                <td style={tdStyle}>{log.location}</td>
-                                <td style={tdStyle}>{log.occurrence}</td>
-                                <td style={tdStyle}>{log.occurrence_count}</td>
-                                <td style={tdStyle}>{log.timeerror}</td>
-                                <td style={tdStyle}>{log.timeupdate}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-            <Dialog
+    <thead>
+        <tr>
+            <th style={thStyle}>Sl.No</th>
+            <th style={thStyle}>Triggered Time</th>
+            <th style={thStyle}>Location</th>
+            <th style={thStyle}>Parameter</th>
+            
+            <th style={thStyle}>Phase</th>
+            <th style={thStyle}>Condition</th>
+            <th style={thStyle}>Occurrence count</th>
+            <th style={thStyle}>Status</th>
+            
+            <th style={thStyle}>Resolved Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        {items
+        .slice((currentPage - 1) * perPage, currentPage * perPage)
+        .map((log, index) => (
+            <tr key={log.id}>
+                <td style={tdStyle}>{(currentPage - 1) * perPage + index + 1}</td>
+                <td style={tdStyle}>{log.timeerror}</td>
+                <td style={tdStyle}>{log.location}</td>
+                <td style={tdStyle}>{log.occurrence}</td>
+                
+                <td style={tdStyle}>{log.phase}</td>
+                <td style={tdStyle}>{log.condition}</td>
+                <td style={tdStyle}>{log.occurrence_count}</td>
+                <td style={tdStyle}>{log.status}</td>
+                
+                <td style={tdStyle}>{log.timeupdate}</td>
+            </tr>
+        ))}
+    </tbody>
+</table>
+
+        <div 
+        style={{
+            marginTop:"0.2vw",
+            width: '2vw'
+            }}>
+        {currentPage > 1 && (
+          <Button
+            className={classes.previousbutton}
+            variant="contained"
+            color="primary"
+            onClick={handlePrevPage}
+          >
+            Previous
+          </Button>
+        )}
+        {items.length > currentPage * perPage && (
+          <Button
+            className={classes.optionContainer}
+            variant="contained"
+            color="primary"
+            onClick={handleNextPage}
+          >
+            Next
+          </Button>
+        )}
+         </div>
+        <Typography style={{width: '10vw', right: '10vw', position: 'relative'}}
+        className={ classes.pagination}>
+          Page {currentPage} of {totalPages}
+        </Typography>
+     
+        </div>
+            {/* <Dialog
                 open={sessionTimeoutAlert}
                 onClose={handleSessionTimeoutAlertClose}
                 PaperProps={{
@@ -196,7 +284,7 @@ const AlarmLogs = () => {
                 >
                     OK
                 </Button>
-            </Dialog>
+            </Dialog> */}
         </div>
     );
 }

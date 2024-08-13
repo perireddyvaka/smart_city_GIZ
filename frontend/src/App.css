@@ -1,10 +1,16 @@
 .App {
   text-align: center;
+  background-color: rgb(7, 7, 7);
 }
 
 .App-logo {
   height: 40vmin;
   pointer-events: none;
+}
+
+body {
+  background-color: rgb(0, 0, 0);
+  color: rgb(4, 4, 4); /* Optional: to ensure text is visible on a black background */
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -21,7 +27,7 @@
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
+  color: rgb(15, 14, 14);
 }
 
 .App-link {

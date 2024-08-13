@@ -13,17 +13,17 @@ RUN npm install --legacy-peer-deps
 # Step 5: Copy the rest of the application
 COPY . .
 
-# Step 6: Build the application
+# Build the React app
 RUN npm run build
 
-# Step 7: Use an official Nginx runtime as a parent image
+# Use a lightweight Nginx image to serve the production build
 FROM nginx:alpine
 
-# Step 8: Copy the built application from the previous stage
+# Copy the production build from the build stage to the Nginx image
 COPY --from=build /app/build /usr/share/nginx/html
 
-# Step 9: Expose port 80
+# Expose port 80 for the Nginx web server
 EXPOSE 80
 
-# Step 10: Command to run Nginx
+# Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
